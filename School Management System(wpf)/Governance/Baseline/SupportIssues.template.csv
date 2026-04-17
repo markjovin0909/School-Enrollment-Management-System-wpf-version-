@@ -1,0 +1,2 @@
+issue_id,opened_utc,closed_utc,module,severity,source,status,resolution_minutes,notes
+SUP-0001,2026-04-01T08:00:00Z,,Enrollment,High,ServiceDesk,Open,,"Sample row"

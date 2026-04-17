@@ -1,0 +1,28 @@
+<UserControl x:Class="School_Management_System.Controls.SectionHeader"
+             x:Name="Root"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <DockPanel>
+        <ContentControl Content="{Binding ActionsContent, ElementName=Root}"
+                        DockPanel.Dock="Right"
+                        VerticalAlignment="Center"/>
+        <StackPanel>
+            <TextBlock Text="{Binding Title, ElementName=Root}" Style="{StaticResource Text.SectionTitle}" Margin="0,0,0,2"/>
+            <TextBlock Text="{Binding Subtitle, ElementName=Root}" Margin="0,0,0,1">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock" BasedOn="{StaticResource Text.Subtitle}">
+                        <Setter Property="Visibility" Value="Visible"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Subtitle, ElementName=Root}" Value="">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Subtitle, ElementName=Root}" Value="{x:Null}">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
+        </StackPanel>
+    </DockPanel>
+</UserControl>

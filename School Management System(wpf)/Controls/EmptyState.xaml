@@ -1,0 +1,11 @@
+﻿<UserControl x:Class="School_Management_System.Controls.EmptyState"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             MinHeight="180">
+    <Border Style="{StaticResource CardPanel}" Background="{StaticResource Brush.SurfaceAlt}">
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20">
+            <TextBlock Text="{Binding Title, RelativeSource={RelativeSource AncestorType=UserControl}}" Style="{StaticResource Text.SectionTitle}" HorizontalAlignment="Center"/>
+            <TextBlock Text="{Binding Message, RelativeSource={RelativeSource AncestorType=UserControl}}" Style="{StaticResource Text.Subtitle}" TextWrapping="Wrap" TextAlignment="Center" MaxWidth="420" Margin="0,8,0,0"/>
+        </StackPanel>
+    </Border>
+</UserControl>

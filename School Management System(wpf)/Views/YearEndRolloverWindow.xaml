@@ -1,0 +1,64 @@
+<Window x:Class="School_Management_System.Views.YearEndRolloverWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:School_Management_System.Controls"
+        Title="Year-End Rollover"
+        Width="980" Height="660"
+        MinWidth="860" MinHeight="560"
+        WindowStartupLocation="CenterOwner">
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <controls:SectionHeader Grid.Row="0"
+                                Title="Year-End Rollover"
+                                Subtitle="Preview and execute school-year data rollover with safety options"
+                                Margin="0,0,0,10"/>
+
+        <Border Grid.Row="1" BorderBrush="{StaticResource BrushBorder}" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,0,0,10" Background="White">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,12,0">
+                    <TextBlock Text="Source School Year" Margin="0,0,0,4"/>
+                    <ComboBox x:Name="cboSourceYear" DisplayMemberPath="Name" SelectedValuePath="Id"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,12,0">
+                    <TextBlock Text="Target School Year" Margin="0,0,0,4"/>
+                    <ComboBox x:Name="cboTargetYear" DisplayMemberPath="Name" SelectedValuePath="Id"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Bottom">
+                    <Button x:Name="btnPreview" Content="Preview" Width="92" Style="{StaticResource GhostButton}"/>
+                    <Button x:Name="btnRun" Content="Run Rollover" Width="120"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="1" Grid.ColumnSpan="3" Orientation="Horizontal" Margin="0,10,0,0">
+                    <CheckBox x:Name="chkCreateSnapshot" Content="Create archive snapshot before mutation" Margin="0,0,16,0"/>
+                    <CheckBox x:Name="chkCloseSourceYear" Content="Close source school year after run"/>
+                    <TextBlock Text="Type ROLLOVER:" Margin="16,0,8,0" VerticalAlignment="Center"/>
+                    <TextBox x:Name="txtRunAcknowledge" Width="140"/>
+                </StackPanel>
+
+                <Border Grid.Row="2" Grid.ColumnSpan="3" Style="{StaticResource WarningBanner}" Margin="0,10,0,0">
+                    <TextBlock x:Name="txtPreflightStatus" TextWrapping="Wrap"/>
+                </Border>
+            </Grid>
+        </Border>
+
+        <TextBox Grid.Row="2" x:Name="txtResult" IsReadOnly="True" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"/>
+    </Grid>
+</Window>

@@ -1,0 +1,8 @@
+﻿<UserControl x:Class="School_Management_System.Controls.PageHeader"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel>
+        <TextBlock Text="{Binding Title, RelativeSource={RelativeSource AncestorType=UserControl}}" Style="{StaticResource Text.PageTitle}"/>
+        <TextBlock Text="{Binding Subtitle, RelativeSource={RelativeSource AncestorType=UserControl}}" Style="{StaticResource Text.Subtitle}"/>
+    </StackPanel>
+</UserControl>

@@ -1,0 +1,52 @@
+<Window x:Class="School_Management_System.Views.DatabaseConfigurationWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Database Settings"
+        Width="980"
+        Height="700"
+        WindowStartupLocation="CenterScreen"
+        MinWidth="860"
+        MinHeight="620">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0"
+                   Text="Database Configuration"
+                   FontSize="24"
+                   FontWeight="Bold"
+                   Margin="4,0,4,12"/>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,12">
+            <Label Content="Active Environment:" VerticalAlignment="Center"/>
+            <ComboBox x:Name="cmbEnvironment" Width="220" Margin="6,0,0,0"/>
+        </StackPanel>
+
+        <GroupBox Grid.Row="2" Header="DbLocal (Localhost)">
+            <TextBox x:Name="txtLocal" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" FontFamily="Consolas" FontSize="12"/>
+        </GroupBox>
+
+        <GroupBox Grid.Row="3" Header="DbRemote (Remote Network)">
+            <TextBox x:Name="txtRemote" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" FontFamily="Consolas" FontSize="12"/>
+        </GroupBox>
+
+        <GroupBox Grid.Row="4" Header="DbOnline (Cloud)">
+            <TextBox x:Name="txtOnline" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" FontFamily="Consolas" FontSize="12"/>
+        </GroupBox>
+
+        <DockPanel Grid.Row="5" Margin="0,12,0,0">
+            <TextBlock x:Name="txtStatus" DockPanel.Dock="Left" VerticalAlignment="Center" Foreground="#FF0F4E80"/>
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button x:Name="btnValidate" Content="Validate" Width="110" Style="{StaticResource GhostButton}"/>
+                <Button x:Name="btnSave" Content="Save" Width="110"/>
+                <Button x:Name="btnClose" Content="Close" Width="110" Style="{StaticResource GhostButton}"/>
+            </StackPanel>
+        </DockPanel>
+    </Grid>
+</Window>

@@ -1,0 +1,80 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Core semantic colors -->
+    <Color x:Key="Color.Background">#F3F6FB</Color>
+    <Color x:Key="Color.Surface">#FFFFFF</Color>
+    <Color x:Key="Color.SurfaceAlt">#F7F9FD</Color>
+    <Color x:Key="Color.Primary">#0F6CBD</Color>
+    <Color x:Key="Color.PrimaryHover">#0D5FA8</Color>
+    <Color x:Key="Color.PrimaryPressed">#0A4F8B</Color>
+    <Color x:Key="Color.NavSurface">#0B1324</Color>
+    <Color x:Key="Color.NavSurfaceAlt">#0F1B32</Color>
+    <Color x:Key="Color.Border">#D6DEEA</Color>
+    <Color x:Key="Color.BorderStrong">#BDCBDD</Color>
+    <Color x:Key="Color.TextPrimary">#142033</Color>
+    <Color x:Key="Color.TextSecondary">#56667D</Color>
+    <Color x:Key="Color.TextInverse">#E6EEF9</Color>
+    <Color x:Key="Color.Focus">#93C5FD</Color>
+    <Color x:Key="Color.NavRailBorder">#233A5E</Color>
+    <Color x:Key="Color.NavButton">#183757</Color>
+    <Color x:Key="Color.NavButtonHover">#1F456D</Color>
+    <Color x:Key="Color.NavButtonActive">#22A8E0</Color>
+    <Color x:Key="Color.NavButtonBorder">#2C5883</Color>
+    <Color x:Key="Color.NavButtonActiveBorder">#6ED4F6</Color>
+    <Color x:Key="Color.NavButtonText">#DDEAFB</Color>
+    <Color x:Key="Color.NavButtonTextActive">#072338</Color>
+    <Color x:Key="Color.NavHintText">#B7CAE5</Color>
+
+    <Color x:Key="Color.Success">#15803D</Color>
+    <Color x:Key="Color.Warning">#B45309</Color>
+    <Color x:Key="Color.Danger">#B91C1C</Color>
+    <Color x:Key="Color.Info">#0369A1</Color>
+
+    <!-- Compatibility keys used by existing views/code -->
+    <Color x:Key="ColorBg" >#F3F6FB</Color>
+    <Color x:Key="ColorSurface">#FFFFFF</Color>
+    <Color x:Key="ColorPrimary">#0F6CBD</Color>
+    <Color x:Key="ColorPrimaryDark">#0A4F8B</Color>
+    <Color x:Key="ColorAccent">#22A8E0</Color>
+    <Color x:Key="ColorText">#142033</Color>
+    <Color x:Key="ColorMuted">#56667D</Color>
+    <Color x:Key="ColorBorder">#D6DEEA</Color>
+
+    <SolidColorBrush x:Key="Brush.Background" Color="{StaticResource Color.Background}"/>
+    <SolidColorBrush x:Key="Brush.Surface" Color="{StaticResource Color.Surface}"/>
+    <SolidColorBrush x:Key="Brush.SurfaceAlt" Color="{StaticResource Color.SurfaceAlt}"/>
+    <SolidColorBrush x:Key="Brush.Primary" Color="{StaticResource Color.Primary}"/>
+    <SolidColorBrush x:Key="Brush.PrimaryHover" Color="{StaticResource Color.PrimaryHover}"/>
+    <SolidColorBrush x:Key="Brush.PrimaryPressed" Color="{StaticResource Color.PrimaryPressed}"/>
+    <SolidColorBrush x:Key="Brush.NavSurface" Color="{StaticResource Color.NavSurface}"/>
+    <SolidColorBrush x:Key="Brush.NavSurfaceAlt" Color="{StaticResource Color.NavSurfaceAlt}"/>
+    <SolidColorBrush x:Key="Brush.Border" Color="{StaticResource Color.Border}"/>
+    <SolidColorBrush x:Key="Brush.BorderStrong" Color="{StaticResource Color.BorderStrong}"/>
+    <SolidColorBrush x:Key="Brush.TextPrimary" Color="{StaticResource Color.TextPrimary}"/>
+    <SolidColorBrush x:Key="Brush.TextSecondary" Color="{StaticResource Color.TextSecondary}"/>
+    <SolidColorBrush x:Key="Brush.TextInverse" Color="{StaticResource Color.TextInverse}"/>
+    <SolidColorBrush x:Key="Brush.Focus" Color="{StaticResource Color.Focus}"/>
+    <SolidColorBrush x:Key="Brush.NavRailBorder" Color="{StaticResource Color.NavRailBorder}"/>
+    <SolidColorBrush x:Key="Brush.NavButton" Color="{StaticResource Color.NavButton}"/>
+    <SolidColorBrush x:Key="Brush.NavButtonHover" Color="{StaticResource Color.NavButtonHover}"/>
+    <SolidColorBrush x:Key="Brush.NavButtonActive" Color="{StaticResource Color.NavButtonActive}"/>
+    <SolidColorBrush x:Key="Brush.NavButtonBorder" Color="{StaticResource Color.NavButtonBorder}"/>
+    <SolidColorBrush x:Key="Brush.NavButtonActiveBorder" Color="{StaticResource Color.NavButtonActiveBorder}"/>
+    <SolidColorBrush x:Key="Brush.NavButtonText" Color="{StaticResource Color.NavButtonText}"/>
+    <SolidColorBrush x:Key="Brush.NavButtonTextActive" Color="{StaticResource Color.NavButtonTextActive}"/>
+    <SolidColorBrush x:Key="Brush.NavHintText" Color="{StaticResource Color.NavHintText}"/>
+    <SolidColorBrush x:Key="Brush.Success" Color="{StaticResource Color.Success}"/>
+    <SolidColorBrush x:Key="Brush.Warning" Color="{StaticResource Color.Warning}"/>
+    <SolidColorBrush x:Key="Brush.Danger" Color="{StaticResource Color.Danger}"/>
+    <SolidColorBrush x:Key="Brush.Info" Color="{StaticResource Color.Info}"/>
+
+    <!-- Backward-compatible brush keys -->
+    <SolidColorBrush x:Key="BrushBg" Color="{StaticResource ColorBg}"/>
+    <SolidColorBrush x:Key="BrushSurface" Color="{StaticResource ColorSurface}"/>
+    <SolidColorBrush x:Key="BrushPrimary" Color="{StaticResource ColorPrimary}"/>
+    <SolidColorBrush x:Key="BrushPrimaryDark" Color="{StaticResource ColorPrimaryDark}"/>
+    <SolidColorBrush x:Key="BrushAccent" Color="{StaticResource ColorAccent}"/>
+    <SolidColorBrush x:Key="BrushText" Color="{StaticResource ColorText}"/>
+    <SolidColorBrush x:Key="BrushMuted" Color="{StaticResource ColorMuted}"/>
+    <SolidColorBrush x:Key="BrushBorder" Color="{StaticResource ColorBorder}"/>
+</ResourceDictionary>

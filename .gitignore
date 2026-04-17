@@ -1,0 +1,12 @@
+.vs/
+**/bin/
+**/obj/
+**/*.user
+**/*.suo
+**/*.cache
+**/*_wpftmp.*
+**/*.pdb
+SMS Setup/Release/
+
+# Local environment overrides
+School Management System(wpf)/App.Release.config

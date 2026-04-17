@@ -1,0 +1,68 @@
+<Window x:Class="School_Management_System.Views.ClassOfferingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:School_Management_System.Controls"
+        Title="Class Offerings"
+        Width="1280" Height="760"
+        MinWidth="1080" MinHeight="620"
+        WindowStartupLocation="CenterOwner">
+    <Grid Margin="12">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1.6*"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <controls:SectionHeader Grid.Row="0" Grid.ColumnSpan="2"
+                                Title="Class Offerings"
+                                Subtitle="Review generated class offerings and finalize assignment states"
+                                Margin="0,0,0,10"/>
+
+        <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,8,8" Padding="10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="190"/>
+                    <ColumnDefinition Width="120"/>
+                    <ColumnDefinition Width="160"/>
+                    <ColumnDefinition Width="220"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <ComboBox Grid.Column="0" x:Name="cboSchoolYear" Margin="0,0,8,0" DisplayMemberPath="Name" SelectedValuePath="Id"/>
+                <ComboBox Grid.Column="1" x:Name="cboGradeLevel" Margin="0,0,8,0" DisplayMemberPath="Code" SelectedValuePath="Id"/>
+                <ComboBox Grid.Column="2" x:Name="cboSection" Margin="0,0,8,0" DisplayMemberPath="Name" SelectedValuePath="Id"/>
+                <TextBox Grid.Column="3" x:Name="txtSearch" Margin="0,0,8,0"/>
+                <Button Grid.Column="4" x:Name="btnRefresh" Content="Refresh" Width="90" Style="{StaticResource GhostButton}"/>
+            </Grid>
+        </Border>
+
+        <DataGrid Grid.Row="2" Grid.Column="0" x:Name="gridOfferings" IsReadOnly="True" Margin="0,0,8,0"/>
+
+        <ScrollViewer Grid.Row="1" Grid.RowSpan="2" Grid.Column="1" Margin="8,0,0,0" VerticalScrollBarVisibility="Auto">
+            <Border Style="{StaticResource CardPanel}">
+                <StackPanel>
+                    <controls:SectionHeader Title="Offering Details" Subtitle="Teacher assignment and state transitions" Margin="0,0,0,8"/>
+                    <Label Content="Subject"/>
+                    <TextBox x:Name="txtSubject" IsReadOnly="True"/>
+                    <Label Content="Teacher" Margin="0,8,0,0"/>
+                    <ComboBox x:Name="cboTeacher" DisplayMemberPath="Name" SelectedValuePath="Id"/>
+                    <Label Content="Status" Margin="0,8,0,0"/>
+                    <ComboBox x:Name="cboStatus"/>
+                    <Label Content="Room" Margin="0,8,0,0"/>
+                    <TextBox x:Name="txtRoom"/>
+
+                    <WrapPanel Margin="0,12,0,0">
+                        <Button x:Name="btnGenerate" Content="Generate" Width="96"/>
+                        <Button x:Name="btnSave" Content="Save" Width="90"/>
+                        <Button x:Name="btnFinalize" Content="Finalize" Width="90" Style="{StaticResource GhostButton}"/>
+                        <Button x:Name="btnDelete" Content="Delete" Width="90" Style="{StaticResource GhostButton}"/>
+                        <Button x:Name="btnClear" Content="Clear" Width="90" Style="{StaticResource GhostButton}"/>
+                    </WrapPanel>
+                </StackPanel>
+            </Border>
+        </ScrollViewer>
+    </Grid>
+</Window>

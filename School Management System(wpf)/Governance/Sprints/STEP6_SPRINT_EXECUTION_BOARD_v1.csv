@@ -1,0 +1,21 @@
+sprint_id,sprint_window,sprint_goal,ticket_id,ticket_title,priority,phase,depends_on,owner_suggested,estimate_days,status,acceptance_gate
+S1,Week1-Week2,Establish consistency and governance foundations,QW-01,Unify status badges and action hierarchy,P0,Quick Wins,,Frontend/WPF,2,Implemented,UI consistency check passed
+S1,Week1-Week2,Establish consistency and governance foundations,QW-02,Inline validation standard + blocking summary,P0,Quick Wins,QW-01,Frontend/WPF,3,Implemented,Form validation behavior check passed
+S1,Week1-Week2,Establish consistency and governance foundations,QW-03,Reason code capture for governed decisions,P0,Quick Wins,QW-02,Backend+Frontend,3,Implemented,Governed action reason enforcement check passed
+S1,Week1-Week2,Establish consistency and governance foundations,QW-06,Audit payload completeness validator,P1,Quick Wins,QW-03,Backend,2,Implemented,Audit completeness check passed
+S2,Week3,Reduce operator friction and harden critical gating,QW-04,Persistent search/filter/sort presets,P1,Quick Wins,QW-01,Frontend/WPF,3,Implemented,Table persistence check passed
+S2,Week3,Reduce operator friction and harden critical gating,QW-05,Operational warning cards (requirements waitlist failures),P1,Quick Wins,QW-01,Frontend+Backend,3,Implemented,Dashboard warning card check passed
+S2,Week3,Reduce operator friction and harden critical gating,QW-07,Preflight gate for restore and rollover execute buttons,P1,Quick Wins,QW-03,Frontend+Backend,2,Implemented,Tier3 execute gating check passed
+S3,Week4-Week5,Consolidate workflow context into primary work surfaces,ME-01,Convert module interactions to consistent list-detail workspace,P0,Medium,QW-01,Frontend/WPF,5,Implemented,Screen pattern consistency check passed
+S3,Week4-Week5,Consolidate workflow context into primary work surfaces,ME-02,Enrollment review workbench (queue detail decision),P0,Medium,QW-03;ME-01,Frontend+Backend,6,Implemented,Enrollment workbench end-to-end check passed
+S4,Week6,Make requirements and queue quality first-class,ME-03,Unified requirement checklist component,P0,Medium,QW-02,Frontend+Backend,5,Implemented,Requirement status consistency check passed
+S4,Week6,Make requirements and queue quality first-class,ME-06,Queue aging indicators and SLA visuals,P1,Medium,ME-02,Frontend,3,Implemented,Queue SLA visualization check passed
+S5,Week7,Harden archive reports and restore operational safety,ME-04,Dependency impact preview before archive/restore,P1,Medium,QW-07,Backend+Frontend,4,Implemented,Dependency preview check passed
+S5,Week7,Harden archive reports and restore operational safety,ME-05,Saved presets + run history integration,P1,Medium,QW-04,Frontend+Backend,4,Implemented,Report preset reuse check passed
+S5,Week7,Harden archive reports and restore operational safety,ME-07,Restore conflict and forced session refresh,P1,Medium,QW-07,Backend+Frontend,3,Implemented,Restore conflict/session refresh check passed
+S6,Week8-Week9,Policy-driven transition governance and permission scaffolding,SR-01,Implement explicit enrollment state machine service,P0,Structural,ME-02;QW-03,Backend,8,Implemented,Forbidden transition block check passed
+S6,Week8-Week9,Policy-driven transition governance and permission scaffolding,SR-02,Permission boundary layer for future role expansion,P0,Structural,QW-06,Backend,6,Implemented,Permission key matrix check passed
+S7,Week10-Week11,Reusable operational safety framework,SR-03,Shared preflight framework for critical ops,P0,Structural,QW-07;ME-07,Backend,7,Implemented,Preflight framework integration check passed
+S8,Week12+,Analytics traceability and exception management,SR-04,Operational metrics dashboard service,P1,Structural,QW-05;SR-01,Backend+Frontend,8,Implemented,Trend analytics check passed
+S8,Week12+,Analytics traceability and exception management,SR-05,Exception queue architecture for edge cases,P1,Structural,ME-02;ME-04;SR-01,Backend+Frontend,7,Implemented,Exception queue workflow check passed
+S8,Week12+,Analytics traceability and exception management,SR-06,Correlation/request-id propagation for governed actions,P1,Structural,QW-06,Backend,4,Implemented,Cross-log traceability check passed

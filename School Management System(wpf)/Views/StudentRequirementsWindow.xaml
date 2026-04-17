@@ -1,0 +1,64 @@
+<Window x:Class="School_Management_System.Views.StudentRequirementsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:School_Management_System.Controls"
+        Title="Student Requirements"
+        Width="1080" Height="680"
+        MinWidth="920" MinHeight="560"
+        WindowStartupLocation="CenterOwner">
+    <Grid Margin="12">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1.45*"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <controls:SectionHeader Grid.Row="0" Grid.ColumnSpan="2"
+                                Title="Student Requirements"
+                                Subtitle="Track required document submission and compliance notes"
+                                Margin="0,0,0,10"/>
+
+        <Border Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource CardPanel}" Margin="0,0,0,8" Padding="10">
+            <DockPanel>
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
+                    <TextBlock Text="Student" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <ComboBox x:Name="cboStudent" Width="420" DisplayMemberPath="Label" SelectedValuePath="Id"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                    <TextBlock x:Name="txtSummary" VerticalAlignment="Center" Margin="0,0,12,0" Foreground="{StaticResource BrushMuted}"/>
+                    <Button x:Name="btnRefresh" Content="Refresh" Width="92" Style="{StaticResource GhostButton}"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <controls:RequirementChecklistPanel Grid.Row="2" Grid.Column="0"
+                                            x:Name="requirementsChecklistPanel"
+                                            Title="Checklist Overview"
+                                            Margin="0,0,8,0"/>
+
+        <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource CardPanel}" Margin="8,0,0,0">
+            <StackPanel>
+                <controls:SectionHeader Title="Requirement Details" Subtitle="Manage submission state and notes" Margin="0,0,0,8"/>
+                <Label Content="Requirement"/>
+                <ComboBox x:Name="cboRequirement" IsEditable="True"/>
+                <Label Content="Checklist Status" Margin="0,8,0,0"/>
+                <ComboBox x:Name="cboRequirementStatus"/>
+                <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                    <TextBlock Text="Submitted Date" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <DatePicker x:Name="dpSubmitted" Width="160"/>
+                </StackPanel>
+                <Label Content="Notes" Margin="0,8,0,0"/>
+                <TextBox x:Name="txtNotes" Height="190" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"/>
+                <WrapPanel Margin="0,10,0,0">
+                    <Button x:Name="btnAdd" Content="Add" Width="90"/>
+                    <Button x:Name="btnSave" Content="Save" Width="90"/>
+                    <Button x:Name="btnDelete" Content="Delete" Width="90" Style="{StaticResource GhostButton}"/>
+                </WrapPanel>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

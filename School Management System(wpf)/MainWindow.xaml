@@ -1,0 +1,1166 @@
+﻿<Window x:Class="School_Management_System.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:School_Management_System.Controls"
+        Title="School Management System"
+        Width="1500" Height="920" MinWidth="1180" MinHeight="760"
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized">
+    <Grid Background="{StaticResource Brush.Background}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="248"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Left navigation rail -->
+        <Border Grid.Column="0" BorderBrush="{StaticResource Brush.NavRailBorder}" BorderThickness="0,0,1,0" Padding="18,20,18,16">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="{StaticResource Color.NavSurface}" Offset="0"/>
+                    <GradientStop Color="{StaticResource Color.NavSurfaceAlt}" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.Background>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Margin="0,0,0,14">
+                    <TextBlock Text="EMS" FontSize="34" FontWeight="Bold" Foreground="#F3F8FF"/>
+                    <TextBlock Text="SUPERADMIN PORTAL" Style="{StaticResource NavSectionLabel}" Margin="0,2,0,0"/>
+                </StackPanel>
+
+                <Border Grid.Row="1" Style="{StaticResource InfoBanner}" Background="#112E50" BorderBrush="#2B5687" Margin="0,0,0,16">
+                    <TextBlock Text="Enrollment, staffing, reports, and administration" Foreground="#DDE8FA" TextWrapping="Wrap" FontSize="12"/>
+                </Border>
+
+                <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel>
+                        <Button x:Name="btnNavDashboard" Content="Dashboard" Style="{StaticResource SideNavButton}"/>
+                        <Button x:Name="btnNavStudents" Content="Students" Style="{StaticResource SideNavButton}"/>
+                        <Button x:Name="btnNavTeachers" Content="Teachers" Style="{StaticResource SideNavButton}"/>
+                        <Button x:Name="btnNavEnrollment" Content="Enrollment" Style="{StaticResource SideNavButton}"/>
+                        <Button x:Name="btnNavReports" Content="Reports" Style="{StaticResource SideNavButton}"/>
+                        <Button x:Name="btnNavMasterData" Content="Master Data" Style="{StaticResource SideNavButton}"/>
+                        <Button x:Name="btnNavScheduling" Content="Scheduling" Style="{StaticResource SideNavButton}"/>
+                        <Button x:Name="btnNavAccountsCompliance" Content="Accounts &amp; Compliance" Style="{StaticResource SideNavButton}"/>
+                        <Button x:Name="btnNavMaintenance" Content="Maintenance" Style="{StaticResource SideNavButton}"/>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <Border Grid.Row="3" Style="{StaticResource InfoBanner}" Background="#102747" BorderBrush="#294C78" Margin="0,16,0,0">
+                    <TextBlock Text="Backend parity is preserved while the desktop UX is modernized for faster admin workflows." Foreground="#C7D9F0" TextWrapping="Wrap" FontSize="11"/>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- Workspace -->
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Top command bar -->
+            <Border Grid.Row="0" Background="{StaticResource Brush.Surface}" BorderBrush="{StaticResource Brush.Border}" BorderThickness="0,0,0,1">
+                <Grid Margin="20,12,20,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center" Margin="0,0,18,0">
+                        <TextBlock Text="Enrollment Management System" FontSize="20" FontWeight="SemiBold"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                            <TextBlock x:Name="txtCurrentUser" Style="{StaticResource Text.CaptionStrong}"/>
+                            <TextBlock Text="  •  " Style="{StaticResource Text.Caption}"/>
+                            <TextBlock x:Name="txtCurrentEnvironment" Foreground="{StaticResource Brush.Info}" Style="{StaticResource Text.CaptionStrong}"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <WrapPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center" ItemHeight="34">
+                        <Button x:Name="btnTopDbSettings" Content="DB Settings" Style="{StaticResource GhostButton}" Margin="0,0,8,0"/>
+                        <Button x:Name="btnTopChangePassword" Content="Change Password" Style="{StaticResource GhostButton}" Margin="0,0,8,0"/>
+                        <Button x:Name="btnTopActivity" Content="Activity History" Style="{StaticResource GhostButton}" Margin="0,0,8,0"/>
+                        <Button x:Name="btnTopLogout" Content="Logout" Style="{StaticResource DangerGhostButton}"/>
+                    </WrapPanel>
+                </Grid>
+            </Border>
+
+            <Border Grid.Row="1" Padding="18,16,18,18" Background="{StaticResource Brush.Background}">
+                <TabControl x:Name="tabsMain">
+                    <TabControl.ItemContainerStyle>
+                        <Style TargetType="TabItem">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                        </Style>
+                    </TabControl.ItemContainerStyle>
+
+                    <!-- Dashboard -->
+                    <TabItem Header="Dashboard">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <Grid Grid.Row="0" Margin="0,0,0,12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Dashboard" Style="{StaticResource Text.PageTitle}"/>
+                                    <TextBlock Text="Live enrollment, staffing, and operational graph overview" Style="{StaticResource Text.Subtitle}"/>
+                                </StackPanel>
+
+                                <Button x:Name="btnDashboardRefresh"
+                                        Grid.Column="1"
+                                        Content="Refresh"
+                                        Margin="12,0,0,0"
+                                        VerticalAlignment="Center"
+                                        Style="{StaticResource PageActionButton}"/>
+                            </Grid>
+
+                            <UniformGrid Grid.Row="1" Columns="6" Margin="0,0,0,12">
+                                <Border Style="{StaticResource CardPanel}" Margin="0,0,10,0"><StackPanel><TextBlock Text="Students" Style="{StaticResource Text.Caption}"/><TextBlock x:Name="cardStudents" Style="{StaticResource Text.Metric}"/></StackPanel></Border>
+                                <Border Style="{StaticResource CardPanel}" Margin="0,0,10,0"><StackPanel><TextBlock Text="Teachers" Style="{StaticResource Text.Caption}"/><TextBlock x:Name="cardTeachers" Style="{StaticResource Text.Metric}"/></StackPanel></Border>
+                                <Border Style="{StaticResource CardPanel}" Margin="0,0,10,0"><StackPanel><TextBlock Text="Sections" Style="{StaticResource Text.Caption}"/><TextBlock x:Name="cardSections" Style="{StaticResource Text.Metric}"/></StackPanel></Border>
+                                <Border Style="{StaticResource CardPanel}" Margin="0,0,10,0"><StackPanel><TextBlock Text="Offerings" Style="{StaticResource Text.Caption}"/><TextBlock x:Name="cardOfferings" Style="{StaticResource Text.Metric}"/></StackPanel></Border>
+                                <Border Style="{StaticResource CardPanel}" Margin="0,0,10,0"><StackPanel><TextBlock Text="Enrolled" Style="{StaticResource Text.Caption}"/><TextBlock x:Name="cardEnrolled" Style="{StaticResource Text.Metric}"/></StackPanel></Border>
+                                <Border Style="{StaticResource CardPanel}"><StackPanel><TextBlock Text="Pending" Style="{StaticResource Text.Caption}"/><TextBlock x:Name="cardPending" Style="{StaticResource Text.Metric}"/></StackPanel></Border>
+                            </UniformGrid>
+
+                            <UniformGrid Grid.Row="2" Columns="3" Margin="0,0,0,12">
+                                <Border Style="{StaticResource WarningBanner}" Margin="0,0,10,0">
+                                    <StackPanel>
+                                        <TextBlock Text="Requirement Alerts" Style="{StaticResource Text.CaptionStrong}" Foreground="{StaticResource Brush.Warning}"/>
+                                        <TextBlock x:Name="txtDashboardRequirementsWarning" Style="{StaticResource Text.Caption}" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource InfoBanner}" Margin="0,0,10,0">
+                                    <StackPanel>
+                                        <TextBlock Text="Waitlist Pressure" Style="{StaticResource Text.CaptionStrong}" Foreground="{StaticResource Brush.Info}"/>
+                                        <TextBlock x:Name="txtDashboardWaitlistWarning" Style="{StaticResource Text.Caption}" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource ErrorBanner}">
+                                    <StackPanel>
+                                        <TextBlock Text="Backup / Restore Health" Style="{StaticResource Text.CaptionStrong}" Foreground="{StaticResource Brush.Danger}"/>
+                                        <TextBlock x:Name="txtDashboardBackupWarning" Style="{StaticResource Text.Caption}" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </Border>
+                            </UniformGrid>
+
+                            <UniformGrid Grid.Row="3" Columns="4" Margin="0,0,0,12">
+                                <Border Style="{StaticResource CardPanel}" Margin="0,0,10,0">
+                                    <StackPanel>
+                                        <TextBlock Text="Queue Aging" Style="{StaticResource Text.CaptionStrong}"/>
+                                        <TextBlock x:Name="txtMetricQueueAgingValue" Style="{StaticResource Text.Metric}" Margin="0,4,0,0"/>
+                                        <TextBlock x:Name="txtMetricQueueAgingTrend" Style="{StaticResource Text.Caption}" Margin="0,2,0,0" TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource CardPanel}" Margin="0,0,10,0">
+                                    <StackPanel>
+                                        <TextBlock Text="Decision Reversals" Style="{StaticResource Text.CaptionStrong}"/>
+                                        <TextBlock x:Name="txtMetricDecisionReversalsValue" Style="{StaticResource Text.Metric}" Margin="0,4,0,0"/>
+                                        <TextBlock x:Name="txtMetricDecisionReversalsTrend" Style="{StaticResource Text.Caption}" Margin="0,2,0,0" TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource CardPanel}" Margin="0,0,10,0">
+                                    <StackPanel>
+                                        <TextBlock Text="Waitlist Pressure" Style="{StaticResource Text.CaptionStrong}"/>
+                                        <TextBlock x:Name="txtMetricWaitlistPressureValue" Style="{StaticResource Text.Metric}" Margin="0,4,0,0"/>
+                                        <TextBlock x:Name="txtMetricWaitlistPressureTrend" Style="{StaticResource Text.Caption}" Margin="0,2,0,0" TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource CardPanel}">
+                                    <StackPanel>
+                                        <TextBlock Text="Failed Critical Ops" Style="{StaticResource Text.CaptionStrong}"/>
+                                        <TextBlock x:Name="txtMetricFailedOpsValue" Style="{StaticResource Text.Metric}" Margin="0,4,0,0"/>
+                                        <TextBlock x:Name="txtMetricFailedOpsTrend" Style="{StaticResource Text.Caption}" Margin="0,2,0,0" TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Border>
+                            </UniformGrid>
+
+                            <Grid Grid.Row="4">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1.1*"/>
+                                    <ColumnDefinition Width="0.9*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Border Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,10,0">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <TextBlock Grid.Row="0" Text="Enrollment Status Chart" Style="{StaticResource Text.SectionTitle}" Margin="0,0,0,6"/>
+                                        <TextBlock Grid.Row="1" Text="Current distribution across active enrollment states." Style="{StaticResource Text.Caption}" Margin="0,0,0,14"/>
+
+                                        <Border Grid.Row="2"
+                                                Height="220"
+                                                Background="{StaticResource Brush.SurfaceAlt}"
+                                                BorderBrush="{StaticResource Brush.Border}"
+                                                BorderThickness="1"
+                                                CornerRadius="14"
+                                                Padding="18">
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="*"/>
+                                                </Grid.RowDefinitions>
+
+                                                <TextBlock Grid.Row="0" x:Name="txtDashboardEnrollmentTotal" FontSize="30" FontWeight="Bold"/>
+                                                <TextBlock Grid.Row="1" Text="Total active enrollment states tracked" Style="{StaticResource Text.Caption}" Margin="0,2,0,18"/>
+
+                                                <Border Grid.Row="2"
+                                                        Height="50"
+                                                        CornerRadius="10"
+                                                        BorderBrush="{StaticResource Brush.Border}"
+                                                        BorderThickness="1"
+                                                        Background="White"
+                                                        Padding="0"
+                                                        Margin="0,0,0,18">
+                                                    <Grid x:Name="gridDashboardEnrollmentSegments" ClipToBounds="True"/>
+                                                </Border>
+
+                                                <ItemsControl Grid.Row="3" x:Name="itemsDashboardEnrollmentLegend">
+                                                    <ItemsControl.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                            <StackPanel/>
+                                                        </ItemsPanelTemplate>
+                                                    </ItemsControl.ItemsPanel>
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Grid Margin="0,0,0,8">
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="14"/>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                    <ColumnDefinition Width="Auto"/>
+                                                                </Grid.ColumnDefinitions>
+                                                                <Border Grid.Column="0"
+                                                                        Width="14"
+                                                                        Height="14"
+                                                                        CornerRadius="3"
+                                                                        Background="{Binding Fill}"
+                                                                        Margin="0,2,10,0"/>
+                                                                <StackPanel Grid.Column="1">
+                                                                    <TextBlock Text="{Binding Label}" Style="{StaticResource Text.CaptionStrong}"/>
+                                                                    <TextBlock Text="{Binding Detail}" Style="{StaticResource Text.Caption}"/>
+                                                                </StackPanel>
+                                                                <TextBlock Grid.Column="2"
+                                                                           Text="{Binding PercentageLabel}"
+                                                                           Style="{StaticResource Text.CaptionStrong}"
+                                                                           VerticalAlignment="Center"
+                                                                           Margin="12,0,0,0"/>
+                                                            </Grid>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </Grid>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+
+                                <Border Grid.Column="1" Style="{StaticResource CardPanel}">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <TextBlock Grid.Row="0" Text="Operational Metrics Chart" Style="{StaticResource Text.SectionTitle}" Margin="0,0,0,6"/>
+                                        <TextBlock Grid.Row="1" Text="Current signal strength by operational metric." Style="{StaticResource Text.Caption}" Margin="0,0,0,14"/>
+
+                                        <Border Grid.Row="2"
+                                                Height="220"
+                                                Background="{StaticResource Brush.SurfaceAlt}"
+                                                BorderBrush="{StaticResource Brush.Border}"
+                                                BorderThickness="1"
+                                                CornerRadius="14"
+                                                Padding="18">
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="*"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                </Grid.RowDefinitions>
+
+                                                <ItemsControl Grid.Row="0" x:Name="itemsDashboardMetricBars" VerticalAlignment="Stretch">
+                                                    <ItemsControl.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                            <UniformGrid Columns="4"/>
+                                                        </ItemsPanelTemplate>
+                                                    </ItemsControl.ItemsPanel>
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Grid Margin="8,0">
+                                                                <Grid.RowDefinitions>
+                                                                    <RowDefinition Height="Auto"/>
+                                                                    <RowDefinition Height="*"/>
+                                                                    <RowDefinition Height="Auto"/>
+                                                                    <RowDefinition Height="Auto"/>
+                                                                </Grid.RowDefinitions>
+                                                                <TextBlock Grid.Row="0"
+                                                                           Text="{Binding ValueLabel}"
+                                                                           Style="{StaticResource Text.CaptionStrong}"
+                                                                           HorizontalAlignment="Center"
+                                                                           Margin="0,0,0,8"/>
+                                                                <Grid Grid.Row="1" VerticalAlignment="Bottom">
+                                                                    <Border Width="52"
+                                                                            Height="150"
+                                                                            Background="White"
+                                                                            BorderBrush="{StaticResource Brush.Border}"
+                                                                            BorderThickness="1"
+                                                                            CornerRadius="10"
+                                                                            HorizontalAlignment="Center"
+                                                                            VerticalAlignment="Bottom"/>
+                                                                    <Border Width="52"
+                                                                            Height="{Binding ColumnHeight}"
+                                                                            Background="{Binding Fill}"
+                                                                            CornerRadius="10,10,10,10"
+                                                                            HorizontalAlignment="Center"
+                                                                            VerticalAlignment="Bottom"/>
+                                                                </Grid>
+                                                                <TextBlock Grid.Row="2"
+                                                                           Text="{Binding Label}"
+                                                                           TextAlignment="Center"
+                                                                           TextWrapping="Wrap"
+                                                                           Style="{StaticResource Text.CaptionStrong}"
+                                                                           Margin="0,10,0,0"/>
+                                                                <TextBlock Grid.Row="3"
+                                                                           Text="{Binding Trend}"
+                                                                           TextAlignment="Center"
+                                                                           TextWrapping="Wrap"
+                                                                           Style="{StaticResource Text.Caption}"
+                                                                           Margin="0,4,0,0"/>
+                                                            </Grid>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+
+                                                <TextBlock Grid.Row="1"
+                                                           Text="Scale: relative within the current dashboard snapshot"
+                                                           Style="{StaticResource Text.Caption}"
+                                                           HorizontalAlignment="Right"
+                                                           Margin="0,12,0,0"/>
+                                            </Grid>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                        </Grid>
+                    </TabItem>
+
+                    <!-- Students -->
+                    <TabItem Header="Students">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <DockPanel Grid.Row="0" Margin="0,0,0,10">
+                                <Button x:Name="btnStudentsRefresh" Content="Refresh" Width="100" Style="{StaticResource GhostButton}" DockPanel.Dock="Right"/>
+                                <controls:SectionHeader Title="Students"
+                                                        Subtitle="Manage student identity records, linked accounts, and status"/>
+                            </DockPanel>
+
+                            <Grid Grid.Row="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1.55*"/>
+                                    <ColumnDefinition Width="1*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Border Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,10,0">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                        </Grid.RowDefinitions>
+                                        <Border Grid.Row="0" Background="{StaticResource Brush.SurfaceAlt}" BorderBrush="{StaticResource Brush.Border}" BorderThickness="1" CornerRadius="8" Padding="10" Margin="0,0,0,8">
+                                            <DockPanel>
+                                                <TextBlock Text="{StaticResource Icon.Search}" Style="{StaticResource GlyphIcon}" Margin="0,0,8,0"/>
+                                                <TextBox x:Name="txtStudentSearch" Width="340" VerticalAlignment="Center" ToolTip="Search by Student No, LRN, Account ID, Name, or Status"/>
+                                            </DockPanel>
+                                        </Border>
+                                        <Border Grid.Row="1" Style="{StaticResource InfoBanner}" Margin="0,0,0,8">
+                                            <TextBlock x:Name="txtStudentsWorkspaceInfo" Style="{StaticResource Text.Caption}"/>
+                                        </Border>
+                                        <DataGrid Grid.Row="2" x:Name="gridStudents"/>
+                                    </Grid>
+                                </Border>
+
+                                <Border Grid.Column="1" Style="{StaticResource CardPanel}">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                        <StackPanel>
+                                            <controls:SectionHeader Title="Student Details" Subtitle="Identity, profile, preferences, and account lifecycle controls" Margin="0,0,0,8"/>
+
+                                            <Border x:Name="studentValidationSummaryHost"
+                                                    Style="{StaticResource ErrorBanner}"
+                                                    Visibility="Collapsed"
+                                                    Margin="0,0,0,10">
+                                                <TextBlock x:Name="txtStudentValidationSummary"
+                                                           Foreground="{StaticResource Brush.Danger}"
+                                                           TextWrapping="Wrap"/>
+                                            </Border>
+
+                                            <Border Background="{StaticResource Brush.SurfaceAlt}" BorderBrush="{StaticResource Brush.Border}" BorderThickness="1" CornerRadius="8" Padding="10" Margin="0,0,0,10">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                    </Grid.RowDefinitions>
+
+                                                    <Label Grid.Row="0" Grid.ColumnSpan="2" Content="Student Number"/>
+                                                    <TextBox Grid.Row="1" Grid.ColumnSpan="2" x:Name="txtStudentNumber" IsReadOnly="True" Margin="0,0,0,8"/>
+
+                                                    <Label Grid.Row="2" Grid.ColumnSpan="2" Content="LRN"/>
+                                                    <TextBox Grid.Row="3" Grid.ColumnSpan="2" x:Name="txtStudentLrn" Margin="0,0,0,8"/>
+
+                                                    <Label Grid.Row="4" Grid.ColumnSpan="2" Content="Profile Image Path"/>
+                                                    <TextBox Grid.Row="5" Grid.ColumnSpan="2" x:Name="txtStudentProfileImage"/>
+                                                </Grid>
+                                            </Border>
+
+                                            <Border Background="{StaticResource Brush.SurfaceAlt}" BorderBrush="{StaticResource Brush.Border}" BorderThickness="1" CornerRadius="8" Padding="10" Margin="0,0,0,10">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                    </Grid.RowDefinitions>
+
+                                                    <Label Grid.Row="0" Grid.Column="0" Content="First Name"/>
+                                                    <Label Grid.Row="0" Grid.Column="1" Content="Last Name"/>
+                                                    <TextBox Grid.Row="1" Grid.Column="0" x:Name="txtStudentFirst" Margin="0,0,6,8"/>
+                                                    <TextBox Grid.Row="1" Grid.Column="1" x:Name="txtStudentLast" Margin="6,0,0,8"/>
+
+                                                    <Label Grid.Row="2" Grid.ColumnSpan="2" Content="Middle Name"/>
+                                                    <TextBox Grid.Row="3" Grid.ColumnSpan="2" x:Name="txtStudentMiddle" Margin="0,0,0,8"/>
+
+                                                    <Label Grid.Row="4" Grid.Column="0" Content="Birthdate"/>
+                                                    <Label Grid.Row="4" Grid.Column="1" Content="Sex"/>
+                                                    <DatePicker Grid.Row="5" Grid.Column="0" x:Name="dpStudentBirthdate" Margin="0,0,6,8"/>
+                                                    <ComboBox Grid.Row="5" Grid.Column="1" x:Name="cboStudentSex" Margin="6,0,0,8"/>
+
+                                                    <Label Grid.Row="6" Grid.ColumnSpan="2" Content="Status"/>
+                                                    <ComboBox Grid.Row="7" Grid.ColumnSpan="2" x:Name="cboStudentStatus"/>
+                                                </Grid>
+                                            </Border>
+
+                                            <Border Background="{StaticResource Brush.SurfaceAlt}" BorderBrush="{StaticResource Brush.Border}" BorderThickness="1" CornerRadius="8" Padding="10" Margin="0,0,0,10">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                    </Grid.RowDefinitions>
+
+                                                    <Label Grid.Row="0" Grid.Column="0" Content="Address"/>
+                                                    <Label Grid.Row="0" Grid.Column="1" Content="Contact No"/>
+                                                    <TextBox Grid.Row="1" Grid.Column="0" x:Name="txtStudentAddress" Margin="0,0,6,8"/>
+                                                    <TextBox Grid.Row="1" Grid.Column="1" x:Name="txtStudentContactNo" Margin="6,0,0,8"/>
+
+                                                    <Label Grid.Row="2" Grid.Column="0" Content="Guardian Name"/>
+                                                    <Label Grid.Row="2" Grid.Column="1" Content="Guardian Contact"/>
+                                                    <TextBox Grid.Row="3" Grid.Column="0" x:Name="txtStudentGuardianName" Margin="0,0,6,8"/>
+                                                    <TextBox Grid.Row="3" Grid.Column="1" x:Name="txtStudentGuardianContact" Margin="6,0,0,8"/>
+
+                                                    <Label Grid.Row="4" Grid.ColumnSpan="2" Content="Previous School"/>
+                                                    <TextBox Grid.Row="5" Grid.ColumnSpan="2" x:Name="txtStudentPreviousSchool" Margin="0,0,0,8"/>
+
+                                                    <Label Grid.Row="6" Grid.Column="0" Content="Preferred Grade"/>
+                                                    <Label Grid.Row="6" Grid.Column="1" Content="Preferred Curriculum"/>
+                                                    <ComboBox Grid.Row="7" Grid.Column="0" x:Name="cboStudentPreferredGrade" Margin="0,0,6,0"/>
+                                                    <ComboBox Grid.Row="7" Grid.Column="1" x:Name="cboStudentPreferredCurriculum" Margin="6,0,0,0"/>
+                                                </Grid>
+                                            </Border>
+
+                                            <WrapPanel>
+                                                <Button x:Name="btnStudentAdd" Content="Add" Width="84" Style="{StaticResource SecondaryActionButton}" Margin="0,0,8,8"/>
+                                                <Button x:Name="btnStudentSave" Content="Save" Width="84" Margin="0,0,8,8"/>
+                                                <Button x:Name="btnStudentArchiveRestore" Content="Archive/Restore" Width="128" Style="{StaticResource SecondaryActionButton}" Margin="0,0,8,8"/>
+                                                <Button x:Name="btnStudentResetAccount" Content="Reset Account" Width="118" Style="{StaticResource SecondaryActionButton}" Margin="0,0,8,8"/>
+                                                <Button x:Name="btnStudentHistory" Content="History" Width="84" Style="{StaticResource SecondaryActionButton}" Margin="0,0,8,8"/>
+                                                <Button x:Name="btnStudentRequirements" Content="Requirements" Width="108" Style="{StaticResource SecondaryActionButton}" Margin="0,0,8,8"/>
+                                                <Button x:Name="btnStudentAccounts" Content="Accounts" Width="92" Style="{StaticResource SecondaryActionButton}" Margin="0,0,8,8"/>
+                                                <Button x:Name="btnStudentAccountHistory" Content="Account History" Width="118" Style="{StaticResource SecondaryActionButton}" Margin="0,0,8,8"/>
+                                                <Button x:Name="btnStudentClear" Content="Clear" Width="84" Style="{StaticResource SecondaryActionButton}" Margin="0,0,8,8"/>
+                                            </WrapPanel>
+                                        </StackPanel>
+                                    </ScrollViewer>
+                                </Border>
+                            </Grid>
+                        </Grid>
+                    </TabItem>
+
+                    <!-- Teachers -->
+                    <TabItem Header="Teachers">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <DockPanel Grid.Row="0" Margin="0,0,0,10">
+                                <Button x:Name="btnTeachersRefresh" Content="Refresh" Width="100" Style="{StaticResource GhostButton}" DockPanel.Dock="Right"/>
+                                <controls:SectionHeader Title="Teachers"
+                                                        Subtitle="Manage teacher identity records and linked non-login accounts"/>
+                            </DockPanel>
+
+                            <Grid Grid.Row="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1.55*"/>
+                                    <ColumnDefinition Width="1*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Border Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,10,0">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                        </Grid.RowDefinitions>
+                                        <Border Grid.Row="0" Background="{StaticResource Brush.SurfaceAlt}" BorderBrush="{StaticResource Brush.Border}" BorderThickness="1" CornerRadius="8" Padding="10" Margin="0,0,0,8">
+                                            <DockPanel>
+                                                <TextBlock Text="{StaticResource Icon.Search}" Style="{StaticResource GlyphIcon}" Margin="0,0,8,0"/>
+                                                <TextBox x:Name="txtTeacherSearch" Width="340" VerticalAlignment="Center" ToolTip="Search by Employee No, Account ID, Name, or Status"/>
+                                            </DockPanel>
+                                        </Border>
+                                        <Border Grid.Row="1" Style="{StaticResource InfoBanner}" Margin="0,0,0,8">
+                                            <TextBlock x:Name="txtTeachersWorkspaceInfo" Style="{StaticResource Text.Caption}"/>
+                                        </Border>
+                                        <DataGrid Grid.Row="2" x:Name="gridTeachers"/>
+                                    </Grid>
+                                </Border>
+
+                                <Border Grid.Column="1" Style="{StaticResource CardPanel}">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                        <StackPanel>
+                                            <controls:SectionHeader Title="Teacher Details" Subtitle="Identity, account linkage, profile, and security controls" Margin="0,0,0,8"/>
+
+                                            <Border x:Name="teacherValidationSummaryHost"
+                                                    Style="{StaticResource ErrorBanner}"
+                                                    Visibility="Collapsed"
+                                                    Margin="0,0,0,10">
+                                                <TextBlock x:Name="txtTeacherValidationSummary"
+                                                           Foreground="{StaticResource Brush.Danger}"
+                                                           TextWrapping="Wrap"/>
+                                            </Border>
+
+                                            <Border Background="{StaticResource Brush.SurfaceAlt}" BorderBrush="{StaticResource Brush.Border}" BorderThickness="1" CornerRadius="8" Padding="10" Margin="0,0,0,10">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                    </Grid.RowDefinitions>
+
+                                                    <Label Grid.Row="0" Grid.Column="0" Content="Employee No"/>
+                                                    <Label Grid.Row="0" Grid.Column="1" Content="Account ID"/>
+                                                    <TextBox Grid.Row="1" Grid.Column="0" x:Name="txtTeacherEmployeeNo" Margin="0,0,6,8"/>
+                                                    <TextBox Grid.Row="1" Grid.Column="1" x:Name="txtTeacherUsername" Margin="6,0,0,8"/>
+
+                                                    <Label Grid.Row="2" Grid.ColumnSpan="2" Content="Profile Image Path"/>
+                                                    <TextBox Grid.Row="3" Grid.ColumnSpan="2" x:Name="txtTeacherProfileImage" Margin="0,0,0,8"/>
+
+                                                    <Label Grid.Row="4" Grid.ColumnSpan="2" Content="Initial Password (Add only)"/>
+                                                    <PasswordBox Grid.Row="5" Grid.ColumnSpan="2" x:Name="txtTeacherInitialPassword"/>
+                                                </Grid>
+                                            </Border>
+
+                                            <Border Background="{StaticResource Brush.SurfaceAlt}" BorderBrush="{StaticResource Brush.Border}" BorderThickness="1" CornerRadius="8" Padding="10" Margin="0,0,0,10">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                    </Grid.RowDefinitions>
+
+                                                    <Label Grid.Row="0" Grid.Column="0" Content="First Name"/>
+                                                    <Label Grid.Row="0" Grid.Column="1" Content="Last Name"/>
+                                                    <TextBox Grid.Row="1" Grid.Column="0" x:Name="txtTeacherFirst" Margin="0,0,6,8"/>
+                                                    <TextBox Grid.Row="1" Grid.Column="1" x:Name="txtTeacherLast" Margin="6,0,0,8"/>
+
+                                                    <Label Grid.Row="2" Grid.ColumnSpan="2" Content="Middle Name"/>
+                                                    <TextBox Grid.Row="3" Grid.ColumnSpan="2" x:Name="txtTeacherMiddle" Margin="0,0,0,8"/>
+
+                                                    <Label Grid.Row="4" Grid.Column="0" Content="Email"/>
+                                                    <Label Grid.Row="4" Grid.Column="1" Content="Contact No"/>
+                                                    <TextBox Grid.Row="5" Grid.Column="0" x:Name="txtTeacherEmail" Margin="0,0,6,0"/>
+                                                    <TextBox Grid.Row="5" Grid.Column="1" x:Name="txtTeacherContact" Margin="6,0,0,0"/>
+                                                </Grid>
+                                            </Border>
+
+                                            <Border Background="{StaticResource Brush.SurfaceAlt}" BorderBrush="{StaticResource Brush.Border}" BorderThickness="1" CornerRadius="8" Padding="10" Margin="0,0,0,10">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                    </Grid.RowDefinitions>
+
+                                                    <Label Grid.Row="0" Grid.ColumnSpan="2" Content="Specialization"/>
+                                                    <TextBox Grid.Row="1" Grid.ColumnSpan="2" x:Name="txtTeacherSpecialization" Margin="0,0,0,8"/>
+
+                                                    <Label Grid.Row="2" Grid.Column="0" Content="Advisory Status"/>
+                                                    <Label Grid.Row="2" Grid.Column="1" Content="Employment Status"/>
+                                                    <ComboBox Grid.Row="3" Grid.Column="0" x:Name="cboTeacherAdvisoryStatus" Margin="0,0,6,8"/>
+                                                    <ComboBox Grid.Row="3" Grid.Column="1" x:Name="cboTeacherEmploymentStatus" Margin="6,0,0,8"/>
+
+                                                    <Label Grid.Row="4" Grid.Column="0" Content="Hire Date"/>
+                                                    <Label Grid.Row="4" Grid.Column="1" Content="Status"/>
+                                                    <DatePicker Grid.Row="5" Grid.Column="0" x:Name="dpTeacherHireDate" Margin="0,0,6,0"/>
+                                                    <ComboBox Grid.Row="5" Grid.Column="1" x:Name="cboTeacherStatus" Margin="6,0,0,0"/>
+                                                </Grid>
+                                            </Border>
+
+                                            <WrapPanel>
+                                                <Button x:Name="btnTeacherAdd" Content="Add" Width="84" Style="{StaticResource SecondaryActionButton}" Margin="0,0,8,8"/>
+                                                <Button x:Name="btnTeacherSave" Content="Save" Width="84" Margin="0,0,8,8"/>
+                                                <Button x:Name="btnTeacherArchiveRestore" Content="Archive/Restore" Width="128" Style="{StaticResource SecondaryActionButton}" Margin="0,0,8,8"/>
+                                                <Button x:Name="btnTeacherResetPassword" Content="Reset Password" Width="128" Style="{StaticResource SecondaryActionButton}" Margin="0,0,8,8"/>
+                                                <Button x:Name="btnTeacherHistory" Content="History" Width="84" Style="{StaticResource SecondaryActionButton}" Margin="0,0,8,8"/>
+                                                <Button x:Name="btnTeacherClear" Content="Clear" Width="84" Style="{StaticResource SecondaryActionButton}" Margin="0,0,8,8"/>
+                                            </WrapPanel>
+                                        </StackPanel>
+                                    </ScrollViewer>
+                                </Border>
+                            </Grid>
+                        </Grid>
+                    </TabItem>
+
+                    <!-- Enrollment -->
+                    <TabItem Header="Enrollment">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1.62*"/>
+                                <ColumnDefinition Width="1*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <DockPanel Grid.Row="0" Grid.ColumnSpan="2" Margin="0,0,0,10">
+                                <Button x:Name="btnEnrollRefresh" Content="Refresh" Width="100" Style="{StaticResource GhostButton}" DockPanel.Dock="Right"/>
+                                <controls:SectionHeader Title="Enrollment"
+                                                        Subtitle="Review enrollment snapshots, class assignments, and approval status transitions"/>
+                            </DockPanel>
+
+                            <Border Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource CardPanel}" Margin="0,0,0,10">
+                                <UniformGrid Columns="5">
+                                    <StackPanel Margin="0,0,8,0">
+                                        <Label Content="School Year"/>
+                                        <ComboBox x:Name="cboEnrollSchoolYear"/>
+                                    </StackPanel>
+                                    <StackPanel Margin="0,0,8,0">
+                                        <Label Content="Grade"/>
+                                        <ComboBox x:Name="cboEnrollGrade"/>
+                                    </StackPanel>
+                                    <StackPanel Margin="0,0,8,0">
+                                        <Label Content="Section"/>
+                                        <ComboBox x:Name="cboEnrollSection"/>
+                                    </StackPanel>
+                                    <StackPanel Margin="0,0,8,0">
+                                        <Label Content="Curriculum"/>
+                                        <ComboBox x:Name="cboEnrollCurriculum"/>
+                                    </StackPanel>
+                                    <StackPanel>
+                                        <Label Content="Search"/>
+                                        <TextBox x:Name="txtEnrollSearch" ToolTip="Search by LRN, student name, or status"/>
+                                    </StackPanel>
+                                </UniformGrid>
+                            </Border>
+
+                            <Grid Grid.Row="2" Grid.Column="0" Margin="0,0,10,0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="2*"/>
+                                    <RowDefinition Height="1*"/>
+                                </Grid.RowDefinitions>
+
+                                <Border Grid.Row="0" Style="{StaticResource CardPanel}">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                        </Grid.RowDefinitions>
+                                        <controls:SectionHeader Grid.Row="0" Title="Enrollment Snapshot" Subtitle="Student, status, approval, type, and waitlist indicators" Margin="0,0,0,8"/>
+                                        <Border Grid.Row="1" Style="{StaticResource InfoBanner}" Margin="0,0,0,8">
+                                            <TextBlock x:Name="txtEnrollmentQueueInfo" Style="{StaticResource Text.Caption}"/>
+                                        </Border>
+                                        <DataGrid Grid.Row="2" x:Name="gridEnrollmentStudents"/>
+                                    </Grid>
+                                </Border>
+
+                                <Border Grid.Row="1" Style="{StaticResource CardPanel}" Margin="0,10,0,0">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                        </Grid.RowDefinitions>
+                                        <controls:SectionHeader Grid.Row="0" Title="Class Offerings for Selection" Subtitle="Subject, assigned teacher, and offering status" Margin="0,0,0,8"/>
+                                        <DataGrid Grid.Row="1" x:Name="gridEnrollmentClasses"/>
+                                    </Grid>
+                                </Border>
+                            </Grid>
+
+                            <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource CardPanel}">
+                                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                    <StackPanel>
+                                        <controls:SectionHeader Title="Enrollment Workbench" Subtitle="Context-aware review and decisions with controlled transitions" Margin="0,0,0,8"/>
+                                        <Border x:Name="enrollStaleBanner"
+                                                Style="{StaticResource WarningBanner}"
+                                                Visibility="Collapsed"
+                                                Margin="0,0,0,8">
+                                            <TextBlock x:Name="txtEnrollStaleMessage" Style="{StaticResource Text.Caption}" TextWrapping="Wrap"/>
+                                        </Border>
+
+                                        <Border Style="{StaticResource InfoBanner}" Margin="0,0,0,10">
+                                            <StackPanel>
+                                                <TextBlock Text="Review Context" Style="{StaticResource Text.CaptionStrong}"/>
+                                                <TextBlock x:Name="txtEnrollReviewStudent" Style="{StaticResource Text.Caption}" Margin="0,4,0,0"/>
+                                                <TextBlock x:Name="txtEnrollReviewState" Style="{StaticResource Text.Caption}" Margin="0,2,0,0"/>
+                                                <TextBlock x:Name="txtEnrollReviewMeta" Style="{StaticResource Text.Caption}" Margin="0,2,0,0"/>
+                                                <WrapPanel Margin="0,8,0,0">
+                                                    <Button x:Name="btnEnrollNextReview" Content="Next Review Item" Width="132" Style="{StaticResource SecondaryActionButton}" Margin="0,0,8,6"/>
+                                                    <Button x:Name="btnEnrollReloadSelection" Content="Reload Selected" Width="124" Style="{StaticResource SecondaryActionButton}" Margin="0,0,8,6"/>
+                                                </WrapPanel>
+                                            </StackPanel>
+                                        </Border>
+
+                                        <controls:RequirementChecklistPanel x:Name="enrollRequirementChecklistPanel"
+                                                                            Title="Requirement Checklist"
+                                                                            HintText="Final approval requires required documents to be submitted and validated."
+                                                                            Margin="0,0,0,10"/>
+
+                                        <Border Style="{StaticResource CardPanel}" Background="{StaticResource Brush.SurfaceAlt}" Margin="0,0,0,8">
+                                            <StackPanel>
+                                                <TextBlock Text="Submission and Updates" Style="{StaticResource Text.CaptionStrong}" Margin="0,0,0,6"/>
+                                                <Button x:Name="btnEnrollSubmit" Content="Submit Enrollment" Style="{StaticResource WorkbenchPrimaryActionButton}"/>
+                                                <Button x:Name="btnEnrollTransfer" Content="Transfer / Update" Style="{StaticResource WorkbenchSecondaryActionButton}" Margin="0"/>
+                                            </StackPanel>
+                                        </Border>
+
+                                        <Border Style="{StaticResource CardPanel}" Background="{StaticResource Brush.SurfaceAlt}" Margin="0,0,0,8">
+                                            <StackPanel>
+                                                <TextBlock Text="Review Decisions" Style="{StaticResource Text.CaptionStrong}" Margin="0,0,0,6"/>
+                                                <Button x:Name="btnEnrollApprove" Content="Approve" Style="{StaticResource WorkbenchSecondaryActionButton}"/>
+                                                <Button x:Name="btnEnrollReturn" Content="Return for Correction" Style="{StaticResource WorkbenchSecondaryActionButton}"/>
+                                                <Button x:Name="btnEnrollPromote" Content="Promote Waitlist" Style="{StaticResource WorkbenchSecondaryActionButton}" Margin="0"/>
+                                            </StackPanel>
+                                        </Border>
+
+                                        <Border Style="{StaticResource CardPanel}" Background="{StaticResource Brush.SurfaceAlt}" Margin="0,0,0,8">
+                                            <StackPanel>
+                                                <TextBlock Text="Destructive Actions" Style="{StaticResource Text.CaptionStrong}" Margin="0,0,0,6"/>
+                                                <Button x:Name="btnEnrollCancel" Content="Cancel Enrollment" Style="{StaticResource WorkbenchDangerActionButton}"/>
+                                                <Button x:Name="btnEnrollDrop" Content="Drop" Style="{StaticResource WorkbenchDangerActionButton}" Margin="0"/>
+                                            </StackPanel>
+                                        </Border>
+
+                                        <Border Style="{StaticResource CardPanel}" Background="{StaticResource Brush.SurfaceAlt}" Margin="0,0,0,8">
+                                            <StackPanel>
+                                                <TextBlock Text="Explicit Status Transition" Style="{StaticResource Text.CaptionStrong}" Margin="0,0,0,6"/>
+                                                <DockPanel Margin="0,0,0,2">
+                                                    <ComboBox x:Name="cboEnrollStatusChange" Width="180" DockPanel.Dock="Left"/>
+                                                    <Button x:Name="btnEnrollSetStatus" Content="Apply" Width="92" Style="{StaticResource WorkbenchSecondaryActionButton}" DockPanel.Dock="Right" Margin="8,0,0,0"/>
+                                                </DockPanel>
+                                            </StackPanel>
+                                        </Border>
+
+                                        <TextBlock Text="Status Legend" Style="{StaticResource Text.CaptionStrong}" Margin="0,2,0,4"/>
+                                        <WrapPanel Margin="0,0,0,8">
+                                            <controls:StatusBadge Status="PENDING" Margin="0,0,6,6"/>
+                                            <controls:StatusBadge Status="ENROLLED" Margin="0,0,6,6"/>
+                                            <controls:StatusBadge Status="RESERVED" Margin="0,0,6,6"/>
+                                            <controls:StatusBadge Status="CANCELLED" Margin="0,0,6,6"/>
+                                            <controls:StatusBadge Status="DROPPED" Margin="0,0,6,6"/>
+                                        </WrapPanel>
+
+                                        <TextBlock Text="Validation Summary" Style="{StaticResource Text.CaptionStrong}" Margin="0,0,0,4"/>
+                                        <TextBox x:Name="txtEnrollValidationSummary" Height="220" IsReadOnly="True" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" FontFamily="{StaticResource FontFamily.Mono}"/>
+                                    </StackPanel>
+                                </ScrollViewer>
+                            </Border>
+                        </Grid>
+                    </TabItem>
+
+                    <!-- Reports -->
+                    <TabItem Header="Reports">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <DockPanel Grid.Row="0" Margin="0,0,0,10">
+                                <Button x:Name="btnReportExport" Content="Export CSV" Width="110" Style="{StaticResource GhostButton}" DockPanel.Dock="Right"/>
+                                <controls:SectionHeader Title="Reports"
+                                                        Subtitle="Generate summaries, detailed enrollment reports, and official statistics"/>
+                            </DockPanel>
+
+                            <Border Grid.Row="1" Style="{StaticResource CardPanel}" Margin="0,0,0,10">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <DockPanel Grid.Row="0" Margin="0,0,0,8">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Label Content="Preset" VerticalAlignment="Center" Padding="0" Margin="0,0,8,0"/>
+                                            <ComboBox x:Name="cboReportPreset" Width="220" Margin="0,0,8,0"/>
+                                            <TextBox x:Name="txtReportPresetName" Width="190" Margin="0,0,8,0" ToolTip="Preset name"/>
+                                            <Button x:Name="btnReportPresetApply" Content="Apply" Width="78" Style="{StaticResource GhostButton}" Margin="0,0,8,0"/>
+                                            <Button x:Name="btnReportPresetSave" Content="Save Preset" Width="108" Style="{StaticResource GhostButton}" Margin="0,0,8,0"/>
+                                            <Button x:Name="btnReportPresetDelete" Content="Delete Preset" Width="116" Style="{StaticResource DangerGhostButton}"/>
+                                        </StackPanel>
+                                    </DockPanel>
+
+                                    <UniformGrid Grid.Row="1" Columns="4">
+                                        <StackPanel Margin="0,0,8,8">
+                                            <Label Content="Report Type"/>
+                                            <ComboBox x:Name="cboReportType"/>
+                                        </StackPanel>
+                                        <StackPanel Margin="0,0,8,8">
+                                            <Label Content="School Year"/>
+                                            <ComboBox x:Name="cboReportSchoolYear"/>
+                                        </StackPanel>
+                                        <StackPanel Margin="0,0,8,8">
+                                            <Label Content="Grade"/>
+                                            <ComboBox x:Name="cboReportGrade"/>
+                                        </StackPanel>
+                                        <StackPanel Margin="0,0,0,8">
+                                            <Label Content="Section"/>
+                                            <ComboBox x:Name="cboReportSection"/>
+                                        </StackPanel>
+                                        <StackPanel Margin="0,0,8,0">
+                                            <Label Content="Status"/>
+                                            <ComboBox x:Name="cboReportStatus"/>
+                                        </StackPanel>
+                                        <StackPanel Margin="0,0,8,0">
+                                            <Label Content="Student"/>
+                                            <ComboBox x:Name="cboReportStudent"/>
+                                        </StackPanel>
+                                        <StackPanel Margin="0,0,8,0">
+                                            <Label Content="Actions"/>
+                                            <WrapPanel>
+                                                <Button x:Name="btnReportLoad" Content="Load Report" Width="120" Margin="0,0,8,0"/>
+                                                <Button x:Name="btnReportHistoryRefresh" Content="Refresh History" Width="128" Style="{StaticResource GhostButton}"/>
+                                            </WrapPanel>
+                                        </StackPanel>
+                                    </UniformGrid>
+                                </Grid>
+                            </Border>
+
+                            <Border Grid.Row="2" Style="{StaticResource CardPanel}">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <controls:SectionHeader Grid.Row="0" Title="Report Results" Subtitle="Data table output for the active report and filters" Margin="0,0,0,8"/>
+                                    <DataGrid Grid.Row="1" x:Name="gridReports"/>
+                                    <Border Grid.Row="2" Style="{StaticResource InfoBanner}" Margin="0,8,0,0">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="*"/>
+                                            </Grid.RowDefinitions>
+                                            <TextBlock x:Name="txtReportRunHistorySummary" Text="Run history" Style="{StaticResource Text.CaptionStrong}" Margin="0,0,0,6"/>
+                                            <DataGrid Grid.Row="1" x:Name="gridReportRunHistory" MinHeight="132" MaxHeight="190" IsReadOnly="True"/>
+                                        </Grid>
+                                    </Border>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </TabItem>
+
+                    <!-- Master Data -->
+                    <TabItem Header="Master Data">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <controls:SectionHeader Grid.Row="0"
+                                                    Title="Master Data"
+                                                    Subtitle="Core academic and institutional setup modules in a unified list-detail workspace"
+                                                    Margin="0,0,0,10"/>
+
+                            <Grid Grid.Row="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="290"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Border Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,10,0">
+                                    <StackPanel>
+                                        <TextBlock Text="Module List" Style="{StaticResource Text.CaptionStrong}"/>
+                                        <TextBlock Text="Choose one module to load the detail workspace." Style="{StaticResource Text.Caption}" Margin="0,2,0,10"/>
+                                        <Button x:Name="btnOpsSchoolSettings" Content="School Settings" Style="{StaticResource OpsModuleButton}"/>
+                                        <Button x:Name="btnOpsSchoolYears" Content="School Years" Style="{StaticResource OpsModuleButton}"/>
+                                        <Button x:Name="btnOpsGradeLevels" Content="Grade Levels" Style="{StaticResource OpsModuleButton}"/>
+                                        <Button x:Name="btnOpsSubjects" Content="Subjects" Style="{StaticResource OpsModuleButton}"/>
+                                        <Button x:Name="btnOpsCurriculum" Content="Curriculum" Style="{StaticResource OpsModuleButton}"/>
+                                        <Button x:Name="btnOpsSections" Content="Sections" Style="{StaticResource OpsModuleButton}" Margin="0"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Grid.Column="1" Style="{StaticResource CardPanel}">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                        </Grid.RowDefinitions>
+
+                                        <Border Grid.Row="0" Style="{StaticResource InfoBanner}" Margin="0,0,0,8">
+                                            <TextBlock x:Name="txtMasterDataWorkspaceInfo" Style="{StaticResource Text.Caption}"/>
+                                        </Border>
+
+                                        <Grid Grid.Row="1">
+                                            <ContentControl x:Name="hostMasterDataModule" Visibility="Collapsed"/>
+                                            <TextBlock x:Name="txtMasterDataModulePlaceholder"
+                                                       Text="Select a module from the left list to load it in this workspace."
+                                                       Style="{StaticResource Text.Subtitle}"
+                                                       VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                        </Grid>
+                    </TabItem>
+
+                    <!-- Scheduling -->
+                    <TabItem Header="Scheduling">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <controls:SectionHeader Grid.Row="0"
+                                                    Title="Scheduling"
+                                                    Subtitle="Class delivery setup, teacher assignment, and timetable controls in one workspace"
+                                                    Margin="0,0,0,10"/>
+
+                            <Grid Grid.Row="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="290"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Border Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,10,0">
+                                    <StackPanel>
+                                        <TextBlock Text="Module List" Style="{StaticResource Text.CaptionStrong}"/>
+                                        <TextBlock Text="Choose one module to load the detail workspace." Style="{StaticResource Text.Caption}" Margin="0,2,0,10"/>
+                                        <Button x:Name="btnOpsOfferings" Content="Class Offerings" Style="{StaticResource OpsModuleButton}"/>
+                                        <Button x:Name="btnOpsSchedules" Content="Schedules" Style="{StaticResource OpsModuleButton}"/>
+                                        <Button x:Name="btnOpsTeacherLoads" Content="Teacher Loads" Style="{StaticResource OpsModuleButton}"/>
+                                        <Button x:Name="btnOpsRooms" Content="Rooms" Style="{StaticResource OpsModuleButton}"/>
+                                        <Button x:Name="btnOpsTimeSlots" Content="Time Slots" Style="{StaticResource OpsModuleButton}" Margin="0"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Grid.Column="1" Style="{StaticResource CardPanel}">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                        </Grid.RowDefinitions>
+
+                                        <Border Grid.Row="0" Style="{StaticResource InfoBanner}" Margin="0,0,0,8">
+                                            <TextBlock x:Name="txtSchedulingWorkspaceInfo" Style="{StaticResource Text.Caption}"/>
+                                        </Border>
+
+                                        <Grid Grid.Row="1">
+                                            <ContentControl x:Name="hostSchedulingModule" Visibility="Collapsed"/>
+                                            <TextBlock x:Name="txtSchedulingModulePlaceholder"
+                                                       Text="Select a module from the left list to load it in this workspace."
+                                                       Style="{StaticResource Text.Subtitle}"
+                                                       VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                        </Grid>
+                    </TabItem>
+
+                    <!-- Accounts & Compliance -->
+                    <TabItem Header="Accounts &amp; Compliance">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <controls:SectionHeader Grid.Row="0"
+                                                    Title="Accounts &amp; Compliance"
+                                                    Subtitle="Student account lifecycle, requirement tracking, and archives in one workspace"
+                                                    Margin="0,0,0,10"/>
+
+                            <Grid Grid.Row="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="290"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Border Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,10,0">
+                                    <StackPanel>
+                                        <TextBlock Text="Module List" Style="{StaticResource Text.CaptionStrong}"/>
+                                        <TextBlock Text="Choose one module to load the detail workspace." Style="{StaticResource Text.Caption}" Margin="0,2,0,10"/>
+                                        <Button x:Name="btnOpsStudentAccounts" Content="Student Accounts" Style="{StaticResource OpsModuleButton}"/>
+                                        <Button x:Name="btnOpsRequirements" Content="Student Requirements" Style="{StaticResource OpsModuleButton}"/>
+                                        <Button x:Name="btnOpsArchive" Content="Archive Center" Style="{StaticResource OpsModuleButton}" Margin="0"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Grid.Column="1" Style="{StaticResource CardPanel}">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                        </Grid.RowDefinitions>
+
+                                        <Border Grid.Row="0" Style="{StaticResource InfoBanner}" Margin="0,0,0,8">
+                                            <TextBlock x:Name="txtAccountsComplianceWorkspaceInfo" Style="{StaticResource Text.Caption}"/>
+                                        </Border>
+
+                                        <Grid Grid.Row="1">
+                                            <ContentControl x:Name="hostAccountsComplianceModule" Visibility="Collapsed"/>
+                                            <TextBlock x:Name="txtAccountsComplianceModulePlaceholder"
+                                                       Text="Select a module from the left list to load it in this workspace."
+                                                       Style="{StaticResource Text.Subtitle}"
+                                                       VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                        </Grid>
+                    </TabItem>
+
+                    <!-- Maintenance -->
+                    <TabItem Header="Maintenance">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <controls:SectionHeader Grid.Row="0"
+                                                    Title="Maintenance"
+                                                    Subtitle="System safeguard and year-end transition tools in one workspace"
+                                                    Margin="0,0,0,10"/>
+
+                            <Grid Grid.Row="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="290"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Border Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,10,0">
+                                    <StackPanel>
+                                        <TextBlock Text="Module List" Style="{StaticResource Text.CaptionStrong}"/>
+                                        <TextBlock Text="Choose one module to load the detail workspace." Style="{StaticResource Text.Caption}" Margin="0,2,0,10"/>
+                                        <Button x:Name="btnOpsBackup" Content="Backup / Restore" Style="{StaticResource OpsModuleButton}"/>
+                                        <Button x:Name="btnOpsYearEnd" Content="Year-End Rollover" Style="{StaticResource OpsModuleButton}" Margin="0"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Grid.Column="1" Style="{StaticResource CardPanel}">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                        </Grid.RowDefinitions>
+
+                                        <Border Grid.Row="0" Style="{StaticResource InfoBanner}" Margin="0,0,0,8">
+                                            <TextBlock x:Name="txtMaintenanceWorkspaceInfo" Style="{StaticResource Text.Caption}"/>
+                                        </Border>
+
+                                        <Grid Grid.Row="1">
+                                            <ContentControl x:Name="hostMaintenanceModule" Visibility="Collapsed"/>
+                                            <TextBlock x:Name="txtMaintenanceModulePlaceholder"
+                                                       Text="Select a module from the left list to load it in this workspace."
+                                                       Style="{StaticResource Text.Subtitle}"
+                                                       VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                        </Grid>
+                    </TabItem>
+                </TabControl>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

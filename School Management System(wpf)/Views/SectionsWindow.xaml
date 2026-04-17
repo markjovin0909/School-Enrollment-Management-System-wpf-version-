@@ -1,0 +1,67 @@
+<Window x:Class="School_Management_System.Views.SectionsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:School_Management_System.Controls"
+        Title="Sections"
+        Width="1240" Height="720"
+        MinWidth="1040" MinHeight="600"
+        WindowStartupLocation="CenterOwner">
+    <Grid Margin="12">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1.55*"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <controls:SectionHeader Grid.Row="0" Grid.ColumnSpan="2"
+                                Title="Sections"
+                                Subtitle="Manage section grouping, adviser assignment, and capacity"
+                                Margin="0,0,0,10"/>
+
+        <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,8,8" Padding="10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="220"/>
+                    <ColumnDefinition Width="200"/>
+                    <ColumnDefinition Width="120"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBox Grid.Column="0" x:Name="txtSearch" Margin="0,0,8,0"/>
+                <ComboBox Grid.Column="1" x:Name="cboFilterSchoolYear" Margin="0,0,8,0" DisplayMemberPath="Name" SelectedValuePath="Id"/>
+                <ComboBox Grid.Column="2" x:Name="cboFilterGrade" Margin="0,0,8,0" DisplayMemberPath="Code" SelectedValuePath="Id"/>
+                <Button Grid.Column="3" x:Name="btnRefresh" Content="Refresh" Width="90" Style="{StaticResource GhostButton}"/>
+            </Grid>
+        </Border>
+
+        <DataGrid Grid.Row="2" Grid.Column="0" x:Name="gridSections" IsReadOnly="True" Margin="0,0,8,0"/>
+
+        <ScrollViewer Grid.Row="1" Grid.RowSpan="2" Grid.Column="1" Margin="8,0,0,0" VerticalScrollBarVisibility="Auto">
+            <Border Style="{StaticResource CardPanel}">
+                <StackPanel>
+                    <controls:SectionHeader Title="Section Details" Subtitle="Academic placement and advisory details" Margin="0,0,0,8"/>
+                    <Label Content="Name"/>
+                    <TextBox x:Name="txtName"/>
+                    <Label Content="School Year" Margin="0,8,0,0"/>
+                    <ComboBox x:Name="cboSchoolYear" DisplayMemberPath="Name" SelectedValuePath="Id"/>
+                    <Label Content="Grade Level" Margin="0,8,0,0"/>
+                    <ComboBox x:Name="cboGradeLevel" DisplayMemberPath="Code" SelectedValuePath="Id"/>
+                    <Label Content="Capacity" Margin="0,8,0,0"/>
+                    <TextBox x:Name="txtCapacity"/>
+                    <Label Content="Adviser" Margin="0,8,0,0"/>
+                    <ComboBox x:Name="cboAdviser" DisplayMemberPath="Name" SelectedValuePath="Id"/>
+
+                    <WrapPanel Margin="0,12,0,0">
+                        <Button x:Name="btnAdd" Content="Add" Width="90"/>
+                        <Button x:Name="btnSave" Content="Save" Width="90"/>
+                        <Button x:Name="btnArchiveRestore" Content="Archive/Restore" Width="130" Style="{StaticResource GhostButton}"/>
+                        <Button x:Name="btnClear" Content="Clear" Width="90" Style="{StaticResource GhostButton}"/>
+                    </WrapPanel>
+                </StackPanel>
+            </Border>
+        </ScrollViewer>
+    </Grid>
+</Window>

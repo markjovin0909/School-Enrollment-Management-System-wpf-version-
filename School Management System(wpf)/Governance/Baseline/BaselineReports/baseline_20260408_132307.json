@@ -1,0 +1,48 @@
+﻿{
+    "CapturedAtUtc":  "2026-04-08T05:23:07.0298027Z",
+    "LookbackDays":  30,
+    "WindowStartUtc":  "2026-03-09T05:23:07.0298027Z",
+    "Environment":  "Local",
+    "Database":  "School_sms",
+    "DatabaseReachable":  true,
+    "DatabaseError":  "",
+    "Metrics":  {
+                    "TaskTime":  {
+                                     "SessionDurationProxy":  {
+                                                                  "SessionCount":  16,
+                                                                  "AvgSeconds":  1542.19,
+                                                                  "MinSeconds":  45,
+                                                                  "MaxSeconds":  11402
+                                                              },
+                                     "EnrollmentCycleProxy":  {
+                                                                  "EnrollmentCount":  40,
+                                                                  "AvgMinutes":  0
+                                                              },
+                                     "TaskStudy":  {
+                                                       "SourceFile":  "C:\\Users\\MJ\\source\\repos\\SMS\\School Management System(wpf)\\School Management System(wpf)\\Governance\\Baseline\\TaskTimeStudy.csv",
+                                                       "SampleCount":  0,
+                                                       "ByWorkflow":  [
+
+                                                                      ]
+                                                   }
+                                 },
+                    "ErrorRate":  {
+                                      "TotalAuditActions":  48,
+                                      "ErrorAuditActions":  1,
+                                      "ErrorRatePercent":  2.08,
+                                      "BackupFailedSignals":  0,
+                                      "RestoreFailedSignals":  0
+                                  },
+                    "RollbackIncidents":  {
+                                              "RollbackLikeAuditActions":  0,
+                                              "ArchiveRestoreEvents":  0,
+                                              "CombinedIncidentCount":  0
+                                          },
+                    "SupportIssues":  {
+                                          "SourceFile":  "C:\\Users\\MJ\\source\\repos\\SMS\\School Management System(wpf)\\School Management System(wpf)\\Governance\\Baseline\\SupportIssues.csv",
+                                          "OpenedCount":  0,
+                                          "UnresolvedCount":  0,
+                                          "NotificationFallbackSignals":  0
+                                      }
+                }
+}

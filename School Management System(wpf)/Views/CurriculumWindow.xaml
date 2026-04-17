@@ -1,0 +1,92 @@
+<Window x:Class="School_Management_System.Views.CurriculumWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:School_Management_System.Controls"
+        Title="Curriculum"
+        Width="1260" Height="760"
+        MinWidth="1040" MinHeight="620"
+        WindowStartupLocation="CenterOwner">
+    <Grid Margin="12">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1.35*"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="1.1*"/>
+        </Grid.RowDefinitions>
+
+        <controls:SectionHeader Grid.Row="0" Grid.ColumnSpan="2"
+                                Title="Curriculum"
+                                Subtitle="Manage curriculum master records and subject-to-grade mappings"
+                                Margin="0,0,0,10"/>
+
+        <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,8,8" Padding="10">
+            <DockPanel>
+                <Button x:Name="btnRefresh" Content="Refresh" Width="90" DockPanel.Dock="Right" Style="{StaticResource GhostButton}"/>
+                <DockPanel Margin="0,0,8,0">
+                    <TextBlock Text="{StaticResource Icon.Search}" Style="{StaticResource GlyphIcon}" Margin="0,0,8,0"/>
+                    <TextBox x:Name="txtSearch" Width="260"/>
+                </DockPanel>
+            </DockPanel>
+        </Border>
+
+        <DataGrid Grid.Row="2" Grid.Column="0" Grid.RowSpan="2" x:Name="gridCurricula" IsReadOnly="True" Margin="0,0,8,0"/>
+
+        <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource CardPanel}" Margin="8,0,0,8">
+            <StackPanel>
+                <controls:SectionHeader Title="Curriculum Details" Subtitle="Master record management" Margin="0,0,0,8"/>
+                <Label Content="Name"/>
+                <TextBox x:Name="txtName"/>
+                <Label Content="Description" Margin="0,8,0,0"/>
+                <TextBox x:Name="txtDescription" Height="74" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"/>
+                <CheckBox x:Name="chkActive" Content="Active" Margin="2,8,2,0"/>
+                <WrapPanel Margin="0,10,0,0">
+                    <Button x:Name="btnAdd" Content="Add" Width="90"/>
+                    <Button x:Name="btnSave" Content="Save" Width="90"/>
+                    <Button x:Name="btnDelete" Content="Delete" Width="90" Style="{StaticResource GhostButton}"/>
+                    <Button x:Name="btnClear" Content="Clear" Width="90" Style="{StaticResource GhostButton}"/>
+                </WrapPanel>
+            </StackPanel>
+        </Border>
+
+        <GroupBox Grid.Row="2" Grid.Column="1" Header="Subject Mapping" Margin="8,8,0,8">
+            <Grid Margin="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <ComboBox Grid.Row="0" Grid.Column="0" x:Name="cboMapGrade" Margin="0,0,8,8" DisplayMemberPath="Code" SelectedValuePath="Id"/>
+                <ComboBox Grid.Row="0" Grid.Column="1" x:Name="cboMapSubject" Margin="0,0,8,8" DisplayMemberPath="Label" SelectedValuePath="Id"/>
+
+                <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Margin="0,0,8,8">
+                    <TextBlock Text="Semester" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <ComboBox x:Name="cboMapSemester" Width="70"/>
+                    <TextBlock Text="Required" VerticalAlignment="Center" Margin="12,0,8,0"/>
+                    <ComboBox x:Name="cboMapRequired" Width="74"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="0,0,8,8">
+                    <TextBlock Text="Sort" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <TextBox x:Name="txtMapSort" Width="70"/>
+                </StackPanel>
+
+                <WrapPanel Grid.Row="0" Grid.RowSpan="2" Grid.Column="2" VerticalAlignment="Top">
+                    <Button x:Name="btnMapAdd" Content="Add" Width="76"/>
+                    <Button x:Name="btnMapDelete" Content="Remove" Width="76" Style="{StaticResource GhostButton}"/>
+                </WrapPanel>
+            </Grid>
+        </GroupBox>
+
+        <DataGrid Grid.Row="3" Grid.Column="1" x:Name="gridMappings" IsReadOnly="True" Margin="8,0,0,0"/>
+    </Grid>
+</Window>
