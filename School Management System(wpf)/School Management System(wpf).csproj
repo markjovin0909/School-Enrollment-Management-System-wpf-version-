@@ -30,6 +30,9 @@
     <None Update="App.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Resource Include="..\Logo.jpg">
+      <Link>Assets\Logo.jpg</Link>
+    </Resource>
     <Content Include="Data\Migrations\*.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

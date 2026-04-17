@@ -7,58 +7,7 @@
         WindowStartupLocation="CenterScreen"
         WindowState="Maximized">
     <Grid Background="{StaticResource Brush.Background}">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="248"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-
-        <!-- Left navigation rail -->
-        <Border Grid.Column="0" BorderBrush="{StaticResource Brush.NavRailBorder}" BorderThickness="0,0,1,0" Padding="18,20,18,16">
-            <Border.Background>
-                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                    <GradientStop Color="{StaticResource Color.NavSurface}" Offset="0"/>
-                    <GradientStop Color="{StaticResource Color.NavSurfaceAlt}" Offset="1"/>
-                </LinearGradientBrush>
-            </Border.Background>
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-
-                <StackPanel Grid.Row="0" Margin="0,0,0,14">
-                    <TextBlock Text="EMS" FontSize="34" FontWeight="Bold" Foreground="#F3F8FF"/>
-                    <TextBlock Text="SUPERADMIN PORTAL" Style="{StaticResource NavSectionLabel}" Margin="0,2,0,0"/>
-                </StackPanel>
-
-                <Border Grid.Row="1" Style="{StaticResource InfoBanner}" Background="#112E50" BorderBrush="#2B5687" Margin="0,0,0,16">
-                    <TextBlock Text="Enrollment, staffing, reports, and administration" Foreground="#DDE8FA" TextWrapping="Wrap" FontSize="12"/>
-                </Border>
-
-                <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                    <StackPanel>
-                        <Button x:Name="btnNavDashboard" Content="Dashboard" Style="{StaticResource SideNavButton}"/>
-                        <Button x:Name="btnNavStudents" Content="Students" Style="{StaticResource SideNavButton}"/>
-                        <Button x:Name="btnNavTeachers" Content="Teachers" Style="{StaticResource SideNavButton}"/>
-                        <Button x:Name="btnNavEnrollment" Content="Enrollment" Style="{StaticResource SideNavButton}"/>
-                        <Button x:Name="btnNavReports" Content="Reports" Style="{StaticResource SideNavButton}"/>
-                        <Button x:Name="btnNavMasterData" Content="Master Data" Style="{StaticResource SideNavButton}"/>
-                        <Button x:Name="btnNavScheduling" Content="Scheduling" Style="{StaticResource SideNavButton}"/>
-                        <Button x:Name="btnNavAccountsCompliance" Content="Accounts &amp; Compliance" Style="{StaticResource SideNavButton}"/>
-                        <Button x:Name="btnNavMaintenance" Content="Maintenance" Style="{StaticResource SideNavButton}"/>
-                    </StackPanel>
-                </ScrollViewer>
-
-                <Border Grid.Row="3" Style="{StaticResource InfoBanner}" Background="#102747" BorderBrush="#294C78" Margin="0,16,0,0">
-                    <TextBlock Text="Backend parity is preserved while the desktop UX is modernized for faster admin workflows." Foreground="#C7D9F0" TextWrapping="Wrap" FontSize="11"/>
-                </Border>
-            </Grid>
-        </Border>
-
-        <!-- Workspace -->
-        <Grid Grid.Column="1">
+        <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
@@ -72,21 +21,37 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center" Margin="0,0,18,0">
-                        <TextBlock Text="Enrollment Management System" FontSize="20" FontWeight="SemiBold"/>
-                        <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
-                            <TextBlock x:Name="txtCurrentUser" Style="{StaticResource Text.CaptionStrong}"/>
-                            <TextBlock Text="  •  " Style="{StaticResource Text.Caption}"/>
-                            <TextBlock x:Name="txtCurrentEnvironment" Foreground="{StaticResource Brush.Info}" Style="{StaticResource Text.CaptionStrong}"/>
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,18,0">
+                        <Border Width="44"
+                                Height="44"
+                                CornerRadius="12"
+                                Background="{StaticResource Brush.SurfaceAlt}"
+                                BorderBrush="{StaticResource Brush.BorderStrong}"
+                                BorderThickness="1"
+                                Padding="4"
+                                Margin="0,0,12,0"
+                                VerticalAlignment="Center">
+                            <Image Source="/Assets/Logo.jpg" Stretch="Uniform"/>
+                        </Border>
+                        <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+                            <TextBlock Text="Enrollment Management System" FontSize="20" FontWeight="SemiBold"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                <TextBlock x:Name="txtCurrentUser" Style="{StaticResource Text.CaptionStrong}"/>
+                                <TextBlock Text="  •  " Style="{StaticResource Text.Caption}"/>
+                                <TextBlock x:Name="txtCurrentEnvironment" Foreground="{StaticResource Brush.Info}" Style="{StaticResource Text.CaptionStrong}"/>
+                            </StackPanel>
                         </StackPanel>
                     </StackPanel>
 
-                    <WrapPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center" ItemHeight="34">
-                        <Button x:Name="btnTopDbSettings" Content="DB Settings" Style="{StaticResource GhostButton}" Margin="0,0,8,0"/>
-                        <Button x:Name="btnTopChangePassword" Content="Change Password" Style="{StaticResource GhostButton}" Margin="0,0,8,0"/>
-                        <Button x:Name="btnTopActivity" Content="Activity History" Style="{StaticResource GhostButton}" Margin="0,0,8,0"/>
-                        <Button x:Name="btnTopLogout" Content="Logout" Style="{StaticResource DangerGhostButton}"/>
-                    </WrapPanel>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                        <WrapPanel HorizontalAlignment="Right" VerticalAlignment="Center" ItemHeight="36">
+                        <Button x:Name="btnTopDashboard" Content="Dashboard" Style="{StaticResource TopBarPrimaryButton}" Margin="0,0,8,0"/>
+                        <Button x:Name="btnTopDbSettings" Content="DB Settings" Style="{StaticResource TopBarGhostButton}" Margin="0,0,8,0"/>
+                        <Button x:Name="btnTopChangePassword" Content="Change Password" Style="{StaticResource TopBarGhostButton}" Margin="0,0,8,0"/>
+                        <Button x:Name="btnTopActivity" Content="Activity History" Style="{StaticResource TopBarGhostButton}" Margin="0,0,8,0"/>
+                        <Button x:Name="btnTopLogout" Content="Logout" Style="{StaticResource TopBarDangerButton}"/>
+                        </WrapPanel>
+                    </StackPanel>
                 </Grid>
             </Border>
 
@@ -100,276 +65,230 @@
 
                     <!-- Dashboard -->
                     <TabItem Header="Dashboard">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      CanContentScroll="False">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
 
-                            <Grid Grid.Row="0" Margin="0,0,0,12">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-
-                                <StackPanel Grid.Column="0">
-                                    <TextBlock Text="Dashboard" Style="{StaticResource Text.PageTitle}"/>
-                                    <TextBlock Text="Live enrollment, staffing, and operational graph overview" Style="{StaticResource Text.Subtitle}"/>
-                                </StackPanel>
-
-                                <Button x:Name="btnDashboardRefresh"
-                                        Grid.Column="1"
-                                        Content="Refresh"
-                                        Margin="12,0,0,0"
-                                        VerticalAlignment="Center"
-                                        Style="{StaticResource PageActionButton}"/>
-                            </Grid>
-
-                            <UniformGrid Grid.Row="1" Columns="6" Margin="0,0,0,12">
-                                <Border Style="{StaticResource CardPanel}" Margin="0,0,10,0"><StackPanel><TextBlock Text="Students" Style="{StaticResource Text.Caption}"/><TextBlock x:Name="cardStudents" Style="{StaticResource Text.Metric}"/></StackPanel></Border>
-                                <Border Style="{StaticResource CardPanel}" Margin="0,0,10,0"><StackPanel><TextBlock Text="Teachers" Style="{StaticResource Text.Caption}"/><TextBlock x:Name="cardTeachers" Style="{StaticResource Text.Metric}"/></StackPanel></Border>
-                                <Border Style="{StaticResource CardPanel}" Margin="0,0,10,0"><StackPanel><TextBlock Text="Sections" Style="{StaticResource Text.Caption}"/><TextBlock x:Name="cardSections" Style="{StaticResource Text.Metric}"/></StackPanel></Border>
-                                <Border Style="{StaticResource CardPanel}" Margin="0,0,10,0"><StackPanel><TextBlock Text="Offerings" Style="{StaticResource Text.Caption}"/><TextBlock x:Name="cardOfferings" Style="{StaticResource Text.Metric}"/></StackPanel></Border>
-                                <Border Style="{StaticResource CardPanel}" Margin="0,0,10,0"><StackPanel><TextBlock Text="Enrolled" Style="{StaticResource Text.Caption}"/><TextBlock x:Name="cardEnrolled" Style="{StaticResource Text.Metric}"/></StackPanel></Border>
-                                <Border Style="{StaticResource CardPanel}"><StackPanel><TextBlock Text="Pending" Style="{StaticResource Text.Caption}"/><TextBlock x:Name="cardPending" Style="{StaticResource Text.Metric}"/></StackPanel></Border>
-                            </UniformGrid>
-
-                            <UniformGrid Grid.Row="2" Columns="3" Margin="0,0,0,12">
-                                <Border Style="{StaticResource WarningBanner}" Margin="0,0,10,0">
-                                    <StackPanel>
-                                        <TextBlock Text="Requirement Alerts" Style="{StaticResource Text.CaptionStrong}" Foreground="{StaticResource Brush.Warning}"/>
-                                        <TextBlock x:Name="txtDashboardRequirementsWarning" Style="{StaticResource Text.Caption}" Margin="0,4,0,0"/>
-                                    </StackPanel>
-                                </Border>
-                                <Border Style="{StaticResource InfoBanner}" Margin="0,0,10,0">
-                                    <StackPanel>
-                                        <TextBlock Text="Waitlist Pressure" Style="{StaticResource Text.CaptionStrong}" Foreground="{StaticResource Brush.Info}"/>
-                                        <TextBlock x:Name="txtDashboardWaitlistWarning" Style="{StaticResource Text.Caption}" Margin="0,4,0,0"/>
-                                    </StackPanel>
-                                </Border>
-                                <Border Style="{StaticResource ErrorBanner}">
-                                    <StackPanel>
-                                        <TextBlock Text="Backup / Restore Health" Style="{StaticResource Text.CaptionStrong}" Foreground="{StaticResource Brush.Danger}"/>
-                                        <TextBlock x:Name="txtDashboardBackupWarning" Style="{StaticResource Text.Caption}" Margin="0,4,0,0"/>
-                                    </StackPanel>
-                                </Border>
-                            </UniformGrid>
-
-                            <UniformGrid Grid.Row="3" Columns="4" Margin="0,0,0,12">
-                                <Border Style="{StaticResource CardPanel}" Margin="0,0,10,0">
-                                    <StackPanel>
-                                        <TextBlock Text="Queue Aging" Style="{StaticResource Text.CaptionStrong}"/>
-                                        <TextBlock x:Name="txtMetricQueueAgingValue" Style="{StaticResource Text.Metric}" Margin="0,4,0,0"/>
-                                        <TextBlock x:Name="txtMetricQueueAgingTrend" Style="{StaticResource Text.Caption}" Margin="0,2,0,0" TextWrapping="Wrap"/>
-                                    </StackPanel>
-                                </Border>
-                                <Border Style="{StaticResource CardPanel}" Margin="0,0,10,0">
-                                    <StackPanel>
-                                        <TextBlock Text="Decision Reversals" Style="{StaticResource Text.CaptionStrong}"/>
-                                        <TextBlock x:Name="txtMetricDecisionReversalsValue" Style="{StaticResource Text.Metric}" Margin="0,4,0,0"/>
-                                        <TextBlock x:Name="txtMetricDecisionReversalsTrend" Style="{StaticResource Text.Caption}" Margin="0,2,0,0" TextWrapping="Wrap"/>
-                                    </StackPanel>
-                                </Border>
-                                <Border Style="{StaticResource CardPanel}" Margin="0,0,10,0">
-                                    <StackPanel>
-                                        <TextBlock Text="Waitlist Pressure" Style="{StaticResource Text.CaptionStrong}"/>
-                                        <TextBlock x:Name="txtMetricWaitlistPressureValue" Style="{StaticResource Text.Metric}" Margin="0,4,0,0"/>
-                                        <TextBlock x:Name="txtMetricWaitlistPressureTrend" Style="{StaticResource Text.Caption}" Margin="0,2,0,0" TextWrapping="Wrap"/>
-                                    </StackPanel>
-                                </Border>
-                                <Border Style="{StaticResource CardPanel}">
-                                    <StackPanel>
-                                        <TextBlock Text="Failed Critical Ops" Style="{StaticResource Text.CaptionStrong}"/>
-                                        <TextBlock x:Name="txtMetricFailedOpsValue" Style="{StaticResource Text.Metric}" Margin="0,4,0,0"/>
-                                        <TextBlock x:Name="txtMetricFailedOpsTrend" Style="{StaticResource Text.Caption}" Margin="0,2,0,0" TextWrapping="Wrap"/>
-                                    </StackPanel>
-                                </Border>
-                            </UniformGrid>
-
-                            <Grid Grid.Row="4">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="1.1*"/>
-                                    <ColumnDefinition Width="0.9*"/>
-                                </Grid.ColumnDefinitions>
-
-                                <Border Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,10,0">
+                            <StackPanel Grid.Row="0" Margin="0,0,0,12">
+                                <Border Margin="0,0,0,14"
+                                        CornerRadius="22"
+                                        Padding="0"
+                                        BorderBrush="#4E9ED3"
+                                        BorderThickness="1">
+                                    <Border.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="#113E78" Offset="0"/>
+                                            <GradientStop Color="#11626C" Offset="0.58"/>
+                                            <GradientStop Color="#1798A0" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Border.Background>
                                     <Grid>
                                         <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="52"/>
+                                            <RowDefinition Height="34"/>
+                                            <RowDefinition Height="*"/>
                                         </Grid.RowDefinitions>
 
-                                        <TextBlock Grid.Row="0" Text="Enrollment Status Chart" Style="{StaticResource Text.SectionTitle}" Margin="0,0,0,6"/>
-                                        <TextBlock Grid.Row="1" Text="Current distribution across active enrollment states." Style="{StaticResource Text.Caption}" Margin="0,0,0,14"/>
+                                        <Border Grid.Row="0" CornerRadius="22,22,0,0" Background="#154987">
+                                            <Grid Margin="24,0,24,0">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
 
-                                        <Border Grid.Row="2"
-                                                Height="220"
-                                                Background="{StaticResource Brush.SurfaceAlt}"
-                                                BorderBrush="{StaticResource Brush.Border}"
-                                                BorderThickness="1"
-                                                CornerRadius="14"
-                                                Padding="18">
-                                            <Grid>
-                                                <Grid.RowDefinitions>
-                                                    <RowDefinition Height="Auto"/>
-                                                    <RowDefinition Height="Auto"/>
-                                                    <RowDefinition Height="Auto"/>
-                                                    <RowDefinition Height="*"/>
-                                                </Grid.RowDefinitions>
+                                                <TextBlock Grid.Column="0"
+                                                           Text="School Management System"
+                                                           Foreground="White"
+                                                           FontSize="17"
+                                                           FontWeight="SemiBold"
+                                                           VerticalAlignment="Center"/>
+                                                <TextBlock Grid.Column="2"
+                                                           Text="{Binding Text, ElementName=txtCurrentEnvironment}"
+                                                           Foreground="#D8F6FF"
+                                                           FontSize="13"
+                                                           FontWeight="SemiBold"
+                                                           VerticalAlignment="Center"/>
+                                            </Grid>
+                                        </Border>
 
-                                                <TextBlock Grid.Row="0" x:Name="txtDashboardEnrollmentTotal" FontSize="30" FontWeight="Bold"/>
-                                                <TextBlock Grid.Row="1" Text="Total active enrollment states tracked" Style="{StaticResource Text.Caption}" Margin="0,2,0,18"/>
+                                        <UniformGrid Grid.Row="1" Columns="12">
+                                            <Border Background="#2A617F"/>
+                                            <Border Background="#3A7B97"/>
+                                            <Border Background="#2F6D89"/>
+                                            <Border Background="#497E98"/>
+                                            <Border Background="#235770"/>
+                                            <Border Background="#3F7086"/>
+                                            <Border Background="#2A617F"/>
+                                            <Border Background="#4A839C"/>
+                                            <Border Background="#25566C"/>
+                                            <Border Background="#3A7B97"/>
+                                            <Border Background="#2F6D89"/>
+                                            <Border Background="#497E98"/>
+                                        </UniformGrid>
 
-                                                <Border Grid.Row="2"
-                                                        Height="50"
-                                                        CornerRadius="10"
-                                                        BorderBrush="{StaticResource Brush.Border}"
-                                                        BorderThickness="1"
-                                                        Background="White"
-                                                        Padding="0"
-                                                        Margin="0,0,0,18">
-                                                    <Grid x:Name="gridDashboardEnrollmentSegments" ClipToBounds="True"/>
+                                        <Grid Grid.Row="2" Margin="24">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <Border Grid.Column="0"
+                                                Width="126"
+                                                Height="126"
+                                                CornerRadius="28"
+                                                Background="#0C284A"
+                                                BorderBrush="#7FD2F0"
+                                                BorderThickness="2"
+                                                Padding="12"
+                                                Margin="0,0,20,0">
+                                            <Image Source="/Assets/Logo.jpg" Stretch="Uniform"/>
+                                        </Border>
+
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <TextBlock x:Name="txtTodayInfo"
+                                                           Style="{StaticResource Text.CaptionStrong}"
+                                                           Foreground="#D8F6FF"
+                                                           Margin="0,0,0,6"/>
+                                                <TextBlock Text="School Enrollment Management System"
+                                                           Style="{StaticResource Text.PageTitle}"
+                                                           FontSize="30"
+                                                           Foreground="White"/>
+                                                <TextBlock Text="Central operations dashboard for enrollment, records, reports, and administration"
+                                                           Style="{StaticResource Text.Subtitle}"
+                                                           Foreground="#D9F0FF"
+                                                           Margin="0,8,0,0"/>
+                                                <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                                                    <Border Style="{StaticResource InfoBanner}" Background="#144D73" BorderBrush="#7BC9E8" Padding="10,8" Margin="0,0,10,0">
+                                                        <TextBlock Text="School profile, identity, and branding" Foreground="#F1FBFF"/>
+                                                    </Border>
+                                                    <Border Style="{StaticResource InfoBanner}" Background="#154E45" BorderBrush="#6FD6C4" Padding="10,8">
+                                                        <TextBlock Text="Centralized records and enrollment control" Foreground="#EDFFFB"/>
+                                                    </Border>
+                                                </StackPanel>
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
+                                                <TextBlock Text="Academic Operations" FontSize="28" FontWeight="SemiBold" Foreground="White" TextAlignment="Right"/>
+                                                <TextBlock Text="Command Center" FontSize="28" FontWeight="SemiBold" Foreground="White" TextAlignment="Right"/>
+                                                <TextBlock Text="Dashboard hub for every major workflow" Style="{StaticResource Text.CaptionStrong}" Foreground="#D8F6FF" Margin="0,12,0,0" TextAlignment="Right"/>
+                                                <Border Style="{StaticResource InfoBanner}" Background="#145A52" BorderBrush="#78D3C4" Padding="12,10" Margin="0,14,0,0">
+                                                    <StackPanel>
+                                                        <TextBlock Text="DATABASE" Foreground="#D7FFF8" FontSize="11" FontWeight="SemiBold" TextAlignment="Right"/>
+                                                        <TextBlock Text="CONNECTED" Foreground="White" FontSize="20" FontWeight="Bold" TextAlignment="Right"/>
+                                                    </StackPanel>
                                                 </Border>
-
-                                                <ItemsControl Grid.Row="3" x:Name="itemsDashboardEnrollmentLegend">
-                                                    <ItemsControl.ItemsPanel>
-                                                        <ItemsPanelTemplate>
-                                                            <StackPanel/>
-                                                        </ItemsPanelTemplate>
-                                                    </ItemsControl.ItemsPanel>
-                                                    <ItemsControl.ItemTemplate>
-                                                        <DataTemplate>
-                                                            <Grid Margin="0,0,0,8">
-                                                                <Grid.ColumnDefinitions>
-                                                                    <ColumnDefinition Width="14"/>
-                                                                    <ColumnDefinition Width="*"/>
-                                                                    <ColumnDefinition Width="Auto"/>
-                                                                </Grid.ColumnDefinitions>
-                                                                <Border Grid.Column="0"
-                                                                        Width="14"
-                                                                        Height="14"
-                                                                        CornerRadius="3"
-                                                                        Background="{Binding Fill}"
-                                                                        Margin="0,2,10,0"/>
-                                                                <StackPanel Grid.Column="1">
-                                                                    <TextBlock Text="{Binding Label}" Style="{StaticResource Text.CaptionStrong}"/>
-                                                                    <TextBlock Text="{Binding Detail}" Style="{StaticResource Text.Caption}"/>
-                                                                </StackPanel>
-                                                                <TextBlock Grid.Column="2"
-                                                                           Text="{Binding PercentageLabel}"
-                                                                           Style="{StaticResource Text.CaptionStrong}"
-                                                                           VerticalAlignment="Center"
-                                                                           Margin="12,0,0,0"/>
-                                                            </Grid>
-                                                        </DataTemplate>
-                                                    </ItemsControl.ItemTemplate>
-                                                </ItemsControl>
-                                            </Grid>
-                                        </Border>
+                                            </StackPanel>
+                                        </Grid>
                                     </Grid>
                                 </Border>
 
-                                <Border Grid.Column="1" Style="{StaticResource CardPanel}">
-                                    <Grid>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                        </Grid.RowDefinitions>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
 
-                                        <TextBlock Grid.Row="0" Text="Operational Metrics Chart" Style="{StaticResource Text.SectionTitle}" Margin="0,0,0,6"/>
-                                        <TextBlock Grid.Row="1" Text="Current signal strength by operational metric." Style="{StaticResource Text.Caption}" Margin="0,0,0,14"/>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Dashboard" Style="{StaticResource Text.PageTitle}"/>
+                                        <TextBlock Text="Use the dashboard as the main launch point for every module in the system." Style="{StaticResource Text.Subtitle}"/>
+                                    </StackPanel>
 
-                                        <Border Grid.Row="2"
-                                                Height="220"
-                                                Background="{StaticResource Brush.SurfaceAlt}"
-                                                BorderBrush="{StaticResource Brush.Border}"
-                                                BorderThickness="1"
-                                                CornerRadius="14"
-                                                Padding="18">
-                                            <Grid>
-                                                <Grid.RowDefinitions>
-                                                    <RowDefinition Height="*"/>
-                                                    <RowDefinition Height="Auto"/>
-                                                </Grid.RowDefinitions>
+                                    <Button x:Name="btnDashboardRefresh"
+                                            Grid.Column="1"
+                                            Content="Refresh"
+                                            Margin="12,0,0,0"
+                                            VerticalAlignment="Center"
+                                            Style="{StaticResource PageActionButton}"/>
+                                </Grid>
+                            </StackPanel>
 
-                                                <ItemsControl Grid.Row="0" x:Name="itemsDashboardMetricBars" VerticalAlignment="Stretch">
-                                                    <ItemsControl.ItemsPanel>
-                                                        <ItemsPanelTemplate>
-                                                            <UniformGrid Columns="4"/>
-                                                        </ItemsPanelTemplate>
-                                                    </ItemsControl.ItemsPanel>
-                                                    <ItemsControl.ItemTemplate>
-                                                        <DataTemplate>
-                                                            <Grid Margin="8,0">
-                                                                <Grid.RowDefinitions>
-                                                                    <RowDefinition Height="Auto"/>
-                                                                    <RowDefinition Height="*"/>
-                                                                    <RowDefinition Height="Auto"/>
-                                                                    <RowDefinition Height="Auto"/>
-                                                                </Grid.RowDefinitions>
-                                                                <TextBlock Grid.Row="0"
-                                                                           Text="{Binding ValueLabel}"
-                                                                           Style="{StaticResource Text.CaptionStrong}"
-                                                                           HorizontalAlignment="Center"
-                                                                           Margin="0,0,0,8"/>
-                                                                <Grid Grid.Row="1" VerticalAlignment="Bottom">
-                                                                    <Border Width="52"
-                                                                            Height="150"
-                                                                            Background="White"
-                                                                            BorderBrush="{StaticResource Brush.Border}"
-                                                                            BorderThickness="1"
-                                                                            CornerRadius="10"
-                                                                            HorizontalAlignment="Center"
-                                                                            VerticalAlignment="Bottom"/>
-                                                                    <Border Width="52"
-                                                                            Height="{Binding ColumnHeight}"
-                                                                            Background="{Binding Fill}"
-                                                                            CornerRadius="10,10,10,10"
-                                                                            HorizontalAlignment="Center"
-                                                                            VerticalAlignment="Bottom"/>
-                                                                </Grid>
-                                                                <TextBlock Grid.Row="2"
-                                                                           Text="{Binding Label}"
-                                                                           TextAlignment="Center"
-                                                                           TextWrapping="Wrap"
-                                                                           Style="{StaticResource Text.CaptionStrong}"
-                                                                           Margin="0,10,0,0"/>
-                                                                <TextBlock Grid.Row="3"
-                                                                           Text="{Binding Trend}"
-                                                                           TextAlignment="Center"
-                                                                           TextWrapping="Wrap"
-                                                                           Style="{StaticResource Text.Caption}"
-                                                                           Margin="0,4,0,0"/>
-                                                            </Grid>
-                                                        </DataTemplate>
-                                                    </ItemsControl.ItemTemplate>
-                                                </ItemsControl>
-
-                                                <TextBlock Grid.Row="1"
-                                                           Text="Scale: relative within the current dashboard snapshot"
-                                                           Style="{StaticResource Text.Caption}"
-                                                           HorizontalAlignment="Right"
-                                                           Margin="0,12,0,0"/>
-                                            </Grid>
-                                        </Border>
+                            <UniformGrid Grid.Row="1" Columns="4" Margin="0,0,0,12">
+                                <Button x:Name="btnHubStudents" Style="{StaticResource DashboardHubTileButton}" Background="#147A78" BorderBrush="#49B8B0" Foreground="White" Margin="0,0,10,10">
+                                    <Grid Margin="18">
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <TextBlock Text="&#xE716;" FontFamily="Segoe MDL2 Assets" FontSize="34" Foreground="White"/>
+                                        <TextBlock Grid.Row="1" Text="Students" FontSize="22" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="White"/>
+                                        <TextBlock Grid.Row="2" Text="Manage student identity, profiles, accounts, and status." Style="{StaticResource Text.Caption}" Foreground="#E6FFFD" TextWrapping="Wrap"/>
                                     </Grid>
-                                </Border>
-                            </Grid>
+                                </Button>
+                                <Button x:Name="btnHubTeachers" Style="{StaticResource DashboardHubTileButton}" Background="#2C6FA3" BorderBrush="#78B7E8" Foreground="White" Margin="0,0,10,10">
+                                    <Grid Margin="18">
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <TextBlock Text="&#xE77B;" FontFamily="Segoe MDL2 Assets" FontSize="34" Foreground="White"/>
+                                        <TextBlock Grid.Row="1" Text="Teachers" FontSize="22" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="White"/>
+                                        <TextBlock Grid.Row="2" Text="Open teacher records, credentials, and activity controls." Style="{StaticResource Text.Caption}" Foreground="#EEF8FF" TextWrapping="Wrap"/>
+                                    </Grid>
+                                </Button>
+                                <Button x:Name="btnHubEnrollment" Style="{StaticResource DashboardHubTileButton}" Background="#0F8F67" BorderBrush="#54D2A6" Foreground="White" Margin="0,0,10,10">
+                                    <Grid Margin="18">
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <TextBlock Text="&#xE8C7;" FontFamily="Segoe MDL2 Assets" FontSize="34" Foreground="White"/>
+                                        <TextBlock Grid.Row="1" Text="Enrollment" FontSize="22" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="White"/>
+                                        <TextBlock Grid.Row="2" Text="Process applications, approvals, transfers, and queue actions." Style="{StaticResource Text.Caption}" Foreground="#E7FFF5" TextWrapping="Wrap"/>
+                                    </Grid>
+                                </Button>
+                                <Button x:Name="btnHubReports" Style="{StaticResource DashboardHubTileButton}" Background="#D08A19" BorderBrush="#F4C966" Foreground="White" Margin="0,0,0,10">
+                                    <Grid Margin="18">
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <TextBlock Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets" FontSize="34" Foreground="White"/>
+                                        <TextBlock Grid.Row="1" Text="Reports" FontSize="22" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="White"/>
+                                        <TextBlock Grid.Row="2" Text="Generate dashboard outputs, exports, and report presets." Style="{StaticResource Text.Caption}" Foreground="#FFF8E8" TextWrapping="Wrap"/>
+                                    </Grid>
+                                </Button>
+                                <Button x:Name="btnHubMasterData" Style="{StaticResource DashboardHubTileButton}" Background="#7D4C9E" BorderBrush="#BE92DB" Foreground="White" Margin="0,0,10,0">
+                                    <Grid Margin="18">
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <TextBlock Text="&#xE943;" FontFamily="Segoe MDL2 Assets" FontSize="34" Foreground="White"/>
+                                        <TextBlock Grid.Row="1" Text="Master Data" FontSize="22" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="White"/>
+                                        <TextBlock Grid.Row="2" Text="School settings, years, grade levels, subjects, curriculum, and sections." Style="{StaticResource Text.Caption}" Foreground="#F7EEFF" TextWrapping="Wrap"/>
+                                    </Grid>
+                                </Button>
+                                <Button x:Name="btnHubScheduling" Style="{StaticResource DashboardHubTileButton}" Background="#356D55" BorderBrush="#83C7A5" Foreground="White" Margin="0,0,10,0">
+                                    <Grid Margin="18">
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <TextBlock Text="&#xE823;" FontFamily="Segoe MDL2 Assets" FontSize="34" Foreground="White"/>
+                                        <TextBlock Grid.Row="1" Text="Scheduling" FontSize="22" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="White"/>
+                                        <TextBlock Grid.Row="2" Text="Offerings, schedules, rooms, time slots, and teacher loads." Style="{StaticResource Text.Caption}" Foreground="#ECFFF4" TextWrapping="Wrap"/>
+                                    </Grid>
+                                </Button>
+                                <Button x:Name="btnHubAccountsCompliance" Style="{StaticResource DashboardHubTileButton}" Background="#BF5B22" BorderBrush="#F0A46C" Foreground="White" Margin="0,0,10,0">
+                                    <Grid Margin="18">
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <TextBlock Text="&#xEA18;" FontFamily="Segoe MDL2 Assets" FontSize="34" Foreground="White"/>
+                                        <TextBlock Grid.Row="1" Text="Accounts &amp; Compliance" FontSize="22" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="White"/>
+                                        <TextBlock Grid.Row="2" Text="Student accounts, requirements, archive center, and compliance actions." Style="{StaticResource Text.Caption}" Foreground="#FFF1E7" TextWrapping="Wrap"/>
+                                    </Grid>
+                                </Button>
+                                <Button x:Name="btnHubMaintenance" Style="{StaticResource DashboardHubTileButton}" Background="#A33B34" BorderBrush="#E08780" Foreground="White">
+                                    <Grid Margin="18">
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="34" Foreground="White"/>
+                                        <TextBlock Grid.Row="1" Text="Maintenance" FontSize="22" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="White"/>
+                                        <TextBlock Grid.Row="2" Text="Backup, restore, and year-end rollover administration." Style="{StaticResource Text.Caption}" Foreground="#FFF0EF" TextWrapping="Wrap"/>
+                                    </Grid>
+                                </Button>
+                            </UniformGrid>
+
                         </Grid>
+                        </ScrollViewer>
                     </TabItem>
 
                     <!-- Students -->
                     <TabItem Header="Students">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      CanContentScroll="False">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
                             <DockPanel Grid.Row="0" Margin="0,0,0,10">
@@ -534,14 +453,18 @@
                                 </Border>
                             </Grid>
                         </Grid>
+                        </ScrollViewer>
                     </TabItem>
 
                     <!-- Teachers -->
                     <TabItem Header="Teachers">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      CanContentScroll="False">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
                             <DockPanel Grid.Row="0" Margin="0,0,0,10">
@@ -691,15 +614,19 @@
                                 </Border>
                             </Grid>
                         </Grid>
+                        </ScrollViewer>
                     </TabItem>
 
                     <!-- Enrollment -->
                     <TabItem Header="Enrollment">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      CanContentScroll="False">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="1.62*"/>
@@ -849,15 +776,19 @@
                                 </ScrollViewer>
                             </Border>
                         </Grid>
+                        </ScrollViewer>
                     </TabItem>
 
                     <!-- Reports -->
                     <TabItem Header="Reports">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      CanContentScroll="False">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
                             <DockPanel Grid.Row="0" Margin="0,0,0,10">
@@ -942,14 +873,18 @@
                                 </Grid>
                             </Border>
                         </Grid>
+                        </ScrollViewer>
                     </TabItem>
 
                     <!-- Master Data -->
                     <TabItem Header="Master Data">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      CanContentScroll="False">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
                             <controls:SectionHeader Grid.Row="0"
@@ -998,14 +933,18 @@
                                 </Border>
                             </Grid>
                         </Grid>
+                        </ScrollViewer>
                     </TabItem>
 
                     <!-- Scheduling -->
                     <TabItem Header="Scheduling">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      CanContentScroll="False">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
                             <controls:SectionHeader Grid.Row="0"
@@ -1053,14 +992,18 @@
                                 </Border>
                             </Grid>
                         </Grid>
+                        </ScrollViewer>
                     </TabItem>
 
                     <!-- Accounts & Compliance -->
                     <TabItem Header="Accounts &amp; Compliance">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      CanContentScroll="False">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
                             <controls:SectionHeader Grid.Row="0"
@@ -1106,14 +1049,18 @@
                                 </Border>
                             </Grid>
                         </Grid>
+                        </ScrollViewer>
                     </TabItem>
 
                     <!-- Maintenance -->
                     <TabItem Header="Maintenance">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      CanContentScroll="False">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
                             <controls:SectionHeader Grid.Row="0"
@@ -1158,6 +1105,7 @@
                                 </Border>
                             </Grid>
                         </Grid>
+                        </ScrollViewer>
                     </TabItem>
                 </TabControl>
             </Border>

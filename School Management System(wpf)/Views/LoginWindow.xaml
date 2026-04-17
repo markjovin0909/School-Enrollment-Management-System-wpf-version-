@@ -17,30 +17,73 @@
         <Grid Grid.Column="0" Margin="28,24,16,24">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <Border Grid.RowSpan="4" CornerRadius="18" Background="{StaticResource Brush.NavSurface}"/>
+            <Border Grid.RowSpan="3" CornerRadius="18" Background="{StaticResource Brush.NavSurface}"/>
 
-            <StackPanel Grid.Row="0" Margin="24,24,24,10">
-                <TextBlock Text="Enrollment Management System" Style="{StaticResource Text.PageTitle}" Foreground="White" TextWrapping="Wrap"/>
-                <TextBlock Text="SUPERADMIN Control Portal" Style="{StaticResource Text.Subtitle}" Foreground="#BFD0EE" Margin="0,6,0,0"/>
-            </StackPanel>
+            <Image Grid.RowSpan="3"
+                   Source="/Assets/Logo.jpg"
+                   Width="360"
+                   Height="360"
+                   Stretch="Uniform"
+                   Opacity="0.06"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   IsHitTestVisible="False"/>
 
-            <StackPanel Grid.Row="1" Margin="24,4,24,20">
-                <Border Style="{StaticResource InfoBanner}" Background="#132645" BorderBrush="#2E4470" Padding="12">
-                    <TextBlock Text="Secure administrative workspace for enrollment, staffing, reports, and operational controls." Foreground="#E3ECFA" TextWrapping="Wrap"/>
+            <Grid Grid.Row="0" Margin="24,24,24,10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="0"
+                        Width="266"
+                        Height="266"
+                        CornerRadius="40"
+                        Background="#0E2038"
+                        BorderBrush="#3B6298"
+                        BorderThickness="2"
+                        Padding="20"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center">
+                    <Image Source="/Assets/Logo.jpg" Stretch="Uniform"/>
                 </Border>
-                <Border Style="{StaticResource WarningBanner}" Background="#2F2420" BorderBrush="#7F5846" Padding="12" Margin="0,10,0,0">
-                    <TextBlock Text="Access policy: SUPERADMIN accounts only. Student/Teacher accounts remain managed records." Foreground="#FFE6D1" TextWrapping="Wrap"/>
-                </Border>
-            </StackPanel>
 
-            <StackPanel Grid.Row="3" Margin="24,10,24,24">
+                <StackPanel Grid.Row="1" HorizontalAlignment="Center" Margin="0,18,0,0">
+                    <TextBlock Text="Enrollment Management System"
+                               Style="{StaticResource Text.PageTitle}"
+                               FontSize="28"
+                               Foreground="White"
+                               TextWrapping="Wrap"
+                               TextAlignment="Center"/>
+                    <TextBlock Text="SUPERADMIN Control Portal"
+                               Style="{StaticResource Text.Subtitle}"
+                               Foreground="#BFD0EE"
+                               Margin="0,6,0,0"
+                               TextAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+
+            <StackPanel Grid.Row="2" Margin="24,6,24,24" HorizontalAlignment="Center">
+                <TextBlock Text="Secure administrative workspace for enrollment, staffing, reports, and operational controls."
+                           Style="{StaticResource Text.Caption}"
+                           Foreground="#D7E5FA"
+                           TextWrapping="Wrap"
+                           TextAlignment="Center"
+                           MaxWidth="360"/>
+                <TextBlock Text="SUPERADMIN access only."
+                           Style="{StaticResource Text.CaptionStrong}"
+                           Foreground="#FFD8B8"
+                           Margin="0,10,0,0"
+                           TextAlignment="Center"/>
                 <TextBlock Text="Session and DB configuration are enforced before sign-in." Style="{StaticResource Text.Caption}" Foreground="#AFC2E0"/>
-                <TextBlock Text="Use DB Settings when changing environment credentials." Style="{StaticResource Text.Caption}" Foreground="#AFC2E0"/>
+                <TextBlock Text="Use DB Settings when changing environment credentials."
+                           Style="{StaticResource Text.Caption}"
+                           Foreground="#AFC2E0"
+                           TextAlignment="Center"/>
             </StackPanel>
         </Grid>
 

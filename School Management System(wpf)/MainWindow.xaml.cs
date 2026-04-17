@@ -36,14 +36,12 @@ namespace School_Management_System
         private readonly ReportPresetHistoryService _reportPresetHistoryService = new();
         private readonly BackupRestoreService _backupRestoreService = new();
         private readonly ExceptionQueueService _exceptionQueueService = new();
-        private readonly OperationalMetricsDashboardService _operationalMetricsService = new();
         private readonly SchoolYearService _schoolYearService = new();
         private readonly GradeLevelService _gradeLevelService = new();
         private readonly SectionService _sectionService = new();
         private readonly CurriculumService _curriculumService = new();
         private readonly ClassOfferingService _classOfferingService = new();
         private readonly SubjectService _subjectService = new();
-        private readonly List<Button> _navButtons = new();
         private readonly List<Button> _opsSubMenuButtons = new();
         private readonly Dictionary<Button, OperationsSection> _opsButtonSections = new();
         private readonly Dictionary<Button, string> _opsButtonLabels = new();
@@ -51,6 +49,7 @@ namespace School_Management_System
         private readonly Dictionary<OperationsSection, ContentControl> _opsHosts = new();
         private readonly Dictionary<OperationsSection, TextBlock> _opsPlaceholders = new();
         private readonly Dictionary<OperationsSection, TextBlock> _opsWorkspaceInfo = new();
+        private readonly Dictionary<OperationsSection, Action> _opsDefaultLoaders = new();
 
         private DataTable _studentsTable = new();
         private DataTable _teachersTable = new();
@@ -107,6 +106,7 @@ namespace School_Management_System
 
             txtCurrentUser.Text = $"User: {_currentUser.Username}";
             txtCurrentEnvironment.Text = $"Environment: {DatabaseConfig.ActiveEnvironment}";
+            txtTodayInfo.Text = DateTime.Today.ToString("dddd, MMMM dd, yyyy");
 
             WireNavigation();
             WireTopBar();
@@ -124,29 +124,15 @@ namespace School_Management_System
 
         private void WireNavigation()
         {
-            _navButtons.Clear();
-            _navButtons.AddRange(new[]
-            {
-                btnNavDashboard,
-                btnNavStudents,
-                btnNavTeachers,
-                btnNavEnrollment,
-                btnNavReports,
-                btnNavMasterData,
-                btnNavScheduling,
-                btnNavAccountsCompliance,
-                btnNavMaintenance
-            });
-
-            btnNavDashboard.Click += (_, _) => NavigateMainTab(0);
-            btnNavStudents.Click += (_, _) => NavigateMainTab(1);
-            btnNavTeachers.Click += (_, _) => NavigateMainTab(2);
-            btnNavEnrollment.Click += (_, _) => NavigateMainTab(3);
-            btnNavReports.Click += (_, _) => NavigateMainTab(4);
-            btnNavMasterData.Click += (_, _) => NavigateMainTab(5);
-            btnNavScheduling.Click += (_, _) => NavigateMainTab(6);
-            btnNavAccountsCompliance.Click += (_, _) => NavigateMainTab(7);
-            btnNavMaintenance.Click += (_, _) => NavigateMainTab(8);
+            btnTopDashboard.Click += (_, _) => NavigateMainTab(0);
+            btnHubStudents.Click += (_, _) => NavigateMainTab(1);
+            btnHubTeachers.Click += (_, _) => NavigateMainTab(2);
+            btnHubEnrollment.Click += (_, _) => NavigateMainTab(3);
+            btnHubReports.Click += (_, _) => NavigateMainTab(4);
+            btnHubMasterData.Click += (_, _) => NavigateMainTab(5);
+            btnHubScheduling.Click += (_, _) => NavigateMainTab(6);
+            btnHubAccountsCompliance.Click += (_, _) => NavigateMainTab(7);
+            btnHubMaintenance.Click += (_, _) => NavigateMainTab(8);
 
             tabsMain.SelectionChanged += (_, _) => UpdateNavigationState();
             NavigateMainTab(0);
@@ -155,33 +141,13 @@ namespace School_Management_System
         private void NavigateMainTab(int index)
         {
             tabsMain.SelectedIndex = index;
+            EnsureDefaultOperationsModuleForTab(index);
             UpdateNavigationState();
         }
 
         private void UpdateNavigationState()
         {
-            if (_navButtons.Count == 0)
-            {
-                return;
-            }
-
-            var activeBackground = (Brush)FindResource("Brush.NavButtonActive");
-            var inactiveBackground = (Brush)FindResource("Brush.NavButton");
-            var activeBorder = (Brush)FindResource("Brush.NavButtonActiveBorder");
-            var inactiveBorder = (Brush)FindResource("Brush.NavButtonBorder");
-            var activeForeground = (Brush)FindResource("Brush.NavButtonTextActive");
-            var inactiveForeground = (Brush)FindResource("Brush.NavButtonText");
-
-            for (var i = 0; i < _navButtons.Count; i++)
-            {
-                var button = _navButtons[i];
-                var active = tabsMain.SelectedIndex == i;
-                button.Background = active ? activeBackground : inactiveBackground;
-                button.BorderBrush = active ? activeBorder : inactiveBorder;
-                button.Foreground = active ? activeForeground : inactiveForeground;
-                button.FontWeight = active ? FontWeights.Bold : FontWeights.SemiBold;
-                button.Opacity = 1;
-            }
+            btnTopDashboard.Visibility = tabsMain.SelectedIndex == 0 ? Visibility.Collapsed : Visibility.Visible;
         }
 
         private void WireTopBar()
@@ -266,209 +232,11 @@ namespace School_Management_System
                 _students = _studentService.GetAll().ToList();
                 _teachers = _teacherService.GetAll().ToList();
                 _sections = _sectionService.GetAll().ToList();
-                var offerings = _classOfferingService.GetAll().ToList();
-                var enrollments = _enrollmentService.GetAll().ToList();
-
-                cardStudents.Text = _students.Count.ToString();
-                cardTeachers.Text = _teachers.Count.ToString();
-                cardSections.Text = _sections.Count(x => !x.IsArchived).ToString();
-                cardOfferings.Text = offerings.Count(x => x.Status != ClassOfferingStatus.ARCHIVED).ToString();
-                cardEnrolled.Text = enrollments.Count(x => x.Status == EnrollmentStatus.ENROLLED).ToString();
-                cardPending.Text = enrollments.Count(x => x.Status == EnrollmentStatus.PENDING).ToString();
-                PopulateDashboardWarnings(enrollments);
-                PopulateEnrollmentStatusGraph(enrollments);
-                PopulateOperationalMetrics();
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Dashboard load failed: {ex.Message}", "Dashboard", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-        }
-
-        private void PopulateEnrollmentStatusGraph(List<Enrollment> enrollments)
-        {
-            var enrolledCount = enrollments.Count(x => x.Status == EnrollmentStatus.ENROLLED);
-            var pendingCount = enrollments.Count(x => x.Status == EnrollmentStatus.PENDING);
-            var reservedCount = enrollments.Count(x => x.Status == EnrollmentStatus.RESERVED);
-            var total = Math.Max(1, enrolledCount + pendingCount + reservedCount);
-
-            txtDashboardEnrollmentTotal.Text = total.ToString();
-
-            var segments = new List<DashboardStatusChartItem>
-            {
-                new()
-                {
-                    Label = "Enrolled",
-                    Count = enrolledCount,
-                    Percentage = enrolledCount * 100d / total,
-                    Fill = (Brush)FindResource("Brush.Success")
-                },
-                new()
-                {
-                    Label = "Pending",
-                    Count = pendingCount,
-                    Percentage = pendingCount * 100d / total,
-                    Fill = (Brush)FindResource("Brush.Warning")
-                },
-                new()
-                {
-                    Label = "Reserved",
-                    Count = reservedCount,
-                    Percentage = reservedCount * 100d / total,
-                    Fill = (Brush)FindResource("Brush.Info")
-                }
-            };
-
-            foreach (var segment in segments)
-            {
-                segment.PercentageLabel = $"{segment.Percentage:0.#}%";
-                segment.Detail = $"{segment.Count} record(s)";
-            }
-
-            gridDashboardEnrollmentSegments.ColumnDefinitions.Clear();
-            gridDashboardEnrollmentSegments.Children.Clear();
-
-            for (var i = 0; i < segments.Count; i++)
-            {
-                var segment = segments[i];
-                gridDashboardEnrollmentSegments.ColumnDefinitions.Add(new ColumnDefinition
-                {
-                    Width = new GridLength(Math.Max(segment.Count, 1), GridUnitType.Star)
-                });
-
-                var bar = new Border
-                {
-                    Background = segment.Fill
-                };
-
-                Grid.SetColumn(bar, i);
-                gridDashboardEnrollmentSegments.Children.Add(bar);
-            }
-
-            itemsDashboardEnrollmentLegend.ItemsSource = segments;
-        }
-
-        private void PopulateOperationalMetrics()
-        {
-            var snapshot = _operationalMetricsService.BuildSnapshot();
-            SetMetric(txtMetricQueueAgingValue, txtMetricQueueAgingTrend, snapshot.QueueAging);
-            SetMetric(txtMetricDecisionReversalsValue, txtMetricDecisionReversalsTrend, snapshot.DecisionReversals);
-            SetMetric(txtMetricWaitlistPressureValue, txtMetricWaitlistPressureTrend, snapshot.WaitlistPressure);
-            SetMetric(txtMetricFailedOpsValue, txtMetricFailedOpsTrend, snapshot.FailedCriticalOps);
-
-            var metrics = snapshot.All
-                .Select(metric => new DashboardMetricChartItem
-                {
-                    Label = metric.Title.Replace(" (7d)", string.Empty),
-                    ValueLabel = metric.Value,
-                    Trend = metric.Trend,
-                    NumericValue = double.TryParse(metric.Value, out var value) ? value : 0,
-                    Fill = metric.Severity switch
-                    {
-                        "critical" => (Brush)FindResource("Brush.Danger"),
-                        "warning" => (Brush)FindResource("Brush.Warning"),
-                        _ => (Brush)FindResource("Brush.Success")
-                    }
-                })
-                .ToList();
-
-            var maxValue = Math.Max(1d, metrics.Max(x => x.NumericValue));
-            foreach (var metric in metrics)
-            {
-                metric.ColumnHeight = 24d + (metric.NumericValue / maxValue) * 126d;
-            }
-
-            itemsDashboardMetricBars.ItemsSource = metrics;
-        }
-
-        private void SetMetric(TextBlock valueBlock, TextBlock trendBlock, OperationalTrendMetric metric)
-        {
-            valueBlock.Text = metric.Value;
-            trendBlock.Text = metric.Trend;
-
-            var severityBrush = metric.Severity switch
-            {
-                "critical" => (Brush)FindResource("Brush.Danger"),
-                "warning" => (Brush)FindResource("Brush.Warning"),
-                _ => (Brush)FindResource("Brush.Success")
-            };
-
-            valueBlock.Foreground = severityBrush;
-            trendBlock.Foreground = severityBrush;
-        }
-
-        private void PopulateDashboardWarnings(List<Enrollment> enrollments)
-        {
-            var requirements = _studentRequirementService.GetAll().ToList();
-            var requirementGroups = requirements
-                .GroupBy(x => x.StudentId)
-                .ToDictionary(g => g.Key, g => g.ToList());
-
-            var activeStudents = _students.Where(x => x.Status == UserStatus.ACTIVE).ToList();
-            var incompleteRequirementCount = activeStudents.Count(student =>
-                !requirementGroups.TryGetValue(student.Id, out var studentRequirements) ||
-                studentRequirements.Count == 0 ||
-                studentRequirements.Any(r => !r.IsSubmitted));
-
-            txtDashboardRequirementsWarning.Text = incompleteRequirementCount == 0
-                ? "No requirement blockers detected for active students."
-                : $"{incompleteRequirementCount} active student(s) have incomplete requirements.";
-
-            var waitlisted = enrollments
-                .Where(x => x.Status == EnrollmentStatus.RESERVED)
-                .ToList();
-            if (waitlisted.Count == 0)
-            {
-                txtDashboardWaitlistWarning.Text = "No waitlisted enrollments. Section capacity is healthy.";
-            }
-            else
-            {
-                var topSection = waitlisted
-                    .GroupBy(x => x.SectionId)
-                    .Select(g => new { SectionId = g.Key, Count = g.Count() })
-                    .OrderByDescending(x => x.Count)
-                    .ThenBy(x => x.SectionId)
-                    .First();
-                var sectionName = _sections.FirstOrDefault(x => x.Id == topSection.SectionId)?.Name ?? $"Section {topSection.SectionId}";
-                txtDashboardWaitlistWarning.Text = $"{waitlisted.Count} waitlisted enrollment(s). Highest pressure: {sectionName} ({topSection.Count}).";
-            }
-
-            var history = _backupRestoreService
-                .LoadHistory(30)
-                .OrderByDescending(x => x.TimestampUtc)
-                .ToList();
-            var latestFailure = history.FirstOrDefault(x => !string.Equals(x.Status, "SUCCESS", StringComparison.OrdinalIgnoreCase));
-
-            if (latestFailure != null)
-            {
-                txtDashboardBackupWarning.Text = $"Last failure: {latestFailure.Action} on {latestFailure.TimestampUtc.ToLocalTime():yyyy-MM-dd HH:mm}.";
-                return;
-            }
-
-            var latestRun = history.FirstOrDefault();
-            txtDashboardBackupWarning.Text = latestRun == null
-                ? "No backup/restore history yet."
-                : $"Latest run OK: {latestRun.Action} on {latestRun.TimestampUtc.ToLocalTime():yyyy-MM-dd HH:mm}.";
-        }
-
-        private sealed class DashboardStatusChartItem
-        {
-            public string Label { get; set; } = string.Empty;
-            public int Count { get; set; }
-            public double Percentage { get; set; }
-            public string PercentageLabel { get; set; } = string.Empty;
-            public string Detail { get; set; } = string.Empty;
-            public Brush Fill { get; set; } = Brushes.Transparent;
-        }
-
-        private sealed class DashboardMetricChartItem
-        {
-            public string Label { get; set; } = string.Empty;
-            public string ValueLabel { get; set; } = "0";
-            public string Trend { get; set; } = string.Empty;
-            public double NumericValue { get; set; }
-            public double ColumnHeight { get; set; }
-            public Brush Fill { get; set; } = Brushes.Transparent;
         }
 
         private void WireOperationsButtons()
@@ -492,6 +260,11 @@ namespace School_Management_System
 
             BindOperationsModuleButton(btnOpsBackup, OperationsSection.Maintenance, "backup_restore", () => new BackupRestoreWindow(() => Logout("RESTORE_RELOGIN")));
             BindOperationsModuleButton(btnOpsYearEnd, OperationsSection.Maintenance, "year_end_rollover", () => new YearEndRolloverWindow());
+
+            _opsDefaultLoaders[OperationsSection.MasterData] = () => LoadOperationsModule(OperationsSection.MasterData, btnOpsSchoolSettings, "school_settings", () => new SchoolSettingsWindow());
+            _opsDefaultLoaders[OperationsSection.Scheduling] = () => LoadOperationsModule(OperationsSection.Scheduling, btnOpsOfferings, "class_offerings", () => new ClassOfferingsWindow());
+            _opsDefaultLoaders[OperationsSection.AccountsCompliance] = () => LoadOperationsModule(OperationsSection.AccountsCompliance, btnOpsStudentAccounts, "student_accounts", () => new StudentAccountsWindow(_currentUser, dialogOwner: this));
+            _opsDefaultLoaders[OperationsSection.Maintenance] = () => LoadOperationsModule(OperationsSection.Maintenance, btnOpsBackup, "backup_restore", () => new BackupRestoreWindow(() => Logout("RESTORE_RELOGIN")));
         }
 
         private void InitializeOperationsInlineHosts()
@@ -632,6 +405,38 @@ namespace School_Management_System
                 ? mapped
                 : selectedButton.Content?.ToString() ?? "Module";
             info.Text = $"{sectionLabel} active module: {label}. Use the left list to switch context without leaving the page.";
+        }
+
+        private void EnsureDefaultOperationsModuleForTab(int tabIndex)
+        {
+            var section = tabIndex switch
+            {
+                5 => OperationsSection.MasterData,
+                6 => OperationsSection.Scheduling,
+                7 => OperationsSection.AccountsCompliance,
+                8 => OperationsSection.Maintenance,
+                _ => (OperationsSection?)null
+            };
+
+            if (!section.HasValue)
+            {
+                return;
+            }
+
+            EnsureDefaultOperationsModuleLoaded(section.Value);
+        }
+
+        private void EnsureDefaultOperationsModuleLoaded(OperationsSection section)
+        {
+            if (_opsHosts.TryGetValue(section, out var host) && host.Content != null)
+            {
+                return;
+            }
+
+            if (_opsDefaultLoaders.TryGetValue(section, out var loadDefault))
+            {
+                loadDefault();
+            }
         }
 
         private static string ResolveOperationsSectionLabel(OperationsSection section)
