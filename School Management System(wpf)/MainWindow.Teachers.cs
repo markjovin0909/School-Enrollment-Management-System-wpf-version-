@@ -23,9 +23,12 @@ namespace School_Management_System
             cboTeacherAdvisoryStatus.ItemsSource = AdvisoryStatuses;
             cboTeacherEmploymentStatus.ItemsSource = EmploymentStatuses;
             txtTeacherSearch.Text = GetSessionState("teachers.search");
+            cboTeacherEmploymentFilter.ItemsSource = new[] { "All Employment", "REGULAR", "PROBATIONARY", "PART_TIME", "CONTRACTUAL" };
+            cboTeacherEmploymentFilter.SelectedIndex = 0;
 
+            btnTeachersNew.Click += (_, _) => OpenCreateTeacherDialog();
             btnTeachersRefresh.Click += (_, _) => LoadTeachers();
-            btnTeacherAdd.Click += (_, _) => AddTeacher();
+            btnTeacherAdd.Click += (_, _) => OpenCreateTeacherDialog();
             btnTeacherSave.Click += (_, _) => SaveTeacher();
             btnTeacherArchiveRestore.Click += (_, _) => ArchiveOrRestoreTeacher();
             btnTeacherResetPassword.Click += (_, _) => ResetTeacherPassword();
@@ -38,12 +41,32 @@ namespace School_Management_System
                 SetSessionState("teachers.search", txtTeacherSearch.Text);
                 LoadTeachers();
             };
+            cboTeacherSpecializationFilter.SelectionChanged += (_, _) =>
+            {
+                if (_suppressTeacherEvents) return;
+                LoadTeachers();
+            };
+            cboTeacherEmploymentFilter.SelectionChanged += (_, _) =>
+            {
+                if (_suppressTeacherEvents) return;
+                LoadTeachers();
+            };
             txtTeacherEmployeeNo.TextChanged += (_, _) => AutoFillTeacherUsernameFromEmployeeNo();
+            gridTeachers.AutoGeneratingColumn += GridTeachers_AutoGeneratingColumn;
             gridTeachers.SelectionChanged += GridTeachers_SelectionChanged;
             WireGridSortPersistence(gridTeachers, "teachers");
 
             ClearTeacherEditor();
             LoadTeachers();
+        }
+
+        private void OpenCreateTeacherDialog()
+        {
+            var dialog = new TeacherCreateWindow { Owner = this };
+            if (dialog.ShowDialog() == true && dialog.CreatedTeacherId.HasValue)
+            {
+                LoadTeachers(dialog.CreatedTeacherId.Value);
+            }
         }
 
         private void AutoFillTeacherUsernameFromEmployeeNo()
@@ -73,22 +96,53 @@ namespace School_Management_System
             {
                 _teachers = _teacherService.GetAll().ToList();
                 var usersById = _userService.GetAll().ToDictionary(u => u.Id, u => u);
+                var specializationOptions = new List<string> { "All Specializations" };
+                specializationOptions.AddRange(_teachers
+                    .Select(t => string.IsNullOrWhiteSpace(t.Specialization) ? "General" : t.Specialization.Trim())
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .OrderBy(x => x));
+                var currentSpecialization = cboTeacherSpecializationFilter.SelectedItem as string;
+                cboTeacherSpecializationFilter.ItemsSource = specializationOptions;
+                cboTeacherSpecializationFilter.SelectedItem = specializationOptions.Contains(currentSpecialization ?? string.Empty)
+                    ? currentSpecialization
+                    : specializationOptions.FirstOrDefault();
 
                 _teachersTable = new DataTable();
                 _teachersTable.Columns.Add("Id", typeof(long));
                 _teachersTable.Columns.Add("EmployeeNo");
-                _teachersTable.Columns.Add("Username");
-                _teachersTable.Columns.Add("FirstName");
-                _teachersTable.Columns.Add("LastName");
+                _teachersTable.Columns.Add("FullName");
                 _teachersTable.Columns.Add("Email");
+                _teachersTable.Columns.Add("Contact");
                 _teachersTable.Columns.Add("Specialization");
+                _teachersTable.Columns.Add("AdvisoryStatus");
                 _teachersTable.Columns.Add("EmploymentStatus");
-                _teachersTable.Columns.Add("Status");
+                _teachersTable.Columns.Add("AccountStatus");
+                _teachersTable.Columns.Add("RecordStatus");
 
                 var term = (txtTeacherSearch.Text ?? string.Empty).Trim();
+                var specializationFilter = (cboTeacherSpecializationFilter.SelectedItem as string ?? "All Specializations").Trim();
+                var employmentFilter = (cboTeacherEmploymentFilter.SelectedItem as string ?? "All Employment").Trim();
                 foreach (var t in _teachers)
                 {
                     var username = usersById.TryGetValue(t.UserId, out var user) ? user.Username : string.Empty;
+                    var specialization = string.IsNullOrWhiteSpace(t.Specialization) ? "General" : t.Specialization.Trim();
+                    var advisoryStatus = string.IsNullOrWhiteSpace(t.AdvisoryAssignmentStatus) ? AdvisoryStatuses[0] : t.AdvisoryAssignmentStatus.Trim();
+                    var employmentStatus = string.IsNullOrWhiteSpace(t.EmploymentStatus) ? EmploymentStatuses[0] : t.EmploymentStatus.Trim();
+                    var accountStatus = usersById.TryGetValue(t.UserId, out var accountUser) ? accountUser.Status.ToString() : "UNLINKED";
+                    var recordStatus = t.Status == UserStatus.INACTIVE ? "Archived" : "Active";
+
+                    if (!string.Equals(specializationFilter, "All Specializations", StringComparison.OrdinalIgnoreCase) &&
+                        !string.Equals(specialization, specializationFilter, StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+
+                    if (!string.Equals(employmentFilter, "All Employment", StringComparison.OrdinalIgnoreCase) &&
+                        !string.Equals(employmentStatus, employmentFilter, StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+
                     if (!string.IsNullOrWhiteSpace(term))
                     {
                         var matches =
@@ -97,9 +151,9 @@ namespace School_Management_System
                             (t.FirstName ?? string.Empty).Contains(term, StringComparison.OrdinalIgnoreCase) ||
                             (t.LastName ?? string.Empty).Contains(term, StringComparison.OrdinalIgnoreCase) ||
                             (t.Email ?? string.Empty).Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                            (t.Specialization ?? string.Empty).Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                            (t.EmploymentStatus ?? string.Empty).Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                            t.Status.ToString().Contains(term, StringComparison.OrdinalIgnoreCase);
+                            specialization.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                            employmentStatus.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                            accountStatus.Contains(term, StringComparison.OrdinalIgnoreCase);
                         if (!matches)
                         {
                             continue;
@@ -109,13 +163,14 @@ namespace School_Management_System
                     _teachersTable.Rows.Add(
                         t.Id,
                         t.EmployeeNo ?? string.Empty,
-                        username,
-                        t.FirstName,
-                        t.LastName,
+                        $"{t.LastName}, {t.FirstName}{(string.IsNullOrWhiteSpace(t.MiddleName) ? string.Empty : $" {t.MiddleName}")}",
                         t.Email ?? string.Empty,
-                        t.Specialization ?? string.Empty,
-                        t.EmploymentStatus ?? string.Empty,
-                        t.Status.ToString());
+                        t.ContactNo ?? string.Empty,
+                        specialization,
+                        advisoryStatus,
+                        employmentStatus,
+                        accountStatus,
+                        recordStatus);
                 }
 
                 gridTeachers.ItemsSource = _teachersTable.DefaultView;
@@ -146,6 +201,45 @@ namespace School_Management_System
             }
         }
 
+        private void GridTeachers_AutoGeneratingColumn(object? sender, DataGridAutoGeneratingColumnEventArgs e)
+        {
+            if (e.PropertyName == "Id")
+            {
+                e.Cancel = true;
+                return;
+            }
+
+            if (e.PropertyName == "EmployeeNo")
+            {
+                e.Column.Header = "Employee No";
+            }
+
+            if (e.PropertyName == "FullName")
+            {
+                e.Column.Header = "Full Name";
+            }
+
+            if (e.PropertyName == "EmploymentStatus")
+            {
+                e.Column.Header = "Employment Status";
+            }
+
+            if (e.PropertyName == "AdvisoryStatus")
+            {
+                e.Column.Header = "Advisory Status";
+            }
+
+            if (e.PropertyName == "AccountStatus")
+            {
+                e.Column.Header = "Account Status";
+            }
+
+            if (e.PropertyName == "RecordStatus")
+            {
+                e.Column.Header = "Record Status";
+            }
+        }
+
         private void GridTeachers_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (gridTeachers.SelectedItem is not DataRowView row)
@@ -170,6 +264,10 @@ namespace School_Management_System
             txtTeacherEmployeeNo.Text = teacher.EmployeeNo ?? string.Empty;
             txtTeacherUsername.Text = user?.Username ?? string.Empty;
             txtTeacherProfileImage.Text = teacher.ProfileImageUrl ?? string.Empty;
+            txtTeacherAccountStatus.Text = user?.Status.ToString() ?? "UNLINKED";
+            txtTeacherRecordStatus.Text = teacher.Status == UserStatus.INACTIVE ? "Archived" : "Active";
+            txtTeacherAdvisorySummary.Text = string.IsNullOrWhiteSpace(teacher.AdvisoryAssignmentStatus) ? AdvisoryStatuses[0] : teacher.AdvisoryAssignmentStatus;
+            txtTeacherInitialPassword.Password = "Managed separately";
             txtTeacherFirst.Text = teacher.FirstName;
             txtTeacherLast.Text = teacher.LastName;
             txtTeacherMiddle.Text = teacher.MiddleName ?? string.Empty;
@@ -183,129 +281,6 @@ namespace School_Management_System
             btnTeacherArchiveRestore.Content = teacher.Status == UserStatus.INACTIVE ? "Restore" : "Archive";
             _suppressTeacherEvents = false;
             UpdateTeachersWorkspaceInfo();
-        }
-
-        private void AddTeacher()
-        {
-            long? createdUserId = null;
-            ResetTeacherValidationState();
-            try
-            {
-                var validationErrors = new List<string>();
-                var employeeNo = txtTeacherEmployeeNo.Text.Trim();
-                var username = txtTeacherUsername.Text.Trim();
-                var firstName = txtTeacherFirst.Text.Trim();
-                var lastName = txtTeacherLast.Text.Trim();
-                var initialPassword = txtTeacherInitialPassword.Password;
-                var status = cboTeacherStatus.SelectedItem is UserStatus selectedStatus ? selectedStatus : UserStatus.ACTIVE;
-
-                SetInputValidationState(txtTeacherEmployeeNo, string.IsNullOrWhiteSpace(employeeNo));
-                SetInputValidationState(txtTeacherUsername, string.IsNullOrWhiteSpace(username));
-                SetInputValidationState(txtTeacherFirst, string.IsNullOrWhiteSpace(firstName));
-                SetInputValidationState(txtTeacherLast, string.IsNullOrWhiteSpace(lastName));
-                SetInputValidationState(txtTeacherInitialPassword, string.IsNullOrWhiteSpace(initialPassword));
-
-                if (string.IsNullOrWhiteSpace(employeeNo) || string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName))
-                {
-                    validationErrors.Add("Employee no, first name, and last name are required.");
-                }
-
-                if (string.IsNullOrWhiteSpace(username))
-                {
-                    validationErrors.Add("Account ID is required.");
-                }
-
-                if (string.IsNullOrWhiteSpace(initialPassword))
-                {
-                    validationErrors.Add("Initial password is required.");
-                }
-
-                var duplicateEmployee = _teacherService.GetAll().Any(t => string.Equals(t.EmployeeNo ?? string.Empty, employeeNo, StringComparison.OrdinalIgnoreCase));
-                if (duplicateEmployee)
-                {
-                    validationErrors.Add("Employee number already exists.");
-                    SetInputValidationState(txtTeacherEmployeeNo, true);
-                }
-
-                var duplicateUsername = _userService.GetAll().Any(u => string.Equals(u.Username, username, StringComparison.OrdinalIgnoreCase));
-                if (duplicateUsername)
-                {
-                    validationErrors.Add("Account ID already exists.");
-                    SetInputValidationState(txtTeacherUsername, true);
-                }
-
-                if (validationErrors.Count > 0)
-                {
-                    ShowValidationSummary(teacherValidationSummaryHost, txtTeacherValidationSummary, validationErrors);
-                    return;
-                }
-
-                var user = new User
-                {
-                    Username = username,
-                    Role = UserRole.TEACHER,
-                    CanLogin = false,
-                    Status = status
-                };
-
-                var userResult = _authService.Register(user, initialPassword);
-                if (!userResult.Success || userResult.Data == null)
-                {
-                    MessageBox.Show(userResult.Message, "Add Teacher", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                createdUserId = userResult.Data.Id;
-                var teacher = new Teacher
-                {
-                    UserId = userResult.Data.Id,
-                    ProfileImageUrl = NullIfWhite(txtTeacherProfileImage.Text),
-                    EmployeeNo = employeeNo,
-                    FirstName = firstName,
-                    LastName = lastName,
-                    MiddleName = NullIfWhite(txtTeacherMiddle.Text),
-                    Email = NullIfWhite(txtTeacherEmail.Text),
-                    ContactNo = NullIfWhite(txtTeacherContact.Text),
-                    Specialization = string.IsNullOrWhiteSpace(txtTeacherSpecialization.Text) ? "General" : txtTeacherSpecialization.Text.Trim(),
-                    AdvisoryAssignmentStatus = string.IsNullOrWhiteSpace(cboTeacherAdvisoryStatus.Text) ? AdvisoryStatuses[0] : cboTeacherAdvisoryStatus.Text.Trim(),
-                    EmploymentStatus = string.IsNullOrWhiteSpace(cboTeacherEmploymentStatus.Text) ? EmploymentStatuses[0] : cboTeacherEmploymentStatus.Text.Trim(),
-                    HireDate = dpTeacherHireDate.SelectedDate?.Date,
-                    Status = status,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                };
-
-                _teacherService.Create(teacher);
-                AuditTrailService.Log("CREATE", "users", userResult.Data.Id, null, new
-                {
-                    userResult.Data.Username,
-                    userResult.Data.Role,
-                    userResult.Data.Status
-                });
-                AuditTrailService.Log("CREATE", "teachers", teacher.Id, null, teacher);
-                HideValidationSummary(teacherValidationSummaryHost, txtTeacherValidationSummary);
-                LoadTeachers(teacher.Id);
-            }
-            catch (DomainValidationException ex)
-            {
-                ShowValidationSummary(teacherValidationSummaryHost, txtTeacherValidationSummary, new[] { ex.Message });
-            }
-            catch (Exception ex)
-            {
-                if (createdUserId.HasValue)
-                {
-                    try
-                    {
-                        _userService.Delete(createdUserId.Value);
-                    }
-                    catch
-                    {
-                        // Best effort to avoid orphaned accounts.
-                    }
-                }
-
-                MessageBox.Show($"Add teacher failed: {ex.Message}", "Add Teacher", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
         }
 
         private void SaveTeacher()
@@ -549,6 +524,9 @@ namespace School_Management_System
             txtTeacherEmployeeNo.Clear();
             txtTeacherUsername.Clear();
             txtTeacherProfileImage.Clear();
+            txtTeacherAccountStatus.Text = "Pending account";
+            txtTeacherRecordStatus.Text = "New record";
+            txtTeacherAdvisorySummary.Text = AdvisoryStatuses[0];
             txtTeacherFirst.Clear();
             txtTeacherLast.Clear();
             txtTeacherMiddle.Clear();
@@ -583,7 +561,7 @@ namespace School_Management_System
             var visible = _teachersTable?.Rows?.Count ?? 0;
             if (!_selectedTeacherId.HasValue)
             {
-                txtTeachersWorkspaceInfo.Text = $"Showing {visible} of {total} teacher records. Select a row to edit details.";
+                txtTeachersWorkspaceInfo.Text = $"Showing {visible} of {total} teacher records. Use specialization and employment filters to narrow the browse table, then select a row to edit details.";
                 return;
             }
 

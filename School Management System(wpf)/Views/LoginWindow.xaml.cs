@@ -10,6 +10,8 @@ namespace School_Management_System.Views
 {
     public partial class LoginWindow : Window
     {
+        private const string RememberedUsernameKey = "login.remembered.username";
+
         public LoginWindow()
         {
             InitializeComponent();
@@ -19,6 +21,7 @@ namespace School_Management_System.Views
             btnTestDbConnection.Click += async (_, _) => await TestConnectionAsync();
             chkShowPassword.Checked += (_, _) => TogglePasswordVisibility(true);
             chkShowPassword.Unchecked += (_, _) => TogglePasswordVisibility(false);
+            Loaded += (_, _) => LoadRememberedUsername();
         }
 
         private void TogglePasswordVisibility(bool visible)
@@ -46,13 +49,13 @@ namespace School_Management_System.Views
 
         private void SignIn()
         {
-            lblError.Text = string.Empty;
+            SetStatus(string.Empty, string.Empty);
 
             var username = txtUsername.Text.Trim();
             var password = ReadPassword();
             if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
             {
-                lblError.Text = "Username and password are required.";
+                SetStatus("Missing credentials", "Username and password are required.", "ERROR");
                 return;
             }
 
@@ -60,7 +63,11 @@ namespace School_Management_System.Views
             var result = auth.Authenticate(username, password);
             if (!result.Success || result.Data == null)
             {
-                lblError.Text = result.Message;
+                var isLockout = (result.Message ?? string.Empty).Contains("lock", StringComparison.OrdinalIgnoreCase);
+                SetStatus(
+                    isLockout ? "Account locked" : "Sign-in failed",
+                    result.Message,
+                    isLockout ? "WARNING" : "ERROR");
                 return;
             }
 
@@ -68,14 +75,37 @@ namespace School_Management_System.Views
 
             if (result.Data.Role != UserRole.SUPERADMIN)
             {
+                SetStatus("Access denied", "Only SUPERADMIN accounts are supported in this portal.", "WARNING");
                 MessageBox.Show("Only SUPERADMIN accounts are supported in this portal.", "Access", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            var main = new MainWindow(result.Data);
-            Application.Current.MainWindow = main;
-            main.Show();
-            Close();
+            try
+            {
+                PersistRememberedUsername(username);
+                SetStatus("Sign-in successful", "Redirecting to dashboard...", "SUCCESS");
+
+                var app = Application.Current;
+                var previousShutdownMode = app.ShutdownMode;
+                app.ShutdownMode = ShutdownMode.OnExplicitShutdown;
+
+                var main = new MainWindow(result.Data);
+                app.MainWindow = main;
+                main.Show();
+
+                app.ShutdownMode = previousShutdownMode;
+                Close();
+            }
+            catch (Exception ex)
+            {
+                SessionContext.Clear();
+                SetStatus("Startup failed", "Main window failed to open.", "ERROR");
+                MessageBox.Show(
+                    $"Sign-in succeeded, but the main window failed to open.{Environment.NewLine}{Environment.NewLine}{ex}{Environment.NewLine}{Environment.NewLine}Inner: {ex.InnerException?.Message}",
+                    "Startup Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
         }
 
         private void OpenRecovery()
@@ -92,7 +122,7 @@ namespace School_Management_System.Views
 
         private async Task TestConnectionAsync()
         {
-            lblError.Text = string.Empty;
+            SetStatus(string.Empty, string.Empty);
             btnTestDbConnection.IsEnabled = false;
             Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
 
@@ -106,14 +136,17 @@ namespace School_Management_System.Views
 
                 if (canConnect)
                 {
+                    SetStatus("Connection successful", "Database connection is available for the current environment.", "SUCCESS");
                     MessageBox.Show("Database connection successful.", "Database Connection", MessageBoxButton.OK, MessageBoxImage.Information);
                     return;
                 }
 
+                SetStatus("Connection failed", "Check server, database name, credentials, and network.", "WARNING");
                 MessageBox.Show("Database connection failed. Check server, database name, credentials, and network.", "Database Connection", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
             catch (Exception ex)
             {
+                SetStatus("Connection failed", ex.Message, "ERROR");
                 MessageBox.Show($"Database connection failed: {ex.Message}", "Database Connection", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
@@ -121,6 +154,34 @@ namespace School_Management_System.Views
                 Mouse.OverrideCursor = null;
                 btnTestDbConnection.IsEnabled = true;
             }
+        }
+
+        private void LoadRememberedUsername()
+        {
+            if (Application.Current.Properties[RememberedUsernameKey] is string remembered &&
+                !string.IsNullOrWhiteSpace(remembered))
+            {
+                txtUsername.Text = remembered;
+                chkRememberMe.IsChecked = true;
+            }
+        }
+
+        private void PersistRememberedUsername(string username)
+        {
+            if (chkRememberMe.IsChecked == true)
+            {
+                Application.Current.Properties[RememberedUsernameKey] = username;
+                return;
+            }
+
+            Application.Current.Properties.Remove(RememberedUsernameKey);
+        }
+
+        private void SetStatus(string? title, string? message, string? statusType = "")
+        {
+            lblStatusTitle.Text = title ?? string.Empty;
+            lblStatus.Text = message ?? string.Empty;
+            txtStatusType.Text = statusType ?? string.Empty;
         }
     }
 }

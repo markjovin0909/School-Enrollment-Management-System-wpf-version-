@@ -37,6 +37,16 @@ namespace School_Management_System.Views
             txtSearch.TextChanged += (_, _) => ApplyFilter();
             cboHealth.SelectionChanged += (_, _) => ApplyFilter();
             cboStatus.SelectionChanged += (_, _) => ApplyFilter();
+            gridAccounts.AutoGeneratingColumn += (_, e) =>
+            {
+                if (e.PropertyName == "StudentId" ||
+                    e.PropertyName == "UserId" ||
+                    e.PropertyName == "LRN" ||
+                    e.PropertyName == "Login Enabled")
+                {
+                    e.Cancel = true;
+                }
+            };
             gridAccounts.SelectionChanged += GridAccounts_SelectionChanged;
 
             btnSetActive.Click += (_, _) => SetStatus(UserStatus.ACTIVE);
@@ -138,10 +148,12 @@ namespace School_Management_System.Views
             if (gridAccounts.SelectedItem is not DataRowView row)
             {
                 _selectedStudentId = null;
+                ClearDetails();
                 return;
             }
 
             _selectedStudentId = row.Row.Field<long>("StudentId");
+            PopulateDetails(row);
         }
 
         private void SetStatus(UserStatus status)
@@ -249,6 +261,32 @@ namespace School_Management_System.Views
                    account.Status == account.StudentStatus
                 ? "SYNCED"
                 : "NEEDS_SYNC";
+        }
+
+        private void PopulateDetails(DataRowView row)
+        {
+            txtStudentNameValue.Text = row.Row["Student"]?.ToString() ?? "-";
+            txtStudentNoValue.Text = row.Row["Student No"]?.ToString() ?? "-";
+            txtAccountIdValue.Text = row.Row["Account ID"]?.ToString() ?? "-";
+            txtLrnValue.Text = row.Row["LRN"]?.ToString() ?? "-";
+            txtStudentStatusValue.Text = row.Row["Student Status"]?.ToString() ?? "-";
+            txtAccountStatusValue.Text = row.Row["Account Status"]?.ToString() ?? "-";
+            txtHealthValue.Text = row.Row["Health"]?.ToString() ?? "-";
+            txtLoginEnabledValue.Text = row.Row["Login Enabled"]?.ToString() ?? "-";
+            txtUpdatedValue.Text = row.Row["Updated"]?.ToString() ?? "-";
+        }
+
+        private void ClearDetails()
+        {
+            txtStudentNameValue.Text = "-";
+            txtStudentNoValue.Text = "-";
+            txtAccountIdValue.Text = "-";
+            txtLrnValue.Text = "-";
+            txtStudentStatusValue.Text = "-";
+            txtAccountStatusValue.Text = "-";
+            txtHealthValue.Text = "-";
+            txtLoginEnabledValue.Text = "-";
+            txtUpdatedValue.Text = "-";
         }
     }
 }

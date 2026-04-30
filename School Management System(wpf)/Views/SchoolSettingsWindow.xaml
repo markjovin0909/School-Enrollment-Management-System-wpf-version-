@@ -5,7 +5,15 @@
         Title="School Settings"
         Width="980" Height="760"
         MinWidth="860" MinHeight="620"
-        WindowStartupLocation="CenterOwner">
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource Legacy.BgBrush}">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Themes/LegacyAdminTheme.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
     <Grid Margin="12">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -21,82 +29,139 @@
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
             <Grid Margin="0,0,0,8">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="220"/>
-                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="1.15*"/>
+                    <ColumnDefinition Width="0.85*"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <TextBlock Grid.Row="0" Grid.Column="0" Margin="0,8,12,4" Text="School Name"/>
-                <TextBox Grid.Row="0" Grid.Column="1" x:Name="txtSchoolName" Margin="0,4"/>
+                <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,8,8">
+                    <StackPanel>
+                        <controls:SectionHeader Title="School Profile"
+                                                Subtitle="Institution identity and printed header information"
+                                                Margin="0,0,0,10"/>
 
-                <TextBlock Grid.Row="1" Grid.Column="0" Margin="0,8,12,4" Text="School Code"/>
-                <TextBox Grid.Row="1" Grid.Column="1" x:Name="txtSchoolCode" Margin="0,4"/>
+                        <Label Content="School Name"/>
+                        <TextBox x:Name="txtSchoolName"/>
 
-                <TextBlock Grid.Row="2" Grid.Column="0" Margin="0,8,12,4" Text="School Address"/>
-                <TextBox Grid.Row="2" Grid.Column="1" x:Name="txtAddress" Margin="0,4"/>
+                        <Label Content="School Code" Margin="0,10,0,0"/>
+                        <TextBox x:Name="txtSchoolCode"/>
 
-                <TextBlock Grid.Row="3" Grid.Column="0" Margin="0,8,12,4" Text="Principal Name"/>
-                <TextBox Grid.Row="3" Grid.Column="1" x:Name="txtPrincipal" Margin="0,4"/>
+                        <Label Content="School Address" Margin="0,10,0,0"/>
+                        <TextBox x:Name="txtAddress"
+                                 Height="72"
+                                 AcceptsReturn="True"
+                                 TextWrapping="Wrap"
+                                 VerticalScrollBarVisibility="Auto"/>
 
-                <TextBlock Grid.Row="4" Grid.Column="0" Margin="0,8,12,4" Text="Enrollment Configuration"/>
-                <TextBox Grid.Row="4" Grid.Column="1" x:Name="txtEnrollmentConfiguration" Margin="0,4" AcceptsReturn="True" Height="72" TextWrapping="Wrap"/>
+                        <Label Content="Principal Name" Margin="0,10,0,0"/>
+                        <TextBox x:Name="txtPrincipal"/>
 
-                <TextBlock Grid.Row="5" Grid.Column="0" Margin="0,8,12,4" Text="Enrollment Open Date"/>
-                <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal" Margin="0,4">
-                    <CheckBox x:Name="chkEnrollmentOpen" Content="Enable" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                    <DatePicker x:Name="dpEnrollmentOpen" Width="180"/>
-                </StackPanel>
+                        <Border Style="{StaticResource InfoBanner}" Margin="0,14,0,0">
+                            <TextBlock Text="Print headers fall back to school name and address when custom lines are left blank."
+                                       TextWrapping="Wrap"/>
+                        </Border>
 
-                <TextBlock Grid.Row="6" Grid.Column="0" Margin="0,8,12,4" Text="Enrollment Close Date"/>
-                <StackPanel Grid.Row="6" Grid.Column="1" Orientation="Horizontal" Margin="0,4">
-                    <CheckBox x:Name="chkEnrollmentClose" Content="Enable" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                    <DatePicker x:Name="dpEnrollmentClose" Width="180"/>
-                </StackPanel>
+                        <Label Content="Print Header Line 1" Margin="0,14,0,0"/>
+                        <TextBox x:Name="txtPrintHeader1"/>
 
-                <TextBlock Grid.Row="7" Grid.Column="0" Margin="0,8,12,4" Text="Print Header Line 1"/>
-                <TextBox Grid.Row="7" Grid.Column="1" x:Name="txtPrintHeader1" Margin="0,4"/>
+                        <Label Content="Print Header Line 2" Margin="0,10,0,0"/>
+                        <TextBox x:Name="txtPrintHeader2"/>
+                    </StackPanel>
+                </Border>
 
-                <TextBlock Grid.Row="8" Grid.Column="0" Margin="0,8,12,4" Text="Print Header Line 2"/>
-                <TextBox Grid.Row="8" Grid.Column="1" x:Name="txtPrintHeader2" Margin="0,4"/>
+                <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource CardPanel}" Margin="8,0,0,8">
+                    <StackPanel>
+                        <controls:SectionHeader Title="Enrollment Defaults"
+                                                Subtitle="Calendar controls and workflow guidance"
+                                                Margin="0,0,0,10"/>
 
-                <TextBlock Grid.Row="9" Grid.Column="0" Margin="0,8,12,4" Text="Student Number Prefix"/>
-                <TextBox Grid.Row="9" Grid.Column="1" x:Name="txtStudentPrefix" Margin="0,4"/>
+                        <Label Content="Enrollment Configuration"/>
+                        <TextBox x:Name="txtEnrollmentConfiguration"
+                                 Height="96"
+                                 AcceptsReturn="True"
+                                 TextWrapping="Wrap"
+                                 VerticalScrollBarVisibility="Auto"/>
 
-                <TextBlock Grid.Row="10" Grid.Column="0" Margin="0,8,12,4" Text="Next Student Number"/>
-                <TextBox Grid.Row="10" Grid.Column="1" x:Name="txtNextStudentNo" Margin="0,4"/>
+                        <Label Content="Enrollment Open Date" Margin="0,12,0,0"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <CheckBox x:Name="chkEnrollmentOpen" Content="Enable" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                            <DatePicker Grid.Column="1" x:Name="dpEnrollmentOpen" Width="190" HorizontalAlignment="Left"/>
+                        </Grid>
 
-                <TextBlock Grid.Row="11" Grid.Column="0" Margin="0,8,12,4" Text="Default Section Capacity"/>
-                <TextBox Grid.Row="11" Grid.Column="1" x:Name="txtDefaultCapacity" Margin="0,4"/>
+                        <Label Content="Enrollment Close Date" Margin="0,10,0,0"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <CheckBox x:Name="chkEnrollmentClose" Content="Enable" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                            <DatePicker Grid.Column="1" x:Name="dpEnrollmentClose" Width="190" HorizontalAlignment="Left"/>
+                        </Grid>
 
-                <TextBlock Grid.Row="12" Grid.Column="0" Margin="0,8,12,4" Text="Default Grade Levels"/>
-                <TextBox Grid.Row="12" Grid.Column="1" x:Name="txtDefaultGradeLevels" Margin="0,4"
-                         ToolTip="Comma-separated grade codes, names, or IDs (e.g., G7, G8, G9)"/>
+                        <Border Style="{StaticResource WarningBanner}" Margin="0,14,0,0">
+                            <TextBlock Text="If both dates are enabled, the open date must not be later than the close date."
+                                       TextWrapping="Wrap"/>
+                        </Border>
+                    </StackPanel>
+                </Border>
 
-                <TextBlock Grid.Row="13" Grid.Column="1" Margin="0,8,0,0" Foreground="{StaticResource BrushMuted}"
-                           Text="Use grade codes/names/IDs for default grade levels."/>
+                <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource CardPanel}" Margin="0,8,0,0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                            <controls:SectionHeader Title="Student Numbering"
+                                                    Subtitle="Prefix and running-number settings"
+                                                    Margin="0,0,0,10"/>
+                            <Label Content="Student Number Prefix"/>
+                            <TextBox x:Name="txtStudentPrefix" MaxWidth="220" HorizontalAlignment="Left"/>
+                            <Label Content="Next Student Number" Margin="0,10,0,0"/>
+                            <TextBox x:Name="txtNextStudentNo" MaxWidth="220" HorizontalAlignment="Left"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" Margin="10,0">
+                            <controls:SectionHeader Title="Section Defaults"
+                                                    Subtitle="Default capacity for newly created sections"
+                                                    Margin="0,0,0,10"/>
+                            <Label Content="Default Section Capacity"/>
+                            <TextBox x:Name="txtDefaultCapacity" MaxWidth="220" HorizontalAlignment="Left"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2" Margin="10,0,0,0">
+                            <controls:SectionHeader Title="Default Grade Scope"
+                                                    Subtitle="Comma-separated grade codes, names, or numeric IDs"
+                                                    Margin="0,0,0,10"/>
+                            <Label Content="Default Grade Levels"/>
+                            <TextBox x:Name="txtDefaultGradeLevels"
+                                     ToolTip="Comma-separated grade codes, names, or IDs (e.g., G7, G8, G9)"/>
+                            <TextBlock Margin="0,8,0,0"
+                                       Foreground="{StaticResource BrushMuted}"
+                                       Text="Examples: G7, Grade 8, 12"
+                                       TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
             </Grid>
         </ScrollViewer>
 
         <DockPanel Grid.Row="2">
-            <TextBlock x:Name="txtStatus" VerticalAlignment="Center" Foreground="{StaticResource BrushMuted}"/>
+            <Border Style="{StaticResource InfoBanner}" Padding="10,8" Margin="0,0,12,0">
+                <TextBlock x:Name="txtStatus" VerticalAlignment="Center"/>
+            </Border>
             <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
-                <Button x:Name="btnReload" Content="Reload" Width="90" Style="{StaticResource GhostButton}"/>
-                <Button x:Name="btnSave" Content="Save Settings" Width="120"/>
+                <Button x:Name="btnReload" Content="Reload" Width="96" Style="{StaticResource GhostButton}" Margin="0,0,8,0"/>
+                <Button x:Name="btnSave" Content="Save Settings" Width="132"/>
             </StackPanel>
         </DockPanel>
     </Grid>

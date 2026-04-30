@@ -1,5 +1,6 @@
 using System;
 using System.Configuration;
+using System.IO;
 
 namespace School_Management_System.Configuration
 {
@@ -14,6 +15,10 @@ namespace School_Management_System.Configuration
     /// </summary>
     public static class DatabaseConfig
     {
+        private const string LocalOverrideKey = "DbLocalOverride";
+        private const string RemoteOverrideKey = "DbRemoteOverride";
+        private const string OnlineOverrideKey = "DbOnlineOverride";
+
         /// <summary>
         /// Supported database environments.
         /// </summary>
@@ -37,7 +42,7 @@ namespace School_Management_System.Configuration
         {
             get
             {
-                var envSetting = ConfigurationManager.AppSettings["ActiveEnvironment"];
+                var envSetting = GetAppSetting("ActiveEnvironment");
 
                 if (string.IsNullOrWhiteSpace(envSetting))
                 {
@@ -64,23 +69,7 @@ namespace School_Management_System.Configuration
         /// <exception cref="ConfigurationErrorsException">Thrown if connection string is not found or is empty.</exception>
         public static string GetConnectionString()
         {
-            var connectionStringName = GetConnectionStringName(ActiveEnvironment);
-            var connectionString = ConfigurationManager.ConnectionStrings[connectionStringName];
-
-            if (connectionString == null)
-            {
-                throw new ConfigurationErrorsException(
-                    $"Connection string '{connectionStringName}' not found in App.config. " +
-                    $"Current environment: {ActiveEnvironment}");
-            }
-
-            if (string.IsNullOrWhiteSpace(connectionString.ConnectionString))
-            {
-                throw new ConfigurationErrorsException(
-                    $"Connection string '{connectionStringName}' is empty in App.config.");
-            }
-
-            return connectionString.ConnectionString;
+            return GetConnectionString(ActiveEnvironment);
         }
 
         /// <summary>
@@ -88,6 +77,12 @@ namespace School_Management_System.Configuration
         /// </summary>
         public static string GetConnectionString(Environment environment)
         {
+            var overrideValue = GetConnectionStringOverride(environment);
+            if (!string.IsNullOrWhiteSpace(overrideValue))
+            {
+                return overrideValue;
+            }
+
             var connectionStringName = GetConnectionStringName(environment);
             var connectionString = ConfigurationManager.ConnectionStrings[connectionStringName];
 
@@ -167,7 +162,7 @@ namespace School_Management_System.Configuration
                 throw new ConfigurationErrorsException("All connection string values are required.");
             }
 
-            var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            var config = GetOverrideConfiguration();
 
             if (config.AppSettings.Settings["ActiveEnvironment"] == null)
             {
@@ -178,26 +173,74 @@ namespace School_Management_System.Configuration
                 config.AppSettings.Settings["ActiveEnvironment"].Value = activeEnvironment.ToString();
             }
 
-            SetConnectionString(config, "DbLocal", dbLocal, "MySql.Data.MySqlClient");
-            SetConnectionString(config, "DbRemote", dbRemote, "MySql.Data.MySqlClient");
-            SetConnectionString(config, "DbOnline", dbOnline, "MySql.Data.MySqlClient");
+            SetAppSetting(config, LocalOverrideKey, dbLocal);
+            SetAppSetting(config, RemoteOverrideKey, dbRemote);
+            SetAppSetting(config, OnlineOverrideKey, dbOnline);
 
             config.Save(ConfigurationSaveMode.Modified);
             ConfigurationManager.RefreshSection("appSettings");
-            ConfigurationManager.RefreshSection("connectionStrings");
         }
 
-        private static void SetConnectionString(System.Configuration.Configuration config, string name, string value, string providerName)
+        private static string? GetAppSetting(string key)
         {
-            var setting = config.ConnectionStrings.ConnectionStrings[name];
-            if (setting == null)
+            var userValue = GetOverrideConfiguration().AppSettings.Settings[key]?.Value;
+            if (!string.IsNullOrWhiteSpace(userValue))
             {
-                config.ConnectionStrings.ConnectionStrings.Add(new ConnectionStringSettings(name, value, providerName));
+                return userValue;
+            }
+
+            return ConfigurationManager.AppSettings[key];
+        }
+
+        private static string? GetConnectionStringOverride(Environment environment)
+        {
+            var key = environment switch
+            {
+                Environment.Local => LocalOverrideKey,
+                Environment.Remote => RemoteOverrideKey,
+                Environment.Online => OnlineOverrideKey,
+                _ => throw new ArgumentOutOfRangeException(nameof(environment), environment, "Unknown environment.")
+            };
+
+            return GetAppSetting(key);
+        }
+
+        private static System.Configuration.Configuration GetOverrideConfiguration()
+        {
+            var path = GetOverrideConfigPath();
+            var directory = Path.GetDirectoryName(path);
+            if (!string.IsNullOrWhiteSpace(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
+            var map = new ExeConfigurationFileMap
+            {
+                ExeConfigFilename = path
+            };
+
+            return ConfigurationManager.OpenMappedExeConfiguration(map, ConfigurationUserLevel.None);
+        }
+
+        private static string GetOverrideConfigPath()
+        {
+            var root = Path.Combine(
+                System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData),
+                "School Management System",
+                "Config");
+
+            return Path.Combine(root, "DatabaseOverrides.config");
+        }
+
+        private static void SetAppSetting(System.Configuration.Configuration config, string key, string value)
+        {
+            if (config.AppSettings.Settings[key] == null)
+            {
+                config.AppSettings.Settings.Add(key, value);
                 return;
             }
 
-            setting.ConnectionString = value;
-            setting.ProviderName = providerName;
+            config.AppSettings.Settings[key].Value = value;
         }
     }
 }

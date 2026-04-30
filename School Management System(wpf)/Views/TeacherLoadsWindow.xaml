@@ -5,7 +5,15 @@
         Title="Teacher Loads"
         Width="1260" Height="720"
         MinWidth="1040" MinHeight="620"
-        WindowStartupLocation="CenterOwner">
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource Legacy.BgBrush}">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Themes/LegacyAdminTheme.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
     <Grid Margin="12">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -40,11 +48,31 @@
                 <ColumnDefinition Width="1*"/>
             </Grid.ColumnDefinitions>
 
-            <DataGrid Grid.Column="0" x:Name="gridTeacherLoads" IsReadOnly="True" Margin="0,0,10,0"/>
+            <Border Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,10,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Teacher Load Summary"
+                               Style="{StaticResource Text.SectionTitle}"
+                               Margin="0,0,0,10"/>
+                    <DataGrid Grid.Row="1"
+                              x:Name="gridTeacherLoads"
+                              IsReadOnly="True"
+                              EnableRowVirtualization="True"
+                              EnableColumnVirtualization="True"
+                              ScrollViewer.CanContentScroll="True"/>
+                </Grid>
+            </Border>
 
             <Border Grid.Column="1" Style="{StaticResource CardPanel}">
                 <StackPanel>
                     <TextBlock x:Name="txtSelectHint" Text="Select a teacher from the list." Style="{StaticResource Text.SectionTitle}" Margin="0,0,0,8"/>
+                    <Border Style="{StaticResource InfoBanner}" Margin="0,0,0,12">
+                        <TextBlock Text="Use this panel to review advisory ownership and handled subjects for the selected teacher."
+                                   TextWrapping="Wrap"/>
+                    </Border>
 
                     <UniformGrid Columns="2" Margin="0,0,0,10">
                         <StackPanel Margin="0,0,8,6">

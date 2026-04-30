@@ -25,6 +25,12 @@
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
+        "Entry"
+        {
+        "MsmKey" = "8:_B5F25D597D854B31A7E9F341837AE80A"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
     }
     "Configurations"
     {
@@ -94,6 +100,26 @@
             {
             "SourcePath" = "8:..\\..\\..\\..\\..\\Downloads\\ic_school_128_28729.ico"
             "TargetName" = "8:ic_school_128_28729.ico"
+            "Tag" = "8:"
+            "Folder" = "8:_9151EDCC0DF74209AB824E0910CABE3B"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B5F25D597D854B31A7E9F341837AE80A"
+            {
+            "SourcePath" = "8:..\\School Management System(wpf)\\bin\\Release\\net8.0-windows\\School Management System(wpf).dll.config"
+            "TargetName" = "8:School Management System(wpf).dll.config"
             "Tag" = "8:"
             "Folder" = "8:_9151EDCC0DF74209AB824E0910CABE3B"
             "Condition" = "8:"

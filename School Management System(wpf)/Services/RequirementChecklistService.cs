@@ -66,7 +66,7 @@ namespace School_Management_System.Services
                 VerifiedCount = verifiedCount,
                 RejectedCount = rejectedCount,
                 ExpiredCount = expiredCount,
-                SummaryText = $"Required {RequiredRequirementCatalog.Length} | Missing {missingCount} | Submitted {submittedCount} | Verified {verifiedCount} | Rejected {rejectedCount} | Expired {expiredCount}"
+                SummaryText = $"{RequiredRequirementCatalog.Length} required | {missingCount} missing | {verifiedCount} verified"
             };
         }
 

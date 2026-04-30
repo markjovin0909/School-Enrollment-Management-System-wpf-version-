@@ -5,7 +5,15 @@
         Title="Class Offerings"
         Width="1280" Height="760"
         MinWidth="1080" MinHeight="620"
-        WindowStartupLocation="CenterOwner">
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource Legacy.BgBrush}">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Themes/LegacyAdminTheme.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
     <Grid Margin="12">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1.6*"/>
@@ -39,12 +47,32 @@
             </Grid>
         </Border>
 
-        <DataGrid Grid.Row="2" Grid.Column="0" x:Name="gridOfferings" IsReadOnly="True" Margin="0,0,8,0"/>
+        <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,8,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Text="Offering Registry"
+                           Style="{StaticResource Text.SectionTitle}"
+                           Margin="0,0,0,10"/>
+                <DataGrid Grid.Row="1"
+                          x:Name="gridOfferings"
+                          IsReadOnly="True"
+                          EnableRowVirtualization="True"
+                          EnableColumnVirtualization="True"
+                          ScrollViewer.CanContentScroll="True"/>
+            </Grid>
+        </Border>
 
         <ScrollViewer Grid.Row="1" Grid.RowSpan="2" Grid.Column="1" Margin="8,0,0,0" VerticalScrollBarVisibility="Auto">
             <Border Style="{StaticResource CardPanel}">
                 <StackPanel>
                     <controls:SectionHeader Title="Offering Details" Subtitle="Teacher assignment and state transitions" Margin="0,0,0,8"/>
+                    <Border Style="{StaticResource InfoBanner}" Margin="0,0,0,12">
+                        <TextBlock Text="Generate from the selected section, then assign teacher, room context, and finalization state here."
+                                   TextWrapping="Wrap"/>
+                    </Border>
                     <Label Content="Subject"/>
                     <TextBox x:Name="txtSubject" IsReadOnly="True"/>
                     <Label Content="Teacher" Margin="0,8,0,0"/>

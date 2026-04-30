@@ -5,11 +5,20 @@
         Title="Subjects"
         Width="1120" Height="680"
         MinWidth="920" MinHeight="560"
-        WindowStartupLocation="CenterOwner">
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource Legacy.BgBrush}">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Themes/LegacyAdminTheme.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
     <Grid Margin="12">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1.45*"/>
-            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="420"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -19,39 +28,83 @@
 
         <controls:SectionHeader Grid.Row="0" Grid.ColumnSpan="2"
                                 Title="Subjects"
-                                Subtitle="Manage subject catalog metadata, scope, and active state"
+                                Subtitle="Maintain subject catalog records, grade-level placement, and active state"
                                 Margin="0,0,0,10"/>
 
-        <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,8,8" Padding="10">
+        <Border x:Name="searchPanel" Grid.Row="1" Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,8,8" Padding="10">
             <DockPanel>
                 <Button x:Name="btnRefresh" Content="Refresh" Width="90" DockPanel.Dock="Right" Style="{StaticResource GhostButton}"/>
                 <DockPanel Margin="0,0,8,0">
                     <TextBlock Text="{StaticResource Icon.Search}" Style="{StaticResource GlyphIcon}" Margin="0,0,8,0"/>
-                    <TextBox x:Name="txtSearch" Width="300"/>
+                    <TextBox x:Name="txtSearch" Width="320"/>
                 </DockPanel>
             </DockPanel>
         </Border>
 
-        <DataGrid Grid.Row="2" Grid.Column="0" x:Name="gridSubjects" IsReadOnly="True" Margin="0,0,8,0"/>
+        <Border x:Name="listPanel" Grid.Row="2" Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,8,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <DockPanel Margin="0,0,0,10">
+                    <TextBlock Text="Subject Catalog" Style="{StaticResource Text.SectionTitle}" DockPanel.Dock="Left"/>
+                    <TextBlock Text="Browse records without compressing the editor surface."
+                               Style="{StaticResource Text.Caption}"
+                               Foreground="{StaticResource BrushMuted}"
+                               DockPanel.Dock="Right"
+                               VerticalAlignment="Center"/>
+                </DockPanel>
+                <DataGrid Grid.Row="1"
+                          x:Name="gridSubjects"
+                          IsReadOnly="True"
+                          AutoGenerateColumns="True"
+                          EnableRowVirtualization="True"
+                          EnableColumnVirtualization="True"
+                          ScrollViewer.CanContentScroll="True"/>
+            </Grid>
+        </Border>
 
-        <ScrollViewer Grid.Row="1" Grid.RowSpan="2" Grid.Column="1" Margin="8,0,0,0" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer x:Name="editorPanel" Grid.Row="1" Grid.RowSpan="2" Grid.Column="1" Margin="8,0,0,0" VerticalScrollBarVisibility="Auto">
             <Border Style="{StaticResource CardPanel}">
                 <StackPanel>
-                    <controls:SectionHeader Title="Subject Details" Subtitle="Identity, description, grade scope, and archive controls" Margin="0,0,0,8"/>
-                    <Label Content="Code"/>
+                    <controls:SectionHeader Title="Subject Details"
+                                            Subtitle="Edit a selected record or launch a dedicated create flow"
+                                            Margin="0,0,0,10"/>
+
+                    <Border Style="{StaticResource InfoBanner}" Margin="0,0,0,12">
+                        <TextBlock Text="Use the table for browsing, keep this panel for editing, and create new records through the dedicated form."
+                                   TextWrapping="Wrap"/>
+                    </Border>
+
+                    <TextBlock Text="Identity" Style="{StaticResource Text.SectionTitle}" FontSize="16"/>
+                    <Label Content="Code" Margin="0,8,0,0"/>
                     <TextBox x:Name="txtCode"/>
                     <Label Content="Title" Margin="0,8,0,0"/>
                     <TextBox x:Name="txtTitle"/>
-                    <Label Content="Description" Margin="0,8,0,0"/>
-                    <TextBox x:Name="txtDescription" Height="90" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"/>
-                    <Label Content="Grade Level" Margin="0,8,0,0"/>
-                    <ComboBox x:Name="cboGradeLevel" DisplayMemberPath="Code" SelectedValuePath="Id" Width="180"/>
-                    <CheckBox x:Name="chkActive" Content="Active" Margin="2,8,2,0"/>
 
-                    <WrapPanel Margin="0,12,0,0">
-                        <Button x:Name="btnAdd" Content="Add" Width="90"/>
+                    <TextBlock Text="Description" Style="{StaticResource Text.SectionTitle}" FontSize="16" Margin="0,14,0,0"/>
+                    <TextBox x:Name="txtDescription"
+                             Height="110"
+                             AcceptsReturn="True"
+                             TextWrapping="Wrap"
+                             VerticalScrollBarVisibility="Auto"/>
+
+                    <TextBlock Text="Placement" Style="{StaticResource Text.SectionTitle}" FontSize="16" Margin="0,14,0,0"/>
+                    <Label Content="Grade Level" Margin="0,8,0,0"/>
+                    <ComboBox x:Name="cboGradeLevel"
+                              DisplayMemberPath="Code"
+                              SelectedValuePath="Id"
+                              Width="220"
+                              HorizontalAlignment="Left"/>
+
+                    <TextBlock Text="Record State" Style="{StaticResource Text.SectionTitle}" FontSize="16" Margin="0,14,0,0"/>
+                    <CheckBox x:Name="chkActive" Content="Active subject" Margin="2,8,2,0"/>
+
+                    <WrapPanel Margin="0,16,0,0">
+                        <Button x:Name="btnAdd" Content="New Subject" Width="108"/>
                         <Button x:Name="btnSave" Content="Save" Width="90"/>
-                        <Button x:Name="btnDelete" Content="Archive" Width="90" Style="{StaticResource GhostButton}"/>
+                        <Button x:Name="btnDelete" Content="Archive" Width="96" Style="{StaticResource GhostButton}"/>
                         <Button x:Name="btnClear" Content="Clear" Width="90" Style="{StaticResource GhostButton}"/>
                     </WrapPanel>
                 </StackPanel>

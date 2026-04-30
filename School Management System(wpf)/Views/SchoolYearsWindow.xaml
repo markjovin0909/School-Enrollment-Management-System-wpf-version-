@@ -5,7 +5,15 @@
         Title="School Years"
         Width="1180" Height="700"
         MinWidth="980" MinHeight="560"
-        WindowStartupLocation="CenterOwner">
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource Legacy.BgBrush}">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Themes/LegacyAdminTheme.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
     <Grid Margin="12">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1.45*"/>
@@ -22,8 +30,9 @@
                                 Subtitle="Configure school-year windows, status, and enrollment opening dates"
                                 Margin="0,0,0,10"/>
 
-        <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,8,8" Padding="10">
+        <Border x:Name="searchPanel" Grid.Row="1" Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,8,8" Padding="10">
             <DockPanel>
+                <Button x:Name="btnNew" Content="New School Year" Width="126" DockPanel.Dock="Left" Margin="0,0,8,0"/>
                 <Button x:Name="btnRefresh" Content="Refresh" Width="90" Style="{StaticResource GhostButton}" DockPanel.Dock="Right"/>
                 <DockPanel Margin="0,0,8,0">
                     <TextBlock Text="{StaticResource Icon.Search}" Style="{StaticResource GlyphIcon}" Margin="0,0,8,0"/>
@@ -32,9 +41,25 @@
             </DockPanel>
         </Border>
 
-        <DataGrid Grid.Row="2" Grid.Column="0" x:Name="gridSchoolYears" IsReadOnly="True" Margin="0,0,8,0"/>
+        <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,8,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Text="School Year Registry"
+                           Style="{StaticResource Text.SectionTitle}"
+                           Margin="0,0,0,10"/>
+                <DataGrid Grid.Row="1"
+                          x:Name="gridSchoolYears"
+                          IsReadOnly="True"
+                          EnableRowVirtualization="True"
+                          EnableColumnVirtualization="True"
+                          ScrollViewer.CanContentScroll="True"/>
+            </Grid>
+        </Border>
 
-        <ScrollViewer Grid.Row="1" Grid.RowSpan="2" Grid.Column="1" Margin="8,0,0,0" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer x:Name="editorPanel" Grid.Row="1" Grid.RowSpan="2" Grid.Column="1" Margin="8,0,0,0" VerticalScrollBarVisibility="Auto">
             <Border Style="{StaticResource CardPanel}">
                 <StackPanel>
                     <controls:SectionHeader Title="School Year Details" Subtitle="Definition dates and lifecycle controls" Margin="0,0,0,8"/>
@@ -66,7 +91,7 @@
                     <ComboBox x:Name="cboStatus" Width="170"/>
 
                     <WrapPanel Margin="0,12,0,0">
-                        <Button x:Name="btnAdd" Content="Add" Width="90"/>
+                        <Button x:Name="btnAdd" Content="Create" Width="90"/>
                         <Button x:Name="btnSave" Content="Save" Width="90"/>
                         <Button x:Name="btnArchiveRestore" Content="Archive/Restore" Width="130" Style="{StaticResource GhostButton}"/>
                         <Button x:Name="btnClear" Content="Clear" Width="90" Style="{StaticResource GhostButton}"/>

@@ -13,12 +13,14 @@ namespace School_Management_System.Views
         private readonly StudentService _studentService = new();
         private readonly StudentRequirementService _requirementService = new();
         private readonly RequirementChecklistService _checklistService = new();
+        private readonly bool _createOnly;
 
         private List<Student> _students = new();
         private long? _selectedRequirementId;
 
-        public StudentRequirementsWindow(long? preferredStudentId = null)
+        public StudentRequirementsWindow(long? preferredStudentId = null, bool createOnly = false)
         {
+            _createOnly = createOnly;
             InitializeComponent();
 
             cboRequirement.ItemsSource = _checklistService.GetRequiredRequirements();
@@ -30,9 +32,21 @@ namespace School_Management_System.Views
 
             cboStudent.SelectionChanged += (_, _) => LoadRequirements();
             requirementsChecklistPanel.SelectionChanged += RequirementsChecklistPanel_SelectionChanged;
-            btnAdd.Click += (_, _) => AddRequirement();
+            btnNew.Click += (_, _) => OpenCreateWindow();
+            btnAdd.Click += (_, _) =>
+            {
+                if (_createOnly)
+                {
+                    AddRequirement();
+                }
+                else
+                {
+                    OpenCreateWindow();
+                }
+            };
             btnSave.Click += (_, _) => SaveRequirement();
             btnDelete.Click += (_, _) => DeleteRequirement();
+            btnCancel.Click += (_, _) => Close();
             btnRefresh.Click += (_, _) =>
             {
                 var selectedStudentId = cboStudent.SelectedValue is long id ? id : (long?)null;
@@ -41,6 +55,45 @@ namespace School_Management_System.Views
             };
 
             LoadStudents(preferredStudentId);
+            if (_createOnly)
+            {
+                ConfigureCreateMode();
+            }
+            else
+            {
+                LoadRequirements();
+            }
+        }
+
+        private void OpenCreateWindow()
+        {
+            var selectedStudentId = cboStudent.SelectedValue is long id ? id : (long?)null;
+            var window = new StudentRequirementsWindow(selectedStudentId, true) { Owner = this };
+            if (window.ShowDialog() == true)
+            {
+                LoadStudents(selectedStudentId);
+                LoadRequirements();
+            }
+        }
+
+        private void ConfigureCreateMode()
+        {
+            Title = "Create Student Requirement";
+            requirementsChecklistPanel.Visibility = Visibility.Collapsed;
+            Grid.SetColumn(editorPanel, 0);
+            Grid.SetColumnSpan(editorPanel, 2);
+            editorPanel.Margin = new Thickness(0);
+            btnNew.Visibility = Visibility.Collapsed;
+            btnRefresh.Visibility = Visibility.Collapsed;
+            txtSummary.Visibility = Visibility.Collapsed;
+            btnAdd.Content = "Create";
+            btnSave.Visibility = Visibility.Collapsed;
+            btnDelete.Visibility = Visibility.Collapsed;
+            btnCancel.Visibility = Visibility.Visible;
+            Width = 760;
+            Height = 520;
+            MinWidth = 760;
+            MinHeight = 520;
             LoadRequirements();
         }
 
@@ -137,6 +190,13 @@ namespace School_Management_System.Views
 
             _requirementService.Create(entity);
             AuditTrailService.Log("CREATE", "student_requirements", entity.Id, null, entity);
+            if (_createOnly)
+            {
+                DialogResult = true;
+                Close();
+                return;
+            }
+
             LoadRequirements();
             SelectChecklistItem(entity.RequirementName);
         }

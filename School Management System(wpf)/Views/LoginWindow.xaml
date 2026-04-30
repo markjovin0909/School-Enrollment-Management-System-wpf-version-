@@ -124,23 +124,46 @@
                         <TextBox x:Name="txtPasswordVisible" Height="36" Visibility="Collapsed"/>
                     </Grid>
 
-                    <CheckBox Grid.Row="6" x:Name="chkShowPassword" Content="Show password" Margin="0,0,0,8"/>
+                    <Grid Grid.Row="6" Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <CheckBox x:Name="chkRememberMe" Content="Remember me" VerticalAlignment="Center"/>
+                        <CheckBox Grid.Column="1" x:Name="chkShowPassword" Content="Show password" Margin="12,0,0,0" VerticalAlignment="Center"/>
+                    </Grid>
 
-                    <Border Grid.Row="7" x:Name="errorPanel" Margin="0,0,0,10">
+                    <Border Grid.Row="7" x:Name="statusPanel" Margin="0,0,0,10">
                         <Border.Style>
-                            <Style TargetType="Border" BasedOn="{StaticResource ErrorBanner}">
+                            <Style TargetType="Border" BasedOn="{StaticResource InfoBanner}">
                                 <Setter Property="Visibility" Value="Visible"/>
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Text, ElementName=lblError}" Value="">
+                                    <DataTrigger Binding="{Binding Text, ElementName=lblStatus}" Value="">
                                         <Setter Property="Visibility" Value="Collapsed"/>
                                     </DataTrigger>
-                                    <DataTrigger Binding="{Binding Text, ElementName=lblError}" Value="{x:Null}">
+                                    <DataTrigger Binding="{Binding Text, ElementName=lblStatus}" Value="{x:Null}">
                                         <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Text, ElementName=txtStatusType}" Value="ERROR">
+                                        <Setter Property="Background" Value="#FEF2F2"/>
+                                        <Setter Property="BorderBrush" Value="#FCA5A5"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Text, ElementName=txtStatusType}" Value="WARNING">
+                                        <Setter Property="Background" Value="#FFFBEB"/>
+                                        <Setter Property="BorderBrush" Value="#FCD34D"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Text, ElementName=txtStatusType}" Value="SUCCESS">
+                                        <Setter Property="Background" Value="#ECFDF3"/>
+                                        <Setter Property="BorderBrush" Value="#86EFAC"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </Border.Style>
-                        <TextBlock x:Name="lblError" Foreground="{StaticResource Brush.Danger}" TextWrapping="Wrap"/>
+                        <StackPanel>
+                            <TextBlock x:Name="lblStatusTitle" Style="{StaticResource Text.CaptionStrong}" Margin="0,0,0,2"/>
+                            <TextBlock x:Name="lblStatus" TextWrapping="Wrap"/>
+                            <TextBlock x:Name="txtStatusType" Visibility="Collapsed"/>
+                        </StackPanel>
                     </Border>
 
                     <Button Grid.Row="8" x:Name="btnLogin" Content="Sign In" Height="40"/>

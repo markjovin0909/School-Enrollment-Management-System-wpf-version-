@@ -17,9 +17,12 @@ namespace School_Management_System
             cboStudentStatus.ItemsSource = Enum.GetValues(typeof(UserStatus));
             cboStudentSex.ItemsSource = Enum.GetValues(typeof(Sex));
             txtStudentSearch.Text = GetSessionState("students.search");
+            cboStudentTableStatus.ItemsSource = new[] { "All Statuses", "Active", "Inactive", "Locked", "Archived" };
+            cboStudentTableStatus.SelectedIndex = 0;
 
+            btnStudentsNew.Click += (_, _) => OpenCreateStudentDialog();
             btnStudentsRefresh.Click += (_, _) => LoadStudents();
-            btnStudentAdd.Click += (_, _) => AddStudent();
+            btnStudentAdd.Click += (_, _) => OpenCreateStudentDialog();
             btnStudentSave.Click += (_, _) => SaveStudent();
             btnStudentArchiveRestore.Click += (_, _) => ArchiveOrRestoreStudent();
             btnStudentResetAccount.Click += (_, _) => ResetStudentAccount();
@@ -35,6 +38,17 @@ namespace School_Management_System
                 SetSessionState("students.search", txtStudentSearch.Text);
                 LoadStudents();
             };
+            cboStudentTableGrade.SelectionChanged += (_, _) =>
+            {
+                if (_suppressStudentEvents) return;
+                LoadStudents();
+            };
+            cboStudentTableStatus.SelectionChanged += (_, _) =>
+            {
+                if (_suppressStudentEvents) return;
+                LoadStudents();
+            };
+            gridStudents.AutoGeneratingColumn += GridStudents_AutoGeneratingColumn;
             gridStudents.SelectionChanged += GridStudents_SelectionChanged;
             WireGridSortPersistence(gridStudents, "students");
 
@@ -43,10 +57,21 @@ namespace School_Management_System
             LoadStudents();
         }
 
+        private void OpenCreateStudentDialog()
+        {
+            var dialog = new StudentCreateWindow { Owner = this };
+            if (dialog.ShowDialog() == true && dialog.CreatedStudentId.HasValue)
+            {
+                LoadStudentPreferenceLookups();
+                LoadStudents(dialog.CreatedStudentId.Value);
+            }
+        }
+
         private void LoadStudentPreferenceLookups()
         {
             var defaultGradeLevelIds = _schoolSettingService.GetDefaultGradeLevelIds().ToHashSet();
-            var gradeItems = _gradeLevelService.GetAll()
+            _gradeLevels = _gradeLevelService.GetAll().OrderBy(g => g.Name).ToList();
+            var gradeItems = _gradeLevels
                 .OrderBy(g => defaultGradeLevelIds.Contains(g.Id) ? 0 : 1)
                 .ThenBy(g => g.Name)
                 .Select(g => new LookupChoice(
@@ -72,6 +97,16 @@ namespace School_Management_System
                 cboStudentPreferredGrade.SelectedValue = 0L;
             }
 
+            var tableGradeItems = new List<LookupChoice> { new(0, "All Grades") };
+            tableGradeItems.AddRange(gradeItems.Where(x => x.Id > 0));
+            cboStudentTableGrade.DisplayMemberPath = nameof(LookupChoice.Label);
+            cboStudentTableGrade.SelectedValuePath = nameof(LookupChoice.Id);
+            cboStudentTableGrade.ItemsSource = tableGradeItems;
+            if (cboStudentTableGrade.SelectedIndex < 0)
+            {
+                cboStudentTableGrade.SelectedIndex = 0;
+            }
+
             var curriculumItems = _curriculumService.GetAll()
                 .Where(c => c.IsActive)
                 .OrderBy(c => c.Name)
@@ -91,21 +126,66 @@ namespace School_Management_System
             {
                 _students = _studentService.GetAll().ToList();
                 var usersById = _userService.GetAll().ToDictionary(u => u.Id, u => u);
+                var enrollmentsByStudentId = _enrollmentService.GetAll()
+                    .GroupBy(x => x.StudentId)
+                    .ToDictionary(
+                        x => x.Key,
+                        x => x.OrderByDescending(e => e.UpdatedAt).ThenByDescending(e => e.CreatedAt).First());
 
                 _studentsTable = new DataTable();
                 _studentsTable.Columns.Add("Id", typeof(long));
                 _studentsTable.Columns.Add("StudentNo");
                 _studentsTable.Columns.Add("LRN");
-                _studentsTable.Columns.Add("Account ID");
-                _studentsTable.Columns.Add("FirstName");
-                _studentsTable.Columns.Add("LastName");
-                _studentsTable.Columns.Add("Status");
+                _studentsTable.Columns.Add("FullName");
+                _studentsTable.Columns.Add("GradeLevel");
+                _studentsTable.Columns.Add("Curriculum");
+                _studentsTable.Columns.Add("Sex");
+                _studentsTable.Columns.Add("ContactNo");
                 _studentsTable.Columns.Add("Guardian");
+                _studentsTable.Columns.Add("EnrollmentStatus");
+                _studentsTable.Columns.Add("AccountStatus");
+                _studentsTable.Columns.Add("RecordStatus");
 
                 var term = (txtStudentSearch.Text ?? string.Empty).Trim();
+                var selectedGradeId = cboStudentTableGrade.SelectedValue is long gradeId && gradeId > 0 ? gradeId : 0L;
+                var statusFilter = (cboStudentTableStatus.SelectedItem as string ?? "All Statuses").Trim();
                 foreach (var s in _students)
                 {
                     var accountId = usersById.TryGetValue(s.UserId, out var user) ? user.Username : (s.StudentNumber ?? string.Empty);
+                    var accountStatus = usersById.TryGetValue(s.UserId, out var userForStatus)
+                        ? userForStatus.Status.ToString()
+                        : "UNLINKED";
+                    var gradeLabel = _gradeLevels.FirstOrDefault(g => g.Id == s.PreferredGradeLevelId)?.Code
+                        ?? _gradeLevels.FirstOrDefault(g => g.Id == s.PreferredGradeLevelId)?.Name
+                        ?? "(Not set)";
+                    var curriculumLabel = _curriculumService.GetAll().FirstOrDefault(c => c.Id == s.PreferredCurriculumId)?.Name ?? "(Not set)";
+                    var enrollmentStatus = enrollmentsByStudentId.TryGetValue(s.Id, out var enrollment)
+                        ? enrollment.Status.ToString()
+                        : "Not Enrolled";
+                    var recordStatus = s.Status == UserStatus.INACTIVE ? "Archived" : "Active";
+
+                    if (selectedGradeId > 0 && s.PreferredGradeLevelId != selectedGradeId)
+                    {
+                        continue;
+                    }
+
+                    if (!string.Equals(statusFilter, "All Statuses", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var includeStatus = statusFilter switch
+                        {
+                            "Archived" => s.Status == UserStatus.INACTIVE,
+                            "Active" => s.Status == UserStatus.ACTIVE,
+                            "Inactive" => s.Status == UserStatus.INACTIVE,
+                            "Locked" => usersById.TryGetValue(s.UserId, out var userStatus) && userStatus.Status == UserStatus.LOCKED,
+                            _ => true
+                        };
+
+                        if (!includeStatus)
+                        {
+                            continue;
+                        }
+                    }
+
                     if (!string.IsNullOrWhiteSpace(term))
                     {
                         var matches =
@@ -115,7 +195,8 @@ namespace School_Management_System
                             (s.FirstName ?? string.Empty).Contains(term, StringComparison.OrdinalIgnoreCase) ||
                             (s.LastName ?? string.Empty).Contains(term, StringComparison.OrdinalIgnoreCase) ||
                             (s.GuardianContact ?? string.Empty).Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                            s.Status.ToString().Contains(term, StringComparison.OrdinalIgnoreCase);
+                            enrollmentStatus.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                            accountStatus.Contains(term, StringComparison.OrdinalIgnoreCase);
                         if (!matches)
                         {
                             continue;
@@ -126,11 +207,15 @@ namespace School_Management_System
                         s.Id,
                         s.StudentNumber,
                         s.Lrn,
-                        accountId,
-                        s.FirstName,
-                        s.LastName,
-                        s.Status.ToString(),
-                        s.GuardianContact ?? string.Empty);
+                        $"{s.LastName}, {s.FirstName}{(string.IsNullOrWhiteSpace(s.MiddleName) ? string.Empty : $" {s.MiddleName}")}",
+                        gradeLabel,
+                        curriculumLabel,
+                        s.Sex?.ToString() ?? string.Empty,
+                        s.ContactNo ?? string.Empty,
+                        s.GuardianName ?? string.Empty,
+                        enrollmentStatus,
+                        accountStatus,
+                        recordStatus);
                 }
 
                 gridStudents.ItemsSource = _studentsTable.DefaultView;
@@ -161,6 +246,50 @@ namespace School_Management_System
             }
         }
 
+        private void GridStudents_AutoGeneratingColumn(object? sender, DataGridAutoGeneratingColumnEventArgs e)
+        {
+            if (e.PropertyName == "Id")
+            {
+                e.Cancel = true;
+                return;
+            }
+
+            if (e.PropertyName == "StudentNo")
+            {
+                e.Column.Header = "Student No";
+            }
+
+            if (e.PropertyName == "FullName")
+            {
+                e.Column.Header = "Full Name";
+            }
+
+            if (e.PropertyName == "GradeLevel")
+            {
+                e.Column.Header = "Grade Level";
+            }
+
+            if (e.PropertyName == "ContactNo")
+            {
+                e.Column.Header = "Contact No.";
+            }
+
+            if (e.PropertyName == "EnrollmentStatus")
+            {
+                e.Column.Header = "Enrollment Status";
+            }
+
+            if (e.PropertyName == "AccountStatus")
+            {
+                e.Column.Header = "Account Status";
+            }
+
+            if (e.PropertyName == "RecordStatus")
+            {
+                e.Column.Header = "Record Status";
+            }
+        }
+
         private void GridStudents_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (gridStudents.SelectedItem is not DataRowView row)
@@ -179,10 +308,21 @@ namespace School_Management_System
                 return;
             }
 
+            var user = _userService.GetById(student.UserId);
+            var latestEnrollment = _enrollmentService.GetAll()
+                .Where(x => x.StudentId == student.Id)
+                .OrderByDescending(x => x.UpdatedAt)
+                .ThenByDescending(x => x.CreatedAt)
+                .FirstOrDefault();
+
             _suppressStudentEvents = true;
             txtStudentNumber.Text = student.StudentNumber;
             txtStudentLrn.Text = student.Lrn;
             txtStudentProfileImage.Text = student.ProfileImageUrl ?? string.Empty;
+            txtStudentAccountId.Text = user?.Username ?? student.StudentNumber;
+            txtStudentAccountStatus.Text = user?.Status.ToString() ?? "UNLINKED";
+            txtStudentEnrollmentStatus.Text = latestEnrollment?.Status.ToString() ?? "Not Enrolled";
+            txtStudentRecordStatus.Text = student.Status == UserStatus.INACTIVE ? "Archived" : "Active";
             txtStudentFirst.Text = student.FirstName;
             txtStudentLast.Text = student.LastName;
             txtStudentMiddle.Text = student.MiddleName ?? string.Empty;
@@ -199,120 +339,6 @@ namespace School_Management_System
             btnStudentArchiveRestore.Content = student.Status == UserStatus.INACTIVE ? "Restore" : "Archive";
             _suppressStudentEvents = false;
             UpdateStudentsWorkspaceInfo();
-        }
-
-        private void AddStudent()
-        {
-            long? createdUserId = null;
-            ResetStudentValidationState();
-            try
-            {
-                var validationErrors = new List<string>();
-                var lrn = txtStudentLrn.Text.Trim();
-                var firstName = txtStudentFirst.Text.Trim();
-                var lastName = txtStudentLast.Text.Trim();
-                var birthdate = dpStudentBirthdate.SelectedDate?.Date;
-
-                SetInputValidationState(txtStudentLrn, string.IsNullOrWhiteSpace(lrn));
-                SetInputValidationState(txtStudentFirst, string.IsNullOrWhiteSpace(firstName));
-                SetInputValidationState(txtStudentLast, string.IsNullOrWhiteSpace(lastName));
-                if (string.IsNullOrWhiteSpace(lrn) || string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName))
-                {
-                    validationErrors.Add("LRN, first name, and last name are required.");
-                }
-
-                var duplicateLrn = _studentService.GetAll().Any(s => string.Equals(s.Lrn, lrn, StringComparison.OrdinalIgnoreCase));
-                if (duplicateLrn)
-                {
-                    validationErrors.Add("LRN already exists.");
-                    SetInputValidationState(txtStudentLrn, true);
-                }
-
-                var duplicateNameBirthdate = _studentService.GetAll().Any(s =>
-                    string.Equals(s.FirstName, firstName, StringComparison.OrdinalIgnoreCase) &&
-                    string.Equals(s.LastName, lastName, StringComparison.OrdinalIgnoreCase) &&
-                    Nullable.Equals(s.Birthdate?.Date, birthdate));
-                if (duplicateNameBirthdate)
-                {
-                    validationErrors.Add("A student with the same full name and birthdate already exists.");
-                    SetInputValidationState(txtStudentFirst, true);
-                    SetInputValidationState(txtStudentLast, true);
-                    SetInputValidationState(dpStudentBirthdate, true);
-                }
-
-                if (validationErrors.Count > 0)
-                {
-                    ShowValidationSummary(studentValidationSummaryHost, txtStudentValidationSummary, validationErrors);
-                    return;
-                }
-
-                var status = cboStudentStatus.SelectedItem is UserStatus selectedStatus ? selectedStatus : UserStatus.ACTIVE;
-                var studentNumber = _schoolSettingService.ReserveNextStudentNumber();
-                var accountResult = _studentAccountService.CreateManagedAccount(studentNumber, status);
-                if (!accountResult.Success || accountResult.Data == null)
-                {
-                    MessageBox.Show(accountResult.Message, "Add Student", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                createdUserId = accountResult.Data.Id;
-                var student = new Student
-                {
-                    UserId = accountResult.Data.Id,
-                    StudentNumber = studentNumber,
-                    ProfileImageUrl = NullIfWhite(txtStudentProfileImage.Text),
-                    Lrn = lrn,
-                    FirstName = firstName,
-                    LastName = lastName,
-                    MiddleName = NullIfWhite(txtStudentMiddle.Text),
-                    Sex = cboStudentSex.SelectedItem is Sex selectedSex ? selectedSex : null,
-                    Birthdate = birthdate,
-                    Age = ComputeAge(birthdate),
-                    Address = NullIfWhite(txtStudentAddress.Text),
-                    ContactNo = NullIfWhite(txtStudentContactNo.Text),
-                    GuardianName = NullIfWhite(txtStudentGuardianName.Text),
-                    GuardianContact = txtStudentGuardianContact.Text.Trim(),
-                    PreviousSchool = NullIfWhite(txtStudentPreviousSchool.Text),
-                    PreferredGradeLevelId = GetSelectedLookupId(cboStudentPreferredGrade),
-                    PreferredCurriculumId = GetSelectedLookupId(cboStudentPreferredCurriculum),
-                    Status = status,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                };
-
-                _studentService.Create(student);
-                AuditTrailService.Log("CREATE", "student_accounts", student.Id, null, new
-                {
-                    StudentId = student.Id,
-                    UserId = accountResult.Data.Id,
-                    AccountId = accountResult.Data.Username,
-                    Status = accountResult.Data.Status,
-                    accountResult.Data.CanLogin
-                });
-                AuditTrailService.Log("CREATE", "students", student.Id, null, student);
-                HideValidationSummary(studentValidationSummaryHost, txtStudentValidationSummary);
-                LoadStudents(student.Id);
-            }
-            catch (DomainValidationException ex)
-            {
-                ShowValidationSummary(studentValidationSummaryHost, txtStudentValidationSummary, new[] { ex.Message });
-            }
-            catch (Exception ex)
-            {
-                if (createdUserId.HasValue)
-                {
-                    try
-                    {
-                        _userService.Delete(createdUserId.Value);
-                    }
-                    catch
-                    {
-                        // Best effort to avoid orphaned accounts.
-                    }
-                }
-
-                MessageBox.Show($"Add student failed: {ex.Message}", "Add Student", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
         }
 
         private void SaveStudent()
@@ -581,6 +607,10 @@ namespace School_Management_System
             txtStudentNumber.Text = _schoolSettingService.PeekNextStudentNumber();
             txtStudentLrn.Clear();
             txtStudentProfileImage.Clear();
+            txtStudentAccountId.Clear();
+            txtStudentAccountStatus.Text = "Pending account";
+            txtStudentEnrollmentStatus.Text = "Not Enrolled";
+            txtStudentRecordStatus.Text = "New record";
             txtStudentFirst.Clear();
             txtStudentLast.Clear();
             txtStudentMiddle.Clear();
@@ -619,7 +649,7 @@ namespace School_Management_System
             var visible = _studentsTable?.Rows?.Count ?? 0;
             if (!_selectedStudentId.HasValue)
             {
-                txtStudentsWorkspaceInfo.Text = $"Showing {visible} of {total} student records. Select a row to edit details.";
+                txtStudentsWorkspaceInfo.Text = $"Showing {visible} of {total} student records. Use grade and status filters to narrow the browse table, then select a row to edit details.";
                 return;
             }
 

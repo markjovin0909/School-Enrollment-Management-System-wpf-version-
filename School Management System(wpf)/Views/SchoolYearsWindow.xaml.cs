@@ -11,30 +11,95 @@ namespace School_Management_System.Views
     public partial class SchoolYearsWindow : Window
     {
         private readonly SchoolYearService _schoolYearService = new();
+        private readonly bool _createOnly;
         private DataTable _table = new();
         private long? _selectedId;
 
-        public SchoolYearsWindow()
+        public SchoolYearsWindow(bool createOnly = false)
         {
+            _createOnly = createOnly;
             InitializeComponent();
 
             cboStatus.ItemsSource = Enum.GetValues(typeof(SchoolYearStatus));
             cboStatus.SelectedItem = SchoolYearStatus.PLANNING;
 
             txtSearch.TextChanged += (_, _) => ApplyFilter();
+            gridSchoolYears.AutoGeneratingColumn += (_, e) =>
+            {
+                if (e.PropertyName == "Id" || e.PropertyName == "Enrollment Close" || e.PropertyName == "Archived")
+                {
+                    e.Cancel = true;
+                }
+            };
             gridSchoolYears.SelectionChanged += GridSchoolYears_SelectionChanged;
+            btnNew.Click += (_, _) => OpenCreateWindow();
             btnRefresh.Click += (_, _) => LoadData();
-            btnAdd.Click += (_, _) => AddSchoolYear();
+            btnAdd.Click += (_, _) =>
+            {
+                if (_createOnly)
+                {
+                    AddSchoolYear();
+                }
+                else
+                {
+                    OpenCreateWindow();
+                }
+            };
             btnSave.Click += (_, _) => SaveSchoolYear();
             btnArchiveRestore.Click += (_, _) => ArchiveOrRestoreSchoolYear();
-            btnClear.Click += (_, _) => ClearEditor();
+            btnClear.Click += (_, _) =>
+            {
+                if (_createOnly)
+                {
+                    Close();
+                }
+                else
+                {
+                    ClearEditor();
+                }
+            };
 
             dpStart.SelectedDate = DateTime.Today;
             dpEnd.SelectedDate = DateTime.Today;
             dpEnrollOpen.SelectedDate = DateTime.Today;
             dpEnrollClose.SelectedDate = DateTime.Today;
 
-            LoadData();
+            if (_createOnly)
+            {
+                ConfigureCreateMode();
+            }
+            else
+            {
+                LoadData();
+            }
+        }
+
+        private void OpenCreateWindow()
+        {
+            var window = new SchoolYearsWindow(true) { Owner = this };
+            if (window.ShowDialog() == true)
+            {
+                LoadData();
+            }
+        }
+
+        private void ConfigureCreateMode()
+        {
+            Title = "Create School Year";
+            searchPanel.Visibility = Visibility.Collapsed;
+            gridSchoolYears.Visibility = Visibility.Collapsed;
+            Grid.SetColumn(editorPanel, 0);
+            Grid.SetColumnSpan(editorPanel, 2);
+            editorPanel.Margin = new Thickness(0);
+            btnAdd.Content = "Create";
+            btnSave.Visibility = Visibility.Collapsed;
+            btnArchiveRestore.Visibility = Visibility.Collapsed;
+            btnClear.Content = "Cancel";
+            Width = 620;
+            Height = 520;
+            MinWidth = 620;
+            MinHeight = 520;
+            ClearEditor();
         }
 
         private void LoadData(long? preferredId = null)
@@ -143,6 +208,13 @@ namespace School_Management_System.Views
             {
                 _schoolYearService.Create(entity);
                 AuditTrailService.Log("CREATE", "school_years", entity.Id, null, entity);
+                if (_createOnly)
+                {
+                    DialogResult = true;
+                    Close();
+                    return;
+                }
+
                 LoadData(entity.Id);
             }
             catch (DomainValidationException ex)

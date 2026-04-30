@@ -14,7 +14,7 @@ namespace School_Management_System.Controls
             nameof(SummaryText), typeof(string), typeof(RequirementChecklistPanel), new PropertyMetadata(string.Empty));
 
         public static readonly DependencyProperty HintTextProperty = DependencyProperty.Register(
-            nameof(HintText), typeof(string), typeof(RequirementChecklistPanel), new PropertyMetadata("Missing, rejected, and expired requirements block final enrollment approval."));
+            nameof(HintText), typeof(string), typeof(RequirementChecklistPanel), new PropertyMetadata("Final approval requires all required documents to be submitted and validated."));
 
         public static readonly DependencyProperty ItemsProperty = DependencyProperty.Register(
             nameof(Items), typeof(IEnumerable<RequirementChecklistItem>), typeof(RequirementChecklistPanel), new PropertyMetadata(null));

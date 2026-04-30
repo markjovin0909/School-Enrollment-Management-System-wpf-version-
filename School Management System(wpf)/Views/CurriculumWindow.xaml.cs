@@ -15,6 +15,7 @@ namespace School_Management_System.Views
         private readonly CurriculumSubjectService _curriculumSubjectService = new();
         private readonly SubjectService _subjectService = new();
         private readonly GradeLevelService _gradeLevelService = new();
+        private readonly bool _createOnly;
 
         private DataTable _table = new();
         private DataTable _mappingTable = new();
@@ -23,20 +24,56 @@ namespace School_Management_System.Views
         private List<GradeLevel> _gradeLevels = new();
         private List<Subject> _subjects = new();
 
-        public CurriculumWindow()
+        public CurriculumWindow(bool createOnly = false)
         {
+            _createOnly = createOnly;
             InitializeComponent();
 
             txtSearch.TextChanged += (_, _) => ApplyFilter();
             cboMapGrade.SelectionChanged += (_, _) => BindMapSubjects();
+            gridCurricula.AutoGeneratingColumn += (_, e) =>
+            {
+                if (e.PropertyName == "Id")
+                {
+                    e.Cancel = true;
+                }
+            };
+            gridMappings.AutoGeneratingColumn += (_, e) =>
+            {
+                if (e.PropertyName == "Id")
+                {
+                    e.Cancel = true;
+                }
+            };
             gridCurricula.SelectionChanged += GridCurricula_SelectionChanged;
             gridMappings.SelectionChanged += GridMappings_SelectionChanged;
 
+            btnNew.Click += (_, _) => OpenCreateWindow();
             btnRefresh.Click += (_, _) => LoadData();
-            btnAdd.Click += (_, _) => AddCurriculum();
+            btnAdd.Click += (_, _) =>
+            {
+                if (_createOnly)
+                {
+                    AddCurriculum();
+                }
+                else
+                {
+                    OpenCreateWindow();
+                }
+            };
             btnSave.Click += (_, _) => SaveCurriculum();
             btnDelete.Click += (_, _) => DeleteCurriculum();
-            btnClear.Click += (_, _) => ClearEditor();
+            btnClear.Click += (_, _) =>
+            {
+                if (_createOnly)
+                {
+                    Close();
+                }
+                else
+                {
+                    ClearEditor();
+                }
+            };
 
             btnMapAdd.Click += (_, _) => AddMapping();
             btnMapDelete.Click += (_, _) => RemoveMapping();
@@ -49,7 +86,44 @@ namespace School_Management_System.Views
             chkActive.IsChecked = true;
 
             LoadLookups();
-            LoadData();
+            if (_createOnly)
+            {
+                ConfigureCreateMode();
+            }
+            else
+            {
+                LoadData();
+            }
+        }
+
+        private void OpenCreateWindow()
+        {
+            var window = new CurriculumWindow(true) { Owner = this };
+            if (window.ShowDialog() == true)
+            {
+                LoadData();
+            }
+        }
+
+        private void ConfigureCreateMode()
+        {
+            Title = "Create Curriculum";
+            searchPanel.Visibility = Visibility.Collapsed;
+            gridCurricula.Visibility = Visibility.Collapsed;
+            mappingPanel.Visibility = Visibility.Collapsed;
+            gridMappings.Visibility = Visibility.Collapsed;
+            Grid.SetColumn(editorPanel, 0);
+            Grid.SetColumnSpan(editorPanel, 2);
+            editorPanel.Margin = new Thickness(0);
+            btnAdd.Content = "Create";
+            btnSave.Visibility = Visibility.Collapsed;
+            btnDelete.Visibility = Visibility.Collapsed;
+            btnClear.Content = "Cancel";
+            Width = 680;
+            Height = 460;
+            MinWidth = 680;
+            MinHeight = 460;
+            ClearEditor();
         }
 
         private void LoadLookups()
@@ -234,6 +308,13 @@ namespace School_Management_System.Views
             {
                 _curriculumService.Create(entity);
                 AuditTrailService.Log("CREATE", "curricula", entity.Id, null, entity);
+                if (_createOnly)
+                {
+                    DialogResult = true;
+                    Close();
+                    return;
+                }
+
                 LoadData(entity.Id);
             }
             catch (DomainValidationException ex)

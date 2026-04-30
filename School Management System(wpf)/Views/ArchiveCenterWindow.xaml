@@ -5,33 +5,94 @@
         Title="Archive Center"
         Width="980" Height="620"
         MinWidth="840" MinHeight="520"
-        WindowStartupLocation="CenterOwner">
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource Legacy.BgBrush}">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Themes/LegacyAdminTheme.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
     <Grid Margin="12">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1.5*"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <controls:SectionHeader Grid.Row="0"
+        <controls:SectionHeader Grid.Row="0" Grid.ColumnSpan="2"
                                 Title="Archive Center"
-                                Subtitle="Review and restore archived records across entities"
+                                Subtitle="Inspect archived records, review restore impact, and recover safe entities"
                                 Margin="0,0,0,10"/>
 
-        <Border Grid.Row="1" Style="{StaticResource CardPanel}" Margin="0,0,0,8" Padding="10">
+        <Border Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource CardPanel}" Margin="0,0,0,8" Padding="10">
             <DockPanel>
                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
                     <TextBlock Text="{StaticResource Icon.Search}" Style="{StaticResource GlyphIcon}" Margin="0,0,8,0"/>
-                    <TextBox x:Name="txtSearch" Width="300" Margin="0,0,8,0"/>
+                    <TextBox x:Name="txtSearch" Width="300" Margin="0,0,12,0"/>
                     <CheckBox x:Name="chkShowRestored" Content="Show Restored" VerticalAlignment="Center"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
-                    <Button x:Name="btnRefresh" Content="Refresh" Width="110" Style="{StaticResource GhostButton}"/>
-                    <Button x:Name="btnRestore" Content="Restore Selected" Width="140"/>
+                    <Button x:Name="btnRestore" Content="Restore Selected" Width="132"/>
+                    <Button x:Name="btnRefresh" Content="Refresh" Width="92" Style="{StaticResource GhostButton}"/>
                 </StackPanel>
             </DockPanel>
         </Border>
 
-        <DataGrid Grid.Row="2" x:Name="gridRecords" IsReadOnly="True"/>
+        <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,8,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Text="Archived Records"
+                           Style="{StaticResource Text.SectionTitle}"
+                           Margin="0,0,0,10"/>
+                <DataGrid Grid.Row="1"
+                          x:Name="gridRecords"
+                          IsReadOnly="True"
+                          EnableRowVirtualization="True"
+                          EnableColumnVirtualization="True"
+                          ScrollViewer.CanContentScroll="True"/>
+            </Grid>
+        </Border>
+
+        <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource CardPanel}" Margin="8,0,0,0">
+            <StackPanel>
+                <controls:SectionHeader Title="Restore Details"
+                                        Subtitle="Selected archive record and restore readiness"
+                                        Margin="0,0,0,8"/>
+                <Border Style="{StaticResource WarningBanner}" Margin="0,0,0,12">
+                    <TextBlock Text="Always review restore impact before recovering records with dependencies."
+                               TextWrapping="Wrap"/>
+                </Border>
+                <UniformGrid Columns="2">
+                    <StackPanel Margin="0,0,8,10">
+                        <TextBlock Text="Entity" Style="{StaticResource Text.Caption}"/>
+                        <TextBlock x:Name="txtEntityValue" Style="{StaticResource Text.Body}" Text="-"/>
+                    </StackPanel>
+                    <StackPanel Margin="8,0,0,10">
+                        <TextBlock Text="Original ID" Style="{StaticResource Text.Caption}"/>
+                        <TextBlock x:Name="txtOriginalIdValue" Style="{StaticResource Text.Body}" Text="-"/>
+                    </StackPanel>
+                    <StackPanel Margin="0,0,8,10">
+                        <TextBlock Text="Deleted At" Style="{StaticResource Text.Caption}"/>
+                        <TextBlock x:Name="txtDeletedAtValue" Style="{StaticResource Text.Body}" Text="-"/>
+                    </StackPanel>
+                    <StackPanel Margin="8,0,0,10">
+                        <TextBlock Text="Restored" Style="{StaticResource Text.Caption}"/>
+                        <TextBlock x:Name="txtRestoredValue" Style="{StaticResource Text.Body}" Text="-"/>
+                    </StackPanel>
+                </UniformGrid>
+                <TextBlock Text="Notes" Style="{StaticResource Text.Caption}" Margin="0,4,0,4"/>
+                <TextBlock x:Name="txtArchiveNotesValue" Style="{StaticResource Text.Body}" Text="-" TextWrapping="Wrap"/>
+            </StackPanel>
+        </Border>
     </Grid>
 </Window>

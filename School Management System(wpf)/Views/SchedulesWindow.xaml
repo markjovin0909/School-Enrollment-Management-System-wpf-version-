@@ -5,7 +5,15 @@
         Title="Schedules"
         Width="1320" Height="780"
         MinWidth="1120" MinHeight="640"
-        WindowStartupLocation="CenterOwner">
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource Legacy.BgBrush}">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Themes/LegacyAdminTheme.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
     <Grid Margin="12">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1.65*"/>
@@ -22,29 +30,50 @@
                                 Subtitle="Assign offering, room, and timeslot details per teaching day"
                                 Margin="0,0,0,10"/>
 
-        <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,8,8" Padding="10">
+        <Border x:Name="searchPanel" Grid.Row="1" Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,8,8" Padding="10">
             <Grid>
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="180"/>
                     <ColumnDefinition Width="180"/>
                     <ColumnDefinition Width="160"/>
                     <ColumnDefinition Width="220"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <ComboBox Grid.Column="0" x:Name="cboFilterSchoolYear" Margin="0,0,8,0" DisplayMemberPath="Name" SelectedValuePath="Id"/>
-                <ComboBox Grid.Column="1" x:Name="cboFilterTeacher" Margin="0,0,8,0" DisplayMemberPath="Name" SelectedValuePath="Id"/>
-                <ComboBox Grid.Column="2" x:Name="cboFilterSection" Margin="0,0,8,0" DisplayMemberPath="Name" SelectedValuePath="Id"/>
-                <TextBox Grid.Column="3" x:Name="txtSearch" Margin="0,0,8,0"/>
-                <Button Grid.Column="4" x:Name="btnRefresh" Content="Refresh" Width="90" Style="{StaticResource GhostButton}"/>
+                <Button Grid.Column="0" x:Name="btnNew" Content="New Schedule" Width="114" Margin="0,0,8,0"/>
+                <ComboBox Grid.Column="1" x:Name="cboFilterSchoolYear" Margin="0,0,8,0" DisplayMemberPath="Name" SelectedValuePath="Id"/>
+                <ComboBox Grid.Column="2" x:Name="cboFilterTeacher" Margin="0,0,8,0" DisplayMemberPath="Name" SelectedValuePath="Id"/>
+                <ComboBox Grid.Column="3" x:Name="cboFilterSection" Margin="0,0,8,0" DisplayMemberPath="Name" SelectedValuePath="Id"/>
+                <TextBox Grid.Column="4" x:Name="txtSearch" Margin="0,0,8,0"/>
+                <Button Grid.Column="5" x:Name="btnRefresh" Content="Refresh" Width="90" Style="{StaticResource GhostButton}"/>
             </Grid>
         </Border>
 
-        <DataGrid Grid.Row="2" Grid.Column="0" x:Name="gridSchedules" IsReadOnly="True" Margin="0,0,8,0"/>
+        <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,8,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Text="Schedule Registry"
+                           Style="{StaticResource Text.SectionTitle}"
+                           Margin="0,0,0,10"/>
+                <DataGrid Grid.Row="1"
+                          x:Name="gridSchedules"
+                          IsReadOnly="True"
+                          EnableRowVirtualization="True"
+                          EnableColumnVirtualization="True"
+                          ScrollViewer.CanContentScroll="True"/>
+            </Grid>
+        </Border>
 
-        <ScrollViewer Grid.Row="1" Grid.RowSpan="2" Grid.Column="1" Margin="8,0,0,0" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer x:Name="editorPanel" Grid.Row="1" Grid.RowSpan="2" Grid.Column="1" Margin="8,0,0,0" VerticalScrollBarVisibility="Auto">
             <Border Style="{StaticResource CardPanel}">
                 <StackPanel>
                     <controls:SectionHeader Title="Schedule Details" Subtitle="Control schedule assignment and export workflow" Margin="0,0,0,8"/>
+                    <Border x:Name="scheduleWarningPanel" Style="{StaticResource WarningBanner}" Margin="0,0,0,12" Visibility="Collapsed">
+                        <TextBlock x:Name="txtScheduleWarnings" TextWrapping="Wrap"/>
+                    </Border>
                     <Label Content="Class Offering"/>
                     <ComboBox x:Name="cboOffering" DisplayMemberPath="Label" SelectedValuePath="Id"/>
                     <Label Content="Room" Margin="0,8,0,0"/>
@@ -59,7 +88,7 @@
                     <TextBox x:Name="txtEnd"/>
 
                     <WrapPanel Margin="0,12,0,0">
-                        <Button x:Name="btnAdd" Content="Add" Width="90"/>
+                        <Button x:Name="btnAdd" Content="Create" Width="90"/>
                         <Button x:Name="btnSave" Content="Save" Width="90"/>
                         <Button x:Name="btnDelete" Content="Delete" Width="90" Style="{StaticResource GhostButton}"/>
                         <Button x:Name="btnClear" Content="Clear" Width="90" Style="{StaticResource GhostButton}"/>

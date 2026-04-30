@@ -5,20 +5,32 @@
         Title="Year-End Rollover"
         Width="980" Height="660"
         MinWidth="860" MinHeight="560"
-        WindowStartupLocation="CenterOwner">
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource Legacy.BgBrush}">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Themes/LegacyAdminTheme.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
     <Grid Margin="12">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1.05*"/>
+            <ColumnDefinition Width="0.95*"/>
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <controls:SectionHeader Grid.Row="0"
+        <controls:SectionHeader Grid.Row="0" Grid.ColumnSpan="2"
                                 Title="Year-End Rollover"
                                 Subtitle="Preview and execute school-year data rollover with safety options"
                                 Margin="0,0,0,10"/>
 
-        <Border Grid.Row="1" BorderBrush="{StaticResource BrushBorder}" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,0,0,10" Background="White">
+        <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,10,10">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -59,6 +71,25 @@
             </Grid>
         </Border>
 
-        <TextBox Grid.Row="2" x:Name="txtResult" IsReadOnly="True" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"/>
+        <Border Grid.Row="1" Grid.RowSpan="2" Grid.Column="1" Style="{StaticResource CardPanel}" Margin="10,0,0,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <controls:SectionHeader Grid.Row="0" Title="Preview and Result Log" Subtitle="Review projected promotions, skips, and execution output" Margin="0,0,0,8"/>
+                <Border Grid.Row="1" Style="{StaticResource InfoBanner}" Margin="0,0,0,10">
+                    <TextBlock Text="Preview first, review blockers, then execute only after typed confirmation passes."
+                               TextWrapping="Wrap"/>
+                </Border>
+                <TextBox Grid.Row="2"
+                         x:Name="txtResult"
+                         IsReadOnly="True"
+                         AcceptsReturn="True"
+                         TextWrapping="Wrap"
+                         VerticalScrollBarVisibility="Auto"/>
+            </Grid>
+        </Border>
     </Grid>
 </Window>

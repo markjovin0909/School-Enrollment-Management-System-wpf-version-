@@ -18,6 +18,13 @@ namespace School_Management_System.Views
             InitializeComponent();
 
             txtSearch.TextChanged += (_, _) => ApplyFilter();
+            gridRecords.AutoGeneratingColumn += (_, e) =>
+            {
+                if (e.PropertyName == "Id")
+                {
+                    e.Cancel = true;
+                }
+            };
             chkShowRestored.Checked += (_, _) => LoadData();
             chkShowRestored.Unchecked += (_, _) => LoadData();
             btnRefresh.Click += (_, _) => LoadData();
@@ -77,10 +84,16 @@ namespace School_Management_System.Views
             if (gridRecords.SelectedItem is not DataRowView row)
             {
                 _selectedId = null;
+                ClearDetails();
                 return;
             }
 
             _selectedId = row.Row.Field<long>("Id");
+            txtDeletedAtValue.Text = row.Row["Deleted At"]?.ToString() ?? "-";
+            txtEntityValue.Text = row.Row["Entity"]?.ToString() ?? "-";
+            txtOriginalIdValue.Text = row.Row["Original ID"]?.ToString() ?? "-";
+            txtRestoredValue.Text = row.Row["Restored"]?.ToString() ?? "-";
+            txtArchiveNotesValue.Text = string.IsNullOrWhiteSpace(row.Row["Notes"]?.ToString()) ? "-" : row.Row["Notes"]?.ToString();
         }
 
         private void RestoreSelected()
@@ -169,6 +182,15 @@ namespace School_Management_System.Views
             }
 
             return string.Join(Environment.NewLine, lines);
+        }
+
+        private void ClearDetails()
+        {
+            txtDeletedAtValue.Text = "-";
+            txtEntityValue.Text = "-";
+            txtOriginalIdValue.Text = "-";
+            txtRestoredValue.Text = "-";
+            txtArchiveNotesValue.Text = "-";
         }
     }
 }

@@ -22,25 +22,95 @@ namespace School_Management_System.Views
         private List<GradeLevel> _gradeLevels = new();
         private List<Teacher> _teachers = new();
         private List<TeacherOption> _teacherOptions = new();
+        private readonly bool _createOnly;
         private bool _suppressEvents;
 
-        public SectionsWindow()
+        public SectionsWindow(bool createOnly = false)
         {
+            _createOnly = createOnly;
             InitializeComponent();
 
             txtSearch.TextChanged += (_, _) => { if (!_suppressEvents) LoadData(); };
             cboFilterSchoolYear.SelectionChanged += (_, _) => { if (!_suppressEvents) LoadData(); };
             cboFilterGrade.SelectionChanged += (_, _) => { if (!_suppressEvents) LoadData(); };
+            gridSections.AutoGeneratingColumn += (_, e) =>
+            {
+                if (e.PropertyName == "Id" || e.PropertyName == "Archived")
+                {
+                    e.Cancel = true;
+                }
+                else if (e.PropertyName == "SchoolYear")
+                {
+                    e.Column.Header = "School Year";
+                }
+            };
             gridSections.SelectionChanged += GridSections_SelectionChanged;
 
+            btnNew.Click += (_, _) => OpenCreateWindow();
             btnRefresh.Click += (_, _) => LoadData();
-            btnAdd.Click += (_, _) => AddSection();
+            btnAdd.Click += (_, _) =>
+            {
+                if (_createOnly)
+                {
+                    AddSection();
+                }
+                else
+                {
+                    OpenCreateWindow();
+                }
+            };
             btnSave.Click += (_, _) => SaveSection();
             btnArchiveRestore.Click += (_, _) => ArchiveOrRestoreSection();
-            btnClear.Click += (_, _) => ClearEditor();
+            btnClear.Click += (_, _) =>
+            {
+                if (_createOnly)
+                {
+                    Close();
+                }
+                else
+                {
+                    ClearEditor();
+                }
+            };
 
             LoadLookups();
-            LoadData();
+            if (_createOnly)
+            {
+                ConfigureCreateMode();
+            }
+            else
+            {
+                LoadData();
+            }
+        }
+
+        private void OpenCreateWindow()
+        {
+            var window = new SectionsWindow(true) { Owner = this };
+            if (window.ShowDialog() == true)
+            {
+                LoadLookups();
+                LoadData();
+            }
+        }
+
+        private void ConfigureCreateMode()
+        {
+            Title = "Create Section";
+            searchPanel.Visibility = Visibility.Collapsed;
+            gridSections.Visibility = Visibility.Collapsed;
+            Grid.SetColumn(editorPanel, 0);
+            Grid.SetColumnSpan(editorPanel, 2);
+            editorPanel.Margin = new Thickness(0);
+            btnAdd.Content = "Create";
+            btnSave.Visibility = Visibility.Collapsed;
+            btnArchiveRestore.Visibility = Visibility.Collapsed;
+            btnClear.Content = "Cancel";
+            Width = 640;
+            Height = 560;
+            MinWidth = 640;
+            MinHeight = 560;
+            ClearEditor();
         }
 
         private void LoadLookups()
@@ -212,6 +282,13 @@ namespace School_Management_System.Views
             {
                 _sectionService.Create(section);
                 AuditTrailService.Log("CREATE", "sections", section.Id, null, section);
+                if (_createOnly)
+                {
+                    DialogResult = true;
+                    Close();
+                    return;
+                }
+
                 LoadData(section.Id);
             }
             catch (DomainValidationException ex)

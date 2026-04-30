@@ -20,6 +20,7 @@ namespace School_Management_System.Views
         private readonly SubjectService _subjectService = new();
         private readonly RoomService _roomService = new();
         private readonly TimeSlotService _timeSlotService = new();
+        private readonly bool _createOnly;
 
         private DataTable _table = new();
         private long? _selectedId;
@@ -34,8 +35,9 @@ namespace School_Management_System.Views
 
         private bool _suppressEvents;
 
-        public SchedulesWindow()
+        public SchedulesWindow(bool createOnly = false)
         {
+            _createOnly = createOnly;
             InitializeComponent();
 
             cboFilterSchoolYear.SelectionChanged += (_, _) => { if (!_suppressEvents) LoadData(); };
@@ -43,24 +45,95 @@ namespace School_Management_System.Views
             cboFilterSection.SelectionChanged += (_, _) => { if (!_suppressEvents) LoadData(); };
             txtSearch.TextChanged += (_, _) => { if (!_suppressEvents) LoadData(); };
 
+            gridSchedules.AutoGeneratingColumn += (_, e) =>
+            {
+                if (e.PropertyName == "Id" || e.PropertyName == "Time Slot")
+                {
+                    e.Cancel = true;
+                }
+            };
             gridSchedules.SelectionChanged += GridSchedules_SelectionChanged;
+            btnNew.Click += (_, _) => OpenCreateWindow();
             btnRefresh.Click += (_, _) => LoadData();
-            btnAdd.Click += (_, _) => AddSchedule();
+            btnAdd.Click += (_, _) =>
+            {
+                if (_createOnly)
+                {
+                    AddSchedule();
+                }
+                else
+                {
+                    OpenCreateWindow();
+                }
+            };
             btnSave.Click += (_, _) => SaveSchedule();
             btnDelete.Click += (_, _) => DeleteSchedule();
-            btnClear.Click += (_, _) => ClearEditor();
+            btnClear.Click += (_, _) =>
+            {
+                if (_createOnly)
+                {
+                    Close();
+                }
+                else
+                {
+                    ClearEditor();
+                }
+            };
             btnExport.Click += (_, _) => CsvExportService.SaveDataTable(_table, "class_schedules.csv");
 
             cboDay.ItemsSource = BuildDayOptions();
             cboDay.DisplayMemberPath = "Label";
             cboDay.SelectedValuePath = "Value";
             cboDay.SelectedIndex = 0;
+            cboOffering.SelectionChanged += (_, _) => UpdateScheduleWarnings();
+            cboRoom.SelectionChanged += (_, _) => UpdateScheduleWarnings();
+            cboTimeSlot.SelectionChanged += (_, _) => UpdateScheduleWarnings();
+            cboDay.SelectionChanged += (_, _) => UpdateScheduleWarnings();
+            txtStart.TextChanged += (_, _) => UpdateScheduleWarnings();
+            txtEnd.TextChanged += (_, _) => UpdateScheduleWarnings();
 
             txtStart.Text = "07:00";
             txtEnd.Text = "08:00";
 
             LoadLookups();
-            LoadData();
+            if (_createOnly)
+            {
+                ConfigureCreateMode();
+            }
+            else
+            {
+                LoadData();
+            }
+        }
+
+        private void OpenCreateWindow()
+        {
+            var window = new SchedulesWindow(true) { Owner = this };
+            if (window.ShowDialog() == true)
+            {
+                LoadLookups();
+                LoadData();
+            }
+        }
+
+        private void ConfigureCreateMode()
+        {
+            Title = "Create Schedule";
+            searchPanel.Visibility = Visibility.Collapsed;
+            gridSchedules.Visibility = Visibility.Collapsed;
+            Grid.SetColumn(editorPanel, 0);
+            Grid.SetColumnSpan(editorPanel, 2);
+            editorPanel.Margin = new Thickness(0);
+            btnAdd.Content = "Create";
+            btnSave.Visibility = Visibility.Collapsed;
+            btnDelete.Visibility = Visibility.Collapsed;
+            btnExport.Visibility = Visibility.Collapsed;
+            btnClear.Content = "Cancel";
+            Width = 640;
+            Height = 600;
+            MinWidth = 640;
+            MinHeight = 600;
+            ClearEditor();
         }
 
         private void LoadLookups()
@@ -121,6 +194,7 @@ namespace School_Management_System.Views
             _table.Columns.Add("End");
             _table.Columns.Add("Room");
             _table.Columns.Add("Time Slot");
+            _table.Columns.Add("Conflicts");
 
             var filterSy = cboFilterSchoolYear.SelectedValue is long sy && sy != 0 ? sy : (long?)null;
             var filterTeacher = cboFilterTeacher.SelectedValue is long teacher && teacher != 0 ? teacher : (long?)null;
@@ -186,7 +260,8 @@ namespace School_Management_System.Views
                     schedule.StartTime.ToString(@"hh\:mm"),
                     schedule.EndTime.ToString(@"hh\:mm"),
                     roomLabel,
-                    timeSlotLabel);
+                    timeSlotLabel,
+                    CountConflicts(schedule, offering));
             }
 
             gridSchedules.ItemsSource = _table.DefaultView;
@@ -237,6 +312,7 @@ namespace School_Management_System.Views
             cboDay.SelectedValue = schedule.DayOfWeek;
             txtStart.Text = schedule.StartTime.ToString(@"hh\:mm");
             txtEnd.Text = schedule.EndTime.ToString(@"hh\:mm");
+            UpdateScheduleWarnings();
         }
 
         private void AddSchedule()
@@ -261,6 +337,13 @@ namespace School_Management_System.Views
 
             _scheduleService.Create(entity);
             AuditTrailService.Log("CREATE", "class_schedules", entity.Id, null, entity);
+            if (_createOnly)
+            {
+                DialogResult = true;
+                Close();
+                return;
+            }
+
             LoadData(entity.Id);
         }
 
@@ -388,6 +471,135 @@ namespace School_Management_System.Views
             txtStart.Text = "07:00";
             txtEnd.Text = "08:00";
             gridSchedules.SelectedItem = null;
+            UpdateScheduleWarnings();
+        }
+
+        private void UpdateScheduleWarnings()
+        {
+            var warnings = BuildScheduleWarnings();
+            if (warnings.Count == 0)
+            {
+                scheduleWarningPanel.Visibility = Visibility.Collapsed;
+                txtScheduleWarnings.Text = string.Empty;
+                return;
+            }
+
+            scheduleWarningPanel.Visibility = Visibility.Visible;
+            txtScheduleWarnings.Text = string.Join(Environment.NewLine, warnings.Select(x => $"• {x}"));
+        }
+
+        private List<string> BuildScheduleWarnings()
+        {
+            var warnings = new List<string>();
+            if (!TimeSpan.TryParse(txtStart.Text.Trim(), out var startTime) ||
+                !TimeSpan.TryParse(txtEnd.Text.Trim(), out var endTime) ||
+                startTime >= endTime ||
+                cboOffering.SelectedValue is not long offeringId ||
+                cboDay.SelectedValue is not byte day)
+            {
+                return warnings;
+            }
+
+            var offering = _offerings.FirstOrDefault(x => x.Id == offeringId);
+            if (offering == null)
+            {
+                return warnings;
+            }
+
+            if (!offering.TeacherId.HasValue)
+            {
+                warnings.Add("Selected offering has no teacher assigned yet.");
+            }
+
+            if (!offering.TeacherId.HasValue && cboRoom.SelectedValue is not long roomCheckIdOnly)
+            {
+                return warnings;
+            }
+
+            var overlappingSchedules = _scheduleService.GetAll()
+                .Where(x => !_selectedId.HasValue || x.Id != _selectedId.Value)
+                .Where(x => x.DayOfWeek == day && TimesOverlap(x.StartTime, x.EndTime, startTime, endTime))
+                .ToList();
+
+            foreach (var schedule in overlappingSchedules)
+            {
+                var otherOffering = _offerings.FirstOrDefault(x => x.Id == schedule.ClassOfferingId);
+                if (otherOffering == null)
+                {
+                    continue;
+                }
+
+                if (offering.TeacherId.HasValue &&
+                    otherOffering.TeacherId.HasValue &&
+                    offering.TeacherId.Value == otherOffering.TeacherId.Value)
+                {
+                    warnings.Add("Teacher already assigned during the selected time.");
+                }
+
+                if (cboRoom.SelectedValue is long selectedRoomId &&
+                    selectedRoomId > 0 &&
+                    schedule.RoomId.HasValue &&
+                    schedule.RoomId.Value == selectedRoomId)
+                {
+                    warnings.Add("Selected room is already occupied during the selected time.");
+                }
+
+                if (otherOffering.SectionId == offering.SectionId)
+                {
+                    warnings.Add("Selected section already has another class during the selected time.");
+                }
+
+                if (cboTimeSlot.SelectedValue is long selectedTimeSlotId &&
+                    selectedTimeSlotId > 0 &&
+                    schedule.TimeSlotId.HasValue &&
+                    schedule.TimeSlotId.Value == selectedTimeSlotId &&
+                    (schedule.StartTime != startTime || schedule.EndTime != endTime))
+                {
+                    warnings.Add("Chosen time slot overlaps with another assignment using the same slot.");
+                }
+            }
+
+            return warnings.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+        }
+
+        private int CountConflicts(ClassSchedule schedule, ClassOffering offering)
+        {
+            var total = 0;
+            var overlappingSchedules = _scheduleService.GetAll()
+                .Where(x => x.Id != schedule.Id)
+                .Where(x => x.DayOfWeek == schedule.DayOfWeek && TimesOverlap(x.StartTime, x.EndTime, schedule.StartTime, schedule.EndTime))
+                .ToList();
+
+            foreach (var other in overlappingSchedules)
+            {
+                var otherOffering = _offerings.FirstOrDefault(x => x.Id == other.ClassOfferingId);
+                if (otherOffering == null)
+                {
+                    continue;
+                }
+
+                if (offering.TeacherId.HasValue && otherOffering.TeacherId == offering.TeacherId)
+                {
+                    total++;
+                }
+
+                if (schedule.RoomId.HasValue && other.RoomId == schedule.RoomId)
+                {
+                    total++;
+                }
+
+                if (otherOffering.SectionId == offering.SectionId)
+                {
+                    total++;
+                }
+            }
+
+            return total;
+        }
+
+        private static bool TimesOverlap(TimeSpan existingStart, TimeSpan existingEnd, TimeSpan candidateStart, TimeSpan candidateEnd)
+        {
+            return candidateStart < existingEnd && candidateEnd > existingStart;
         }
 
         private List<FilterItem> BuildSchoolYearFilter()

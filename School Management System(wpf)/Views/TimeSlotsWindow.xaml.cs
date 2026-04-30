@@ -11,24 +11,90 @@ namespace School_Management_System.Views
     public partial class TimeSlotsWindow : Window
     {
         private readonly TimeSlotService _service = new();
+        private readonly bool _createOnly;
         private DataTable _table = CreateTableSchema();
         private long? _selectedId;
 
-        public TimeSlotsWindow()
+        public TimeSlotsWindow(bool createOnly = false)
         {
+            _createOnly = createOnly;
             InitializeComponent();
 
             txtSearch.TextChanged += (_, _) => ApplyFilter();
+            gridTimeSlots.AutoGeneratingColumn += (_, e) =>
+            {
+                if (e.PropertyName == "Id")
+                {
+                    e.Cancel = true;
+                }
+            };
             gridTimeSlots.SelectionChanged += GridTimeSlots_SelectionChanged;
+            btnNew.Click += (_, _) => OpenCreateWindow();
             btnRefresh.Click += (_, _) => LoadData();
-            btnAdd.Click += (_, _) => AddTimeSlot();
+            btnAdd.Click += (_, _) =>
+            {
+                if (_createOnly)
+                {
+                    AddTimeSlot();
+                }
+                else
+                {
+                    OpenCreateWindow();
+                }
+            };
             btnSave.Click += (_, _) => SaveTimeSlot();
             btnDelete.Click += (_, _) => DeleteTimeSlot();
-            btnClear.Click += (_, _) => ClearEditor();
+            btnClear.Click += (_, _) =>
+            {
+                if (_createOnly)
+                {
+                    Close();
+                }
+                else
+                {
+                    ClearEditor();
+                }
+            };
             btnExport.Click += (_, _) => CsvExportService.SaveDataTable(_table, "time_slots.csv");
 
             ClearEditor();
-            LoadData();
+            if (_createOnly)
+            {
+                ConfigureCreateMode();
+            }
+            else
+            {
+                LoadData();
+            }
+        }
+
+        private void OpenCreateWindow()
+        {
+            var window = new TimeSlotsWindow(true) { Owner = this };
+            if (window.ShowDialog() == true)
+            {
+                LoadData();
+            }
+        }
+
+        private void ConfigureCreateMode()
+        {
+            Title = "Create Time Slot";
+            searchPanel.Visibility = Visibility.Collapsed;
+            gridTimeSlots.Visibility = Visibility.Collapsed;
+            Grid.SetColumn(editorPanel, 0);
+            Grid.SetColumnSpan(editorPanel, 2);
+            editorPanel.Margin = new Thickness(0);
+            btnAdd.Content = "Create";
+            btnSave.Visibility = Visibility.Collapsed;
+            btnDelete.Visibility = Visibility.Collapsed;
+            btnExport.Visibility = Visibility.Collapsed;
+            btnClear.Content = "Cancel";
+            Width = 600;
+            Height = 520;
+            MinWidth = 600;
+            MinHeight = 520;
+            ClearEditor();
         }
 
         private static DataTable CreateTableSchema()
@@ -135,6 +201,13 @@ namespace School_Management_System.Views
 
             _service.Create(entity);
             AuditTrailService.Log("CREATE", "time_slots", entity.Id, null, entity);
+            if (_createOnly)
+            {
+                DialogResult = true;
+                Close();
+                return;
+            }
+
             LoadData(entity.Id);
         }
 

@@ -36,11 +36,15 @@ namespace School_Management_System
         private readonly ReportPresetHistoryService _reportPresetHistoryService = new();
         private readonly BackupRestoreService _backupRestoreService = new();
         private readonly ExceptionQueueService _exceptionQueueService = new();
+        private readonly OperationalMetricsDashboardService _operationalMetricsDashboardService = new();
+        private readonly ArchiveRecordService _archiveRecordService = new();
+        private readonly AuditLogService _auditLogService = new();
         private readonly SchoolYearService _schoolYearService = new();
         private readonly GradeLevelService _gradeLevelService = new();
         private readonly SectionService _sectionService = new();
         private readonly CurriculumService _curriculumService = new();
         private readonly ClassOfferingService _classOfferingService = new();
+        private readonly ClassScheduleService _classScheduleService = new();
         private readonly SubjectService _subjectService = new();
         private readonly List<Button> _opsSubMenuButtons = new();
         private readonly Dictionary<Button, OperationsSection> _opsButtonSections = new();
@@ -141,7 +145,6 @@ namespace School_Management_System
         private void NavigateMainTab(int index)
         {
             tabsMain.SelectedIndex = index;
-            EnsureDefaultOperationsModuleForTab(index);
             UpdateNavigationState();
         }
 
@@ -232,6 +235,73 @@ namespace School_Management_System
                 _students = _studentService.GetAll().ToList();
                 _teachers = _teacherService.GetAll().ToList();
                 _sections = _sectionService.GetAll().ToList();
+                var enrollments = _enrollmentService.GetAll().ToList();
+                var archives = _archiveRecordService.GetAll().ToList();
+                var userLookup = _userService.GetAll().ToDictionary(x => x.Id, x => x.Username);
+                var metrics = _operationalMetricsDashboardService.BuildSnapshot();
+
+                var activeStudents = _students.Count(x => x.Status == UserStatus.ACTIVE);
+                var enrolledStudents = enrollments.Count(x => x.Status == EnrollmentStatus.ENROLLED);
+                var pendingEnrollments = enrollments.Count(x =>
+                    x.Status == EnrollmentStatus.PENDING ||
+                    (x.ApprovalStatus == EnrollmentApprovalStatus.PENDING && x.Status != EnrollmentStatus.ENROLLED));
+                var activeTeachers = _teachers.Count(x => x.Status == UserStatus.ACTIVE);
+                var activeEnrollmentsBySection = enrollments
+                    .Where(x => x.Status == EnrollmentStatus.ENROLLED)
+                    .GroupBy(x => x.SectionId)
+                    .ToDictionary(x => x.Key, x => x.Count());
+                var availableSections = _sections.Count(section =>
+                {
+                    if (section.IsArchived)
+                    {
+                        return false;
+                    }
+
+                    if (!section.Capacity.HasValue || section.Capacity.Value <= 0)
+                    {
+                        return false;
+                    }
+
+                    var occupied = activeEnrollmentsBySection.TryGetValue(section.Id, out var count) ? count : 0;
+                    return occupied < section.Capacity.Value;
+                });
+                var archivedRecords = archives.Count(x => !x.IsRestored);
+
+                cardTotalStudents.Value = activeStudents.ToString();
+                cardTotalStudents.Hint = $"{_students.Count} total student record(s)";
+                cardEnrolledStudents.Value = enrolledStudents.ToString();
+                cardEnrolledStudents.Hint = "Enrollment status ENROLLED";
+                cardPendingEnrollments.Value = pendingEnrollments.ToString();
+                cardPendingEnrollments.Hint = "Pending status or approval";
+                cardTotalTeachers.Value = activeTeachers.ToString();
+                cardTotalTeachers.Hint = $"{_teachers.Count} total teacher record(s)";
+                cardAvailableSections.Value = availableSections.ToString();
+                cardAvailableSections.Hint = "Non-archived sections with open seats";
+                cardArchivedRecords.Value = archivedRecords.ToString();
+                cardArchivedRecords.Hint = "Archived items not yet restored";
+
+                txtDashboardQueueMetric.Text = $"{metrics.QueueAging.Title}: {metrics.QueueAging.Value}  |  {metrics.QueueAging.Trend}";
+                txtDashboardReversalMetric.Text = $"{metrics.DecisionReversals.Title}: {metrics.DecisionReversals.Value}  |  {metrics.DecisionReversals.Trend}";
+                txtDashboardWaitlistMetric.Text = $"{metrics.WaitlistPressure.Title}: {metrics.WaitlistPressure.Value}  |  {metrics.WaitlistPressure.Trend}";
+                txtDashboardCriticalOpsMetric.Text = $"{metrics.FailedCriticalOps.Title}: {metrics.FailedCriticalOps.Value}  |  {metrics.FailedCriticalOps.Trend}";
+
+                var activityTable = new DataTable();
+                activityTable.Columns.Add("Date");
+                activityTable.Columns.Add("User");
+                activityTable.Columns.Add("Action");
+                activityTable.Columns.Add("Module");
+
+                foreach (var log in _auditLogService.GetAll().OrderByDescending(x => x.CreatedAt).Take(12))
+                {
+                    activityTable.Rows.Add(
+                        log.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm"),
+                        userLookup.TryGetValue(log.UserId, out var username) ? username : $"User {log.UserId}",
+                        (log.Action ?? string.Empty).Replace('_', ' '),
+                        log.Entity ?? string.Empty);
+                }
+
+                gridDashboardActivity.ItemsSource = activityTable.DefaultView;
+                txtDashboardUpdatedAt.Text = $"Updated at {DateTime.Now:HH:mm:ss} • {activityTable.Rows.Count} recent activity item(s)";
             }
             catch (Exception ex)
             {
@@ -397,14 +467,14 @@ namespace School_Management_System
             var moduleCount = _opsButtonSections.Count(x => x.Value == section);
             if (selectedButton == null)
             {
-                info.Text = $"{sectionLabel}: {moduleCount} module(s) available. Select one from the left list to open its detail workspace.";
+                info.Text = $"{sectionLabel}: {moduleCount} module(s) available. Select one from the launch list to open its workspace on this page.";
                 return;
             }
 
             var label = _opsButtonLabels.TryGetValue(selectedButton, out var mapped)
                 ? mapped
                 : selectedButton.Content?.ToString() ?? "Module";
-            info.Text = $"{sectionLabel} active module: {label}. Use the left list to switch context without leaving the page.";
+            info.Text = $"{sectionLabel} active module: {label}. Use the launch list to switch context without leaving the page.";
         }
 
         private void EnsureDefaultOperationsModuleForTab(int tabIndex)

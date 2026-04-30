@@ -11,22 +11,87 @@ namespace School_Management_System.Views
     public partial class GradeLevelsWindow : Window
     {
         private readonly GradeLevelService _gradeLevelService = new();
+        private readonly bool _createOnly;
         private DataTable _table = new();
         private long? _selectedId;
 
-        public GradeLevelsWindow()
+        public GradeLevelsWindow(bool createOnly = false)
         {
+            _createOnly = createOnly;
             InitializeComponent();
 
             txtSearch.TextChanged += (_, _) => ApplyFilter();
+            gridGradeLevels.AutoGeneratingColumn += (_, e) =>
+            {
+                if (e.PropertyName == "Id")
+                {
+                    e.Cancel = true;
+                }
+            };
             gridGradeLevels.SelectionChanged += GridGradeLevels_SelectionChanged;
+            btnNew.Click += (_, _) => OpenCreateWindow();
             btnRefresh.Click += (_, _) => LoadData();
-            btnAdd.Click += (_, _) => AddGradeLevel();
+            btnAdd.Click += (_, _) =>
+            {
+                if (_createOnly)
+                {
+                    AddGradeLevel();
+                }
+                else
+                {
+                    OpenCreateWindow();
+                }
+            };
             btnSave.Click += (_, _) => SaveGradeLevel();
             btnDelete.Click += (_, _) => DeleteGradeLevel();
-            btnClear.Click += (_, _) => ClearEditor();
+            btnClear.Click += (_, _) =>
+            {
+                if (_createOnly)
+                {
+                    Close();
+                }
+                else
+                {
+                    ClearEditor();
+                }
+            };
 
-            LoadData();
+            if (_createOnly)
+            {
+                ConfigureCreateMode();
+            }
+            else
+            {
+                LoadData();
+            }
+        }
+
+        private void OpenCreateWindow()
+        {
+            var window = new GradeLevelsWindow(true) { Owner = this };
+            if (window.ShowDialog() == true)
+            {
+                LoadData();
+            }
+        }
+
+        private void ConfigureCreateMode()
+        {
+            Title = "Create Grade Level";
+            searchPanel.Visibility = Visibility.Collapsed;
+            gridGradeLevels.Visibility = Visibility.Collapsed;
+            Grid.SetColumn(editorPanel, 0);
+            Grid.SetColumnSpan(editorPanel, 2);
+            editorPanel.Margin = new Thickness(0);
+            btnAdd.Content = "Create";
+            btnSave.Visibility = Visibility.Collapsed;
+            btnDelete.Visibility = Visibility.Collapsed;
+            btnClear.Content = "Cancel";
+            Width = 560;
+            Height = 380;
+            MinWidth = 560;
+            MinHeight = 380;
+            ClearEditor();
         }
 
         private void LoadData(long? preferredId = null)
@@ -104,6 +169,13 @@ namespace School_Management_System.Views
             {
                 _gradeLevelService.Create(entity);
                 AuditTrailService.Log("CREATE", "grade_levels", entity.Id, null, entity);
+                if (_createOnly)
+                {
+                    DialogResult = true;
+                    Close();
+                    return;
+                }
+
                 LoadData(entity.Id);
             }
             catch (DomainValidationException ex)

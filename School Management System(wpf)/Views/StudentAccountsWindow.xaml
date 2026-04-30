@@ -5,8 +5,20 @@
         Title="Student Accounts"
         Width="1180" Height="680"
         MinWidth="980" MinHeight="560"
-        WindowStartupLocation="CenterOwner">
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource Legacy.BgBrush}">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Themes/LegacyAdminTheme.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
     <Grid Margin="12">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1.6*"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -14,12 +26,12 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <controls:SectionHeader Grid.Row="0"
+        <controls:SectionHeader Grid.Row="0" Grid.ColumnSpan="2"
                                 Title="Student Accounts"
                                 Subtitle="Account synchronization, lifecycle actions, and history review"
                                 Margin="0,0,0,10"/>
 
-        <Border Grid.Row="1" Style="{StaticResource CardPanel}" Margin="0,0,0,8" Padding="10">
+        <Border Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource CardPanel}" Margin="0,0,0,8" Padding="10">
             <DockPanel>
                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
                     <TextBlock Text="{StaticResource Icon.Search}" Style="{StaticResource GlyphIcon}" Margin="0,0,8,0"/>
@@ -38,9 +50,73 @@
             </DockPanel>
         </Border>
 
-        <DataGrid Grid.Row="2" x:Name="gridAccounts" IsReadOnly="True"/>
+        <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,8,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Text="Managed Accounts"
+                           Style="{StaticResource Text.SectionTitle}"
+                           Margin="0,0,0,10"/>
+                <DataGrid Grid.Row="1"
+                          x:Name="gridAccounts"
+                          IsReadOnly="True"
+                          EnableRowVirtualization="True"
+                          EnableColumnVirtualization="True"
+                          ScrollViewer.CanContentScroll="True"/>
+            </Grid>
+        </Border>
 
-        <TextBlock Grid.Row="3" x:Name="txtHint" Margin="2,8,2,0" Foreground="{StaticResource BrushMuted}"
-                   Text="Health = SYNCED means account role/status/ID are aligned with student record."/>
+        <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource CardPanel}" Margin="8,0,0,0">
+            <StackPanel>
+                <controls:SectionHeader Title="Account Details"
+                                        Subtitle="Selected account state, login posture, and recovery context"
+                                        Margin="0,0,0,8"/>
+                <Border Style="{StaticResource InfoBanner}" Margin="0,0,0,12">
+                    <TextBlock x:Name="txtHint"
+                               Text="Health = SYNCED means account role/status/ID are aligned with student record."
+                               TextWrapping="Wrap"/>
+                </Border>
+
+                <UniformGrid Columns="2">
+                    <StackPanel Margin="0,0,8,10">
+                        <TextBlock Text="Student" Style="{StaticResource Text.Caption}"/>
+                        <TextBlock x:Name="txtStudentNameValue" Style="{StaticResource Text.Body}" Text="-"/>
+                    </StackPanel>
+                    <StackPanel Margin="8,0,0,10">
+                        <TextBlock Text="Student No" Style="{StaticResource Text.Caption}"/>
+                        <TextBlock x:Name="txtStudentNoValue" Style="{StaticResource Text.Body}" Text="-"/>
+                    </StackPanel>
+                    <StackPanel Margin="0,0,8,10">
+                        <TextBlock Text="Account ID" Style="{StaticResource Text.Caption}"/>
+                        <TextBlock x:Name="txtAccountIdValue" Style="{StaticResource Text.Body}" Text="-"/>
+                    </StackPanel>
+                    <StackPanel Margin="8,0,0,10">
+                        <TextBlock Text="LRN" Style="{StaticResource Text.Caption}"/>
+                        <TextBlock x:Name="txtLrnValue" Style="{StaticResource Text.Body}" Text="-"/>
+                    </StackPanel>
+                    <StackPanel Margin="0,0,8,10">
+                        <TextBlock Text="Student Status" Style="{StaticResource Text.Caption}"/>
+                        <TextBlock x:Name="txtStudentStatusValue" Style="{StaticResource Text.Body}" Text="-"/>
+                    </StackPanel>
+                    <StackPanel Margin="8,0,0,10">
+                        <TextBlock Text="Account Status" Style="{StaticResource Text.Caption}"/>
+                        <TextBlock x:Name="txtAccountStatusValue" Style="{StaticResource Text.Body}" Text="-"/>
+                    </StackPanel>
+                    <StackPanel Margin="0,0,8,10">
+                        <TextBlock Text="Health" Style="{StaticResource Text.Caption}"/>
+                        <TextBlock x:Name="txtHealthValue" Style="{StaticResource Text.Body}" Text="-"/>
+                    </StackPanel>
+                    <StackPanel Margin="8,0,0,10">
+                        <TextBlock Text="Login Enabled" Style="{StaticResource Text.Caption}"/>
+                        <TextBlock x:Name="txtLoginEnabledValue" Style="{StaticResource Text.Body}" Text="-"/>
+                    </StackPanel>
+                </UniformGrid>
+
+                <TextBlock Text="Last Updated" Style="{StaticResource Text.Caption}" Margin="0,4,0,4"/>
+                <TextBlock x:Name="txtUpdatedValue" Style="{StaticResource Text.Body}" Text="-"/>
+            </StackPanel>
+        </Border>
     </Grid>
 </Window>

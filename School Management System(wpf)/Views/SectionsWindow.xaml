@@ -5,7 +5,15 @@
         Title="Sections"
         Width="1240" Height="720"
         MinWidth="1040" MinHeight="600"
-        WindowStartupLocation="CenterOwner">
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource Legacy.BgBrush}">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Themes/LegacyAdminTheme.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
     <Grid Margin="12">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1.55*"/>
@@ -22,24 +30,42 @@
                                 Subtitle="Manage section grouping, adviser assignment, and capacity"
                                 Margin="0,0,0,10"/>
 
-        <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,8,8" Padding="10">
+        <Border x:Name="searchPanel" Grid.Row="1" Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,8,8" Padding="10">
             <Grid>
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="220"/>
                     <ColumnDefinition Width="200"/>
                     <ColumnDefinition Width="120"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBox Grid.Column="0" x:Name="txtSearch" Margin="0,0,8,0"/>
-                <ComboBox Grid.Column="1" x:Name="cboFilterSchoolYear" Margin="0,0,8,0" DisplayMemberPath="Name" SelectedValuePath="Id"/>
-                <ComboBox Grid.Column="2" x:Name="cboFilterGrade" Margin="0,0,8,0" DisplayMemberPath="Code" SelectedValuePath="Id"/>
-                <Button Grid.Column="3" x:Name="btnRefresh" Content="Refresh" Width="90" Style="{StaticResource GhostButton}"/>
+                <Button Grid.Column="0" x:Name="btnNew" Content="New Section" Width="108" Margin="0,0,8,0"/>
+                <TextBox Grid.Column="1" x:Name="txtSearch" Margin="0,0,8,0"/>
+                <ComboBox Grid.Column="2" x:Name="cboFilterSchoolYear" Margin="0,0,8,0" DisplayMemberPath="Name" SelectedValuePath="Id"/>
+                <ComboBox Grid.Column="3" x:Name="cboFilterGrade" Margin="0,0,8,0" DisplayMemberPath="Code" SelectedValuePath="Id"/>
+                <Button Grid.Column="4" x:Name="btnRefresh" Content="Refresh" Width="90" Style="{StaticResource GhostButton}"/>
             </Grid>
         </Border>
 
-        <DataGrid Grid.Row="2" Grid.Column="0" x:Name="gridSections" IsReadOnly="True" Margin="0,0,8,0"/>
+        <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,8,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Text="Section Registry"
+                           Style="{StaticResource Text.SectionTitle}"
+                           Margin="0,0,0,10"/>
+                <DataGrid Grid.Row="1"
+                          x:Name="gridSections"
+                          IsReadOnly="True"
+                          EnableRowVirtualization="True"
+                          EnableColumnVirtualization="True"
+                          ScrollViewer.CanContentScroll="True"/>
+            </Grid>
+        </Border>
 
-        <ScrollViewer Grid.Row="1" Grid.RowSpan="2" Grid.Column="1" Margin="8,0,0,0" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer x:Name="editorPanel" Grid.Row="1" Grid.RowSpan="2" Grid.Column="1" Margin="8,0,0,0" VerticalScrollBarVisibility="Auto">
             <Border Style="{StaticResource CardPanel}">
                 <StackPanel>
                     <controls:SectionHeader Title="Section Details" Subtitle="Academic placement and advisory details" Margin="0,0,0,8"/>
@@ -55,7 +81,7 @@
                     <ComboBox x:Name="cboAdviser" DisplayMemberPath="Name" SelectedValuePath="Id"/>
 
                     <WrapPanel Margin="0,12,0,0">
-                        <Button x:Name="btnAdd" Content="Add" Width="90"/>
+                        <Button x:Name="btnAdd" Content="Create" Width="90"/>
                         <Button x:Name="btnSave" Content="Save" Width="90"/>
                         <Button x:Name="btnArchiveRestore" Content="Archive/Restore" Width="130" Style="{StaticResource GhostButton}"/>
                         <Button x:Name="btnClear" Content="Clear" Width="90" Style="{StaticResource GhostButton}"/>

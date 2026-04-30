@@ -8,9 +8,27 @@
         <Setter Property="MinHeight" Value="320"/>
     </Style>
 
+    <Style x:Key="DialogRootGrid" TargetType="Grid">
+        <Setter Property="Margin" Value="20"/>
+    </Style>
+
     <Style x:Key="DialogShell" TargetType="Border" BasedOn="{StaticResource CardPanel}">
         <Setter Property="Padding" Value="16"/>
         <Setter Property="CornerRadius" Value="14"/>
+    </Style>
+
+    <Style x:Key="DialogSection" TargetType="Border" BasedOn="{StaticResource CardPanel}">
+        <Setter Property="Padding" Value="16"/>
+        <Setter Property="CornerRadius" Value="12"/>
+        <Setter Property="Margin" Value="0,0,0,12"/>
+    </Style>
+
+    <Style x:Key="DialogHeaderTitle" TargetType="TextBlock" BasedOn="{StaticResource Text.SectionTitle}">
+        <Setter Property="Margin" Value="0,0,0,4"/>
+    </Style>
+
+    <Style x:Key="DialogHeaderSubtitle" TargetType="TextBlock" BasedOn="{StaticResource Text.Subtitle}">
+        <Setter Property="TextWrapping" Value="Wrap"/>
     </Style>
 
     <Style x:Key="DialogActionBar" TargetType="DockPanel">
@@ -66,6 +84,11 @@
     <Style x:Key="ErrorBanner" TargetType="Border" BasedOn="{StaticResource InfoBanner}">
         <Setter Property="BorderBrush" Value="#FCA5A5"/>
         <Setter Property="Background" Value="#FEF2F2"/>
+    </Style>
+
+    <Style x:Key="SuccessBanner" TargetType="Border" BasedOn="{StaticResource InfoBanner}">
+        <Setter Property="BorderBrush" Value="#86EFAC"/>
+        <Setter Property="Background" Value="#ECFDF3"/>
     </Style>
 
     <Style x:Key="ToastBanner.Info" TargetType="Border" BasedOn="{StaticResource InfoBanner}">

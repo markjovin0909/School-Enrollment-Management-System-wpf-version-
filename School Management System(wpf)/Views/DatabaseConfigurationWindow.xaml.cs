@@ -1,6 +1,5 @@
 using System;
 using System.Windows;
-using System.Windows.Media;
 using School_Management_System.Configuration;
 
 namespace School_Management_System.Views
@@ -109,9 +108,9 @@ namespace School_Management_System.Views
         private void SetStatus(string message, bool success)
         {
             txtStatus.Text = message;
-            txtStatus.Foreground = success
-                ? new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF166534"))
-                : new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF991B1B"));
+            statusBanner.Style = success
+                ? (Style)FindResource("SuccessBanner")
+                : (Style)FindResource("ErrorBanner");
         }
     }
 }

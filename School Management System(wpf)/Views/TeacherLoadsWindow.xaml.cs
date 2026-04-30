@@ -57,7 +57,10 @@ namespace School_Management_System.Views
 
             gridTeacherLoads.AutoGeneratingColumn += (_, e) =>
             {
-                if (string.Equals(e.PropertyName, "TeacherId", StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(e.PropertyName, "TeacherId", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(e.PropertyName, "Advisory", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(e.PropertyName, "Handled Subjects", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(e.PropertyName, "Sections Handled", StringComparison.OrdinalIgnoreCase))
                 {
                     e.Cancel = true;
                 }

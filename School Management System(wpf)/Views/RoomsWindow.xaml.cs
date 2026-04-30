@@ -11,24 +11,90 @@ namespace School_Management_System.Views
     public partial class RoomsWindow : Window
     {
         private readonly RoomService _roomService = new();
+        private readonly bool _createOnly;
         private DataTable _table = new();
         private long? _selectedId;
 
-        public RoomsWindow()
+        public RoomsWindow(bool createOnly = false)
         {
+            _createOnly = createOnly;
             InitializeComponent();
 
             txtSearch.TextChanged += (_, _) => ApplyFilter();
+            gridRooms.AutoGeneratingColumn += (_, e) =>
+            {
+                if (e.PropertyName == "Id")
+                {
+                    e.Cancel = true;
+                }
+            };
             gridRooms.SelectionChanged += GridRooms_SelectionChanged;
             btnRefresh.Click += (_, _) => LoadData();
-            btnAdd.Click += (_, _) => AddRoom();
+            btnAdd.Click += (_, _) =>
+            {
+                if (_createOnly)
+                {
+                    AddRoom();
+                }
+                else
+                {
+                    OpenCreateWindow();
+                }
+            };
             btnSave.Click += (_, _) => SaveRoom();
             btnDelete.Click += (_, _) => DeleteRoom();
-            btnClear.Click += (_, _) => ClearEditor();
+            btnClear.Click += (_, _) =>
+            {
+                if (_createOnly)
+                {
+                    Close();
+                }
+                else
+                {
+                    ClearEditor();
+                }
+            };
             btnExport.Click += (_, _) => CsvExportService.SaveDataTable(_table, "rooms.csv");
 
             chkActive.IsChecked = true;
-            LoadData();
+            if (_createOnly)
+            {
+                ConfigureCreateMode();
+            }
+            else
+            {
+                LoadData();
+            }
+        }
+
+        private void OpenCreateWindow()
+        {
+            var window = new RoomsWindow(true) { Owner = this };
+            if (window.ShowDialog() == true)
+            {
+                LoadData();
+            }
+        }
+
+        private void ConfigureCreateMode()
+        {
+            Title = "Create Room";
+            searchPanel.Visibility = Visibility.Collapsed;
+            listPanel.Visibility = Visibility.Collapsed;
+            Grid.SetColumn(editorPanel, 0);
+            Grid.SetColumnSpan(editorPanel, 2);
+            editorPanel.Margin = new Thickness(4);
+            btnAdd.Content = "Create";
+            btnSave.Visibility = Visibility.Collapsed;
+            btnDelete.Visibility = Visibility.Collapsed;
+            btnRefresh.Visibility = Visibility.Collapsed;
+            btnExport.Visibility = Visibility.Collapsed;
+            btnClear.Content = "Cancel";
+            Width = 620;
+            Height = 430;
+            MinWidth = 620;
+            MinHeight = 430;
+            ClearEditor();
         }
 
         private void LoadData(long? preferredId = null)
@@ -121,6 +187,13 @@ namespace School_Management_System.Views
 
             _roomService.Create(entity);
             AuditTrailService.Log("CREATE", "rooms", entity.Id, null, entity);
+            if (_createOnly)
+            {
+                DialogResult = true;
+                Close();
+                return;
+            }
+
             LoadData(entity.Id);
         }
 

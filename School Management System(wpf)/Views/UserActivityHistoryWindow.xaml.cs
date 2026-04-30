@@ -2,6 +2,7 @@ using System;
 using System.Data;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using School_Management_System.Models;
 using School_Management_System.Services;
 
@@ -39,6 +40,14 @@ namespace School_Management_System.Views
             lblViewing.Text = $"Viewing: {_targetLabel}";
 
             txtSearch.TextChanged += (_, _) => ApplyFilter();
+            gridHistory.AutoGeneratingColumn += (_, e) =>
+            {
+                if (e.PropertyName == "Entity ID")
+                {
+                    e.Cancel = true;
+                }
+            };
+            gridHistory.SelectionChanged += GridHistory_SelectionChanged;
             btnRefresh.Click += (_, _) => LoadData();
 
             LoadData();
@@ -61,6 +70,14 @@ namespace School_Management_System.Views
             lblViewing.Text = $"Viewing: {_targetLabel}";
 
             txtSearch.TextChanged += (_, _) => ApplyFilter();
+            gridHistory.AutoGeneratingColumn += (_, e) =>
+            {
+                if (e.PropertyName == "Entity ID")
+                {
+                    e.Cancel = true;
+                }
+            };
+            gridHistory.SelectionChanged += GridHistory_SelectionChanged;
             btnRefresh.Click += (_, _) => LoadData();
 
             LoadData();
@@ -96,6 +113,7 @@ namespace School_Management_System.Views
 
             gridHistory.ItemsSource = _table.DefaultView;
             ApplyFilter();
+            ClearDetails();
         }
 
         private bool IncludeLog(AuditLog log)
@@ -184,6 +202,32 @@ namespace School_Management_System.Views
             _table.DefaultView.RowFilter = string.IsNullOrWhiteSpace(term)
                 ? string.Empty
                 : $"Action LIKE '%{term}%' OR Entity LIKE '%{term}%' OR Details LIKE '%{term}%'";
+            gridHistory.SelectedItem = null;
+            ClearDetails();
+        }
+
+        private void GridHistory_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (gridHistory.SelectedItem is not DataRowView row)
+            {
+                ClearDetails();
+                return;
+            }
+
+            txtDateValue.Text = row.Row["Date"]?.ToString() ?? "-";
+            txtActionValue.Text = row.Row["Action"]?.ToString() ?? "-";
+            txtEntityValue.Text = row.Row["Entity"]?.ToString() ?? "-";
+            txtByUserValue.Text = row.Row["By User"]?.ToString() ?? "-";
+            txtDetailsValue.Text = string.IsNullOrWhiteSpace(row.Row["Details"]?.ToString()) ? "-" : row.Row["Details"]?.ToString();
+        }
+
+        private void ClearDetails()
+        {
+            txtDateValue.Text = "-";
+            txtActionValue.Text = "-";
+            txtEntityValue.Text = "-";
+            txtByUserValue.Text = "-";
+            txtDetailsValue.Text = "-";
         }
 
         private static string Compact(string? text)

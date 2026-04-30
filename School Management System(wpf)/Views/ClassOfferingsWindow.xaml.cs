@@ -41,6 +41,13 @@ namespace School_Management_System.Views
             cboGradeLevel.SelectionChanged += FiltersChanged;
             cboSection.SelectionChanged += FiltersChanged;
             txtSearch.TextChanged += (_, _) => { if (!_suppressEvents) LoadOfferings(); };
+            gridOfferings.AutoGeneratingColumn += (_, e) =>
+            {
+                if (e.PropertyName == "Id")
+                {
+                    e.Cancel = true;
+                }
+            };
             gridOfferings.SelectionChanged += GridOfferings_SelectionChanged;
 
             btnRefresh.Click += (_, _) => LoadOfferings();
@@ -132,11 +139,14 @@ namespace School_Management_System.Views
         {
             _table = new DataTable();
             _table.Columns.Add("Id", typeof(long));
+            _table.Columns.Add("School Year");
+            _table.Columns.Add("Grade");
+            _table.Columns.Add("Curriculum");
             _table.Columns.Add("Subject");
             _table.Columns.Add("Section");
             _table.Columns.Add("Teacher");
-            _table.Columns.Add("Status");
             _table.Columns.Add("Room");
+            _table.Columns.Add("Status");
 
             var syId = cboSchoolYear.SelectedValue is long sy ? sy : (long?)null;
             var sectionId = cboSection.SelectedValue is long section ? section : (long?)null;
@@ -155,13 +165,24 @@ namespace School_Management_System.Views
                 }
 
                 var subject = _subjects.FirstOrDefault(s => s.Id == offering.SubjectId)?.Title ?? string.Empty;
-                var sectionName = _sections.FirstOrDefault(s => s.Id == offering.SectionId)?.Name ?? string.Empty;
+                var offeringSection = _sections.FirstOrDefault(s => s.Id == offering.SectionId);
+                var sectionName = offeringSection?.Name ?? string.Empty;
+                var schoolYearName = _schoolYears.FirstOrDefault(s => s.Id == offering.SchoolYearId)?.Name ?? string.Empty;
+                var gradeCode = offeringSection == null
+                    ? string.Empty
+                    : _gradeLevels.FirstOrDefault(g => g.Id == offeringSection.GradeLevelId)?.Code ?? string.Empty;
+                var curriculumName = offering.CurriculumId.HasValue
+                    ? _curricula.FirstOrDefault(c => c.Id == offering.CurriculumId.Value)?.Name ?? string.Empty
+                    : string.Empty;
                 var teacher = _teachers.FirstOrDefault(t => t.Id == offering.TeacherId);
                 var teacherName = teacher == null ? string.Empty : $"{teacher.LastName}, {teacher.FirstName}";
 
                 if (!string.IsNullOrWhiteSpace(search))
                 {
                     var match =
+                        schoolYearName.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                        gradeCode.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                        curriculumName.Contains(search, StringComparison.OrdinalIgnoreCase) ||
                         subject.Contains(search, StringComparison.OrdinalIgnoreCase) ||
                         sectionName.Contains(search, StringComparison.OrdinalIgnoreCase) ||
                         teacherName.Contains(search, StringComparison.OrdinalIgnoreCase) ||
@@ -173,7 +194,16 @@ namespace School_Management_System.Views
                     }
                 }
 
-                _table.Rows.Add(offering.Id, subject, sectionName, teacherName, offering.Status.ToString(), offering.Room ?? string.Empty);
+                _table.Rows.Add(
+                    offering.Id,
+                    schoolYearName,
+                    gradeCode,
+                    curriculumName,
+                    subject,
+                    sectionName,
+                    teacherName,
+                    offering.Room ?? string.Empty,
+                    offering.Status.ToString());
             }
 
             gridOfferings.ItemsSource = _table.DefaultView;

@@ -2,48 +2,69 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Reason Required"
-        Width="560"
-        Height="420"
+        Width="720"
+        Height="540"
+        MinWidth="680"
+        MinHeight="500"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         Style="{StaticResource DialogWindow}">
-    <Grid Margin="16">
+    <Grid Style="{StaticResource DialogRootGrid}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Margin="0,0,0,12">
-            <TextBlock x:Name="txtTitle" FontSize="20" FontWeight="Bold" Foreground="{StaticResource Brush.TextPrimary}" Margin="0,0,0,4"/>
-            <TextBlock x:Name="txtPrompt" TextWrapping="Wrap" Foreground="{StaticResource Brush.TextSecondary}"/>
-        </StackPanel>
+        <Border Grid.Row="0" Style="{StaticResource DialogShell}">
+            <StackPanel>
+                <TextBlock x:Name="txtTitle" Style="{StaticResource DialogHeaderTitle}"/>
+                <TextBlock x:Name="txtPrompt" Style="{StaticResource DialogHeaderSubtitle}"/>
+            </StackPanel>
+        </Border>
 
-        <StackPanel Grid.Row="1" Margin="0,0,0,10">
-            <Label Content="Reason Code"/>
-            <ComboBox x:Name="cboReasonCode"
-                      DisplayMemberPath="Label"
-                      SelectedValuePath="Code"
-                      MinWidth="300"/>
-        </StackPanel>
+        <Border Grid.Row="1" Style="{StaticResource DialogSection}">
+            <StackPanel>
+                <Grid Margin="0,0,0,14">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="2" Margin="0,0,0,10">
-            <Label Content="Details"/>
-            <TextBox x:Name="txtReasonDetail"
-                     Height="130"
-                     TextWrapping="Wrap"
-                     AcceptsReturn="True"
-                     VerticalScrollBarVisibility="Auto"
-                     ToolTip="Provide relevant details. Required when reason code is OTHER."/>
-        </StackPanel>
+                    <Label Grid.Row="0" Content="Reason Code"/>
+                    <ComboBox Grid.Row="1"
+                              x:Name="cboReasonCode"
+                              DisplayMemberPath="Label"
+                              SelectedValuePath="Code"
+                              MinWidth="300"
+                              Margin="0,0,0,12"/>
 
-        <Border Grid.Row="3" Style="{StaticResource ErrorBanner}" Visibility="Collapsed" x:Name="validationBanner">
+                    <Label Grid.Row="2" Content="Details / Explanation"/>
+                    <TextBox Grid.Row="3"
+                             x:Name="txtReasonDetail"
+                             MinHeight="180"
+                             TextWrapping="Wrap"
+                             AcceptsReturn="True"
+                             VerticalScrollBarVisibility="Auto"
+                             ToolTip="Provide relevant details. Required when reason code is OTHER."/>
+                </Grid>
+
+                <Border Style="{StaticResource WarningBanner}">
+                    <TextBlock Text="Use this prompt for governed actions such as archive, restore, drop, cancel enrollment, database restore, and year-end rollover."
+                               Style="{StaticResource Text.Caption}"
+                               TextWrapping="Wrap"/>
+                </Border>
+            </StackPanel>
+        </Border>
+
+        <Border Grid.Row="2" Style="{StaticResource ErrorBanner}" Visibility="Collapsed" x:Name="validationBanner" Margin="0,0,0,12">
             <TextBlock x:Name="txtValidation" Foreground="{StaticResource Brush.Danger}" TextWrapping="Wrap"/>
         </Border>
 
-        <DockPanel Grid.Row="4" Style="{StaticResource DialogActionBar}" LastChildFill="False">
+        <DockPanel Grid.Row="3" Style="{StaticResource DialogActionBar}" LastChildFill="False">
             <Button x:Name="btnCancel"
                     Content="Cancel"
                     Width="110"

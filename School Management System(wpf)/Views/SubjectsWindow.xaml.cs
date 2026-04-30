@@ -13,26 +13,92 @@ namespace School_Management_System.Views
     {
         private readonly SubjectService _subjectService = new();
         private readonly GradeLevelService _gradeLevelService = new();
+        private readonly bool _createOnly;
 
         private List<GradeLevel> _gradeLevels = new();
         private DataTable _table = new();
         private long? _selectedId;
 
-        public SubjectsWindow()
+        public SubjectsWindow(bool createOnly = false)
         {
+            _createOnly = createOnly;
             InitializeComponent();
 
             txtSearch.TextChanged += (_, _) => ApplyFilter();
+            gridSubjects.AutoGeneratingColumn += (_, e) =>
+            {
+                if (e.PropertyName == "Id")
+                {
+                    e.Cancel = true;
+                }
+            };
             gridSubjects.SelectionChanged += GridSubjects_SelectionChanged;
             btnRefresh.Click += (_, _) => LoadData();
-            btnAdd.Click += (_, _) => AddSubject();
+            btnAdd.Click += (_, _) =>
+            {
+                if (_createOnly)
+                {
+                    AddSubject();
+                }
+                else
+                {
+                    OpenCreateWindow();
+                }
+            };
             btnSave.Click += (_, _) => SaveSubject();
             btnDelete.Click += (_, _) => ArchiveSubject();
-            btnClear.Click += (_, _) => ClearEditor();
+            btnClear.Click += (_, _) =>
+            {
+                if (_createOnly)
+                {
+                    Close();
+                }
+                else
+                {
+                    ClearEditor();
+                }
+            };
 
             LoadLookups();
-            LoadData();
             chkActive.IsChecked = true;
+            if (_createOnly)
+            {
+                ConfigureCreateMode();
+            }
+            else
+            {
+                LoadData();
+            }
+        }
+
+        private void OpenCreateWindow()
+        {
+            var window = new SubjectsWindow(true) { Owner = this };
+            if (window.ShowDialog() == true)
+            {
+                LoadLookups();
+                LoadData();
+            }
+        }
+
+        private void ConfigureCreateMode()
+        {
+            Title = "Create Subject";
+            searchPanel.Visibility = Visibility.Collapsed;
+            listPanel.Visibility = Visibility.Collapsed;
+            Grid.SetColumn(editorPanel, 0);
+            Grid.SetColumnSpan(editorPanel, 2);
+            editorPanel.Margin = new Thickness(4);
+            btnAdd.Content = "Create";
+            btnSave.Visibility = Visibility.Collapsed;
+            btnDelete.Visibility = Visibility.Collapsed;
+            btnRefresh.Visibility = Visibility.Collapsed;
+            btnClear.Content = "Cancel";
+            Width = 700;
+            Height = 520;
+            MinWidth = 700;
+            MinHeight = 520;
+            ClearEditor();
         }
 
         private void LoadLookups()
@@ -149,6 +215,13 @@ namespace School_Management_System.Views
             {
                 _subjectService.Create(entity);
                 AuditTrailService.Log("CREATE", "subjects", entity.Id, null, entity);
+                if (_createOnly)
+                {
+                    DialogResult = true;
+                    Close();
+                    return;
+                }
+
                 LoadData(entity.Id);
             }
             catch (DomainValidationException ex)

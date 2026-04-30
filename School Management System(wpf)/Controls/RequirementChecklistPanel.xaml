@@ -10,12 +10,12 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <DockPanel Grid.Row="0" Margin="0,0,0,6">
+        <DockPanel Grid.Row="0" Margin="0,0,0,8">
             <TextBlock Text="{Binding Title, ElementName=Root}" Style="{StaticResource Text.SectionTitle}"/>
             <TextBlock Text="{Binding SummaryText, ElementName=Root}" Style="{StaticResource Text.Caption}" DockPanel.Dock="Right" VerticalAlignment="Bottom"/>
         </DockPanel>
 
-        <Border Grid.Row="1" Style="{StaticResource InfoBanner}" Margin="0,0,0,8">
+        <Border Grid.Row="1" Style="{StaticResource InfoBanner}" Margin="0,0,0,10">
             <TextBlock Text="{Binding HintText, ElementName=Root}" Style="{StaticResource Text.Caption}" TextWrapping="Wrap"/>
         </Border>
 
@@ -26,7 +26,7 @@
                   SelectionChanged="GridChecklist_SelectionChanged"
                   IsReadOnly="True">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Requirement" Binding="{Binding RequirementName}" Width="2.1*"/>
+                <DataGridTextColumn Header="Requirement" Binding="{Binding RequirementName}" Width="2.8*"/>
                 <DataGridTemplateColumn Header="Status" Width="1.2*">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
@@ -34,10 +34,6 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Header="Submitted At"
-                                    Binding="{Binding SubmittedAt, StringFormat={}{0:yyyy-MM-dd}}"
-                                    Width="1.1*"/>
-                <DataGridTextColumn Header="Notes" Binding="{Binding Notes}" Width="1.8*"/>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>
