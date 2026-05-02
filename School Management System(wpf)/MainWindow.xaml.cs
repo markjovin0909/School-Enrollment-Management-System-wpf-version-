@@ -150,7 +150,13 @@ namespace School_Management_System
 
         private void UpdateNavigationState()
         {
-            btnTopDashboard.Visibility = tabsMain.SelectedIndex == 0 ? Visibility.Collapsed : Visibility.Visible;
+            var isDashboard = tabsMain.SelectedIndex == 0;
+
+            btnTopDashboard.Visibility = isDashboard ? Visibility.Collapsed : Visibility.Visible;
+            topCommandBar.Visibility = isDashboard ? Visibility.Collapsed : Visibility.Visible;
+            mainContentHost.Padding = isDashboard ? new Thickness(0) : new Thickness(14);
+            mainContentHost.Background = isDashboard ? Brushes.Transparent : new SolidColorBrush(Color.FromRgb(0xEE, 0xF3, 0xF9));
+            rootShell.Background = isDashboard ? new SolidColorBrush(Color.FromRgb(0x0A, 0x3F, 0x3D)) : new SolidColorBrush(Color.FromRgb(0xEE, 0xF3, 0xF9));
         }
 
         private void WireTopBar()

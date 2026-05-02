@@ -26,8 +26,46 @@
             <Setter Property="BorderBrush" Value="#FECACA"/>
             <Setter Property="Foreground" Value="#B91C1C"/>
         </Style>
+        <Style x:Key="DashboardMetroTileButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#1D5E5C"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="MinHeight" Value="92"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Root"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Stretch"
+                                              VerticalAlignment="Stretch"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Root" Property="Opacity" Value="0.92"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Root" Property="Opacity" Value="0.84"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Root" Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="DashboardMetroInfoBorder" TargetType="Border">
+            <Setter Property="BorderBrush" Value="#1D5E5C"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="16,12"/>
+        </Style>
     </Window.Resources>
-    <Grid Background="#EEF3F9">
+    <Grid x:Name="rootShell" Background="#EEF3F9">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -35,7 +73,7 @@
             </Grid.RowDefinitions>
 
             <!-- Top command bar -->
-            <Border Grid.Row="0" Background="#F8FAFC" BorderBrush="#D7DFEA" BorderThickness="0,0,0,1">
+            <Border x:Name="topCommandBar" Grid.Row="0" Background="#F8FAFC" BorderBrush="#D7DFEA" BorderThickness="0,0,0,1">
                 <Grid Margin="18,14,18,14">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -76,8 +114,8 @@
                 </Grid>
             </Border>
 
-            <Border Grid.Row="1" Padding="14" Background="#EEF3F9">
-                <TabControl x:Name="tabsMain">
+            <Border x:Name="mainContentHost" Grid.Row="1" Padding="14" Background="#EEF3F9">
+                <TabControl x:Name="tabsMain" Background="Transparent" BorderThickness="0">
                     <TabControl.ItemContainerStyle>
                         <Style TargetType="TabItem">
                             <Setter Property="Visibility" Value="Collapsed"/>
@@ -91,305 +129,416 @@
                         <ScrollViewer VerticalScrollBarVisibility="Auto"
                                       HorizontalScrollBarVisibility="Disabled"
                                       CanContentScroll="False">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
+                            <Grid>
+                                <Viewbox Stretch="Fill">
+                                    <Border Width="1180"
+                                            Background="#0A3F3D"
+                                            BorderBrush="#154A4B"
+                                            BorderThickness="3">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="68"/>
+                                                <RowDefinition Height="126"/>
+                                                <RowDefinition Height="140"/>
+                                                <RowDefinition Height="104"/>
+                                                <RowDefinition Height="108"/>
+                                                <RowDefinition Height="34"/>
+                                            </Grid.RowDefinitions>
 
-                            <StackPanel Grid.Row="0" Margin="0,0,0,12">
-                                <Border Margin="0,0,0,14"
-                                        CornerRadius="22"
-                                        Padding="0"
-                                        BorderBrush="#4E9ED3"
-                                        BorderThickness="1">
-                                    <Border.Background>
-                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                            <GradientStop Color="#113E78" Offset="0"/>
-                                            <GradientStop Color="#11626C" Offset="0.58"/>
-                                            <GradientStop Color="#1798A0" Offset="1"/>
-                                        </LinearGradientBrush>
-                                    </Border.Background>
-                                    <Grid>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="52"/>
-                                            <RowDefinition Height="34"/>
-                                            <RowDefinition Height="*"/>
-                                        </Grid.RowDefinitions>
+                                            <Border Grid.Row="0" Background="#194F96">
+                                                <Grid Margin="26,0,26,0">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
 
-                                        <Border Grid.Row="0" CornerRadius="22,22,0,0" Background="#154987">
-                                            <Grid Margin="24,0,24,0">
+                                                    <StackPanel Grid.Column="0"
+                                                                Orientation="Horizontal"
+                                                                VerticalAlignment="Center">
+                                                        <Border Width="54"
+                                                                Height="54"
+                                                                Background="#0E376F"
+                                                                BorderBrush="#A3D8FF"
+                                                                BorderThickness="1"
+                                                                Padding="4"
+                                                                Margin="0,0,16,0">
+                                                            <Image Source="/Assets/Logo.jpg" Stretch="Uniform"/>
+                                                        </Border>
+                                                        <StackPanel VerticalAlignment="Center">
+                                                            <TextBlock Text="SCHOOL" FontSize="13" FontWeight="Bold" Foreground="#CFEAFF"/>
+                                                            <TextBlock Text="Company Profile" FontSize="24" FontWeight="Bold" Foreground="White"/>
+                                                        </StackPanel>
+                                                    </StackPanel>
+
+                                                    <TextBlock Grid.Column="1"
+                                                               Text="School Management System"
+                                                               FontSize="30"
+                                                               FontStyle="Italic"
+                                                               FontWeight="Bold"
+                                                               Foreground="White"
+                                                               HorizontalAlignment="Center"
+                                                               VerticalAlignment="Center"/>
+
+                                                    <StackPanel Grid.Column="2"
+                                                                VerticalAlignment="Center"
+                                                                HorizontalAlignment="Right">
+                                                        <TextBlock Text="Software Name"
+                                                                   FontSize="17"
+                                                                   FontWeight="SemiBold"
+                                                                   Foreground="White"
+                                                                   TextAlignment="Right"/>
+                                                        <TextBlock Text="and Trademark"
+                                                                   FontSize="17"
+                                                                   FontWeight="SemiBold"
+                                                                   Foreground="White"
+                                                                   TextAlignment="Right"/>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+
+                                            <Grid Grid.Row="1" Background="#205F72">
+                                                <UniformGrid Columns="12">
+                                                    <Border Background="#2E7486" BorderBrush="#2A6476" BorderThickness="1"/>
+                                                    <Border Background="#4B91A1" BorderBrush="#2A6476" BorderThickness="1"/>
+                                                    <Border Background="#316B7F" BorderBrush="#2A6476" BorderThickness="1"/>
+                                                    <Border Background="#5399A9" BorderBrush="#2A6476" BorderThickness="1"/>
+                                                    <Border Background="#2A5F72" BorderBrush="#2A6476" BorderThickness="1"/>
+                                                    <Border Background="#447E8F" BorderBrush="#2A6476" BorderThickness="1"/>
+                                                    <Border Background="#2A5F72" BorderBrush="#2A6476" BorderThickness="1"/>
+                                                    <Border Background="#4E95A5" BorderBrush="#2A6476" BorderThickness="1"/>
+                                                    <Border Background="#28596B" BorderBrush="#2A6476" BorderThickness="1"/>
+                                                    <Border Background="#4A8A9A" BorderBrush="#2A6476" BorderThickness="1"/>
+                                                    <Border Background="#356E82" BorderBrush="#2A6476" BorderThickness="1"/>
+                                                    <Border Background="#518D9D" BorderBrush="#2A6476" BorderThickness="1"/>
+                                                </UniformGrid>
+                                                <UniformGrid Columns="12" Opacity="0.28">
+                                                    <Border Background="#FFFFFF" BorderBrush="#00000000" BorderThickness="0" RenderTransformOrigin="0.5,0.5">
+                                                        <Border.RenderTransform>
+                                                            <SkewTransform AngleX="-42"/>
+                                                        </Border.RenderTransform>
+                                                    </Border>
+                                                    <Border Background="#00000000"/>
+                                                    <Border Background="#FFFFFF" RenderTransformOrigin="0.5,0.5">
+                                                        <Border.RenderTransform>
+                                                            <SkewTransform AngleX="42"/>
+                                                        </Border.RenderTransform>
+                                                    </Border>
+                                                    <Border Background="#00000000"/>
+                                                    <Border Background="#FFFFFF" RenderTransformOrigin="0.5,0.5">
+                                                        <Border.RenderTransform>
+                                                            <SkewTransform AngleX="-42"/>
+                                                        </Border.RenderTransform>
+                                                    </Border>
+                                                    <Border Background="#00000000"/>
+                                                    <Border Background="#FFFFFF" RenderTransformOrigin="0.5,0.5">
+                                                        <Border.RenderTransform>
+                                                            <SkewTransform AngleX="42"/>
+                                                        </Border.RenderTransform>
+                                                    </Border>
+                                                    <Border Background="#00000000"/>
+                                                    <Border Background="#FFFFFF" RenderTransformOrigin="0.5,0.5">
+                                                        <Border.RenderTransform>
+                                                            <SkewTransform AngleX="-42"/>
+                                                        </Border.RenderTransform>
+                                                    </Border>
+                                                    <Border Background="#00000000"/>
+                                                    <Border Background="#FFFFFF" RenderTransformOrigin="0.5,0.5">
+                                                        <Border.RenderTransform>
+                                                            <SkewTransform AngleX="42"/>
+                                                        </Border.RenderTransform>
+                                                    </Border>
+                                                    <Border Background="#00000000"/>
+                                                </UniformGrid>
+                                            </Grid>
+
+                                            <Grid Grid.Row="2" Background="#124C49">
                                                 <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="Auto"/>
                                                     <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
                                                 </Grid.ColumnDefinitions>
 
-                                                <TextBlock Grid.Column="0"
-                                                           Text="School Management System"
-                                                           Foreground="White"
-                                                           FontSize="17"
-                                                           FontWeight="SemiBold"
-                                                           VerticalAlignment="Center"/>
-                                                <TextBlock Grid.Column="2"
-                                                           Text="{Binding Text, ElementName=txtCurrentEnvironment}"
-                                                           Foreground="#D8F6FF"
-                                                           FontSize="13"
-                                                           FontWeight="SemiBold"
-                                                           VerticalAlignment="Center"/>
+                                                <Button x:Name="btnHubStudents"
+                                                        Grid.Column="0"
+                                                        Style="{StaticResource DashboardMetroTileButton}"
+                                                        Background="#0E5350"
+                                                        Foreground="White">
+                                                    <Grid Margin="14,12">
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="Auto"/>
+                                                            <RowDefinition Height="*"/>
+                                                            <RowDefinition Height="Auto"/>
+                                                        </Grid.RowDefinitions>
+                                                        <TextBlock Text="&#xE8D4;" FontFamily="Segoe MDL2 Assets" FontSize="38" HorizontalAlignment="Center" Margin="0,4,0,10"/>
+                                                        <TextBlock Grid.Row="1" Text="STUDENTS" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        <TextBlock Grid.Row="2" Text="MANAGE LEARNER FILES" FontSize="11" Opacity="0.88" HorizontalAlignment="Center"/>
+                                                    </Grid>
+                                                </Button>
+
+                                                <Button x:Name="btnHubEnrollment"
+                                                        Grid.Column="1"
+                                                        Style="{StaticResource DashboardMetroTileButton}"
+                                                        Background="#2D9B91"
+                                                        Foreground="White">
+                                                    <Grid Margin="14,12">
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="Auto"/>
+                                                            <RowDefinition Height="*"/>
+                                                            <RowDefinition Height="Auto"/>
+                                                        </Grid.RowDefinitions>
+                                                        <TextBlock Text="&#xE8C7;" FontFamily="Segoe MDL2 Assets" FontSize="38" HorizontalAlignment="Center" Margin="0,4,0,10"/>
+                                                        <TextBlock Grid.Row="1" Text="ENROLLMENT" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        <TextBlock Grid.Row="2" Text="PROCESS APPLICATIONS" FontSize="11" Opacity="0.88" HorizontalAlignment="Center"/>
+                                                    </Grid>
+                                                </Button>
+
+                                                <Button x:Name="btnHubReports"
+                                                        Grid.Column="2"
+                                                        Style="{StaticResource DashboardMetroTileButton}"
+                                                        Background="#39B4A9"
+                                                        Foreground="White">
+                                                    <Grid Margin="14,12">
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="Auto"/>
+                                                            <RowDefinition Height="*"/>
+                                                            <RowDefinition Height="Auto"/>
+                                                        </Grid.RowDefinitions>
+                                                        <TextBlock Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets" FontSize="38" HorizontalAlignment="Center" Margin="0,4,0,10"/>
+                                                        <TextBlock Grid.Row="1" Text="REPORTS" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        <TextBlock Grid.Row="2" Text="VIEW TRANSACTION REPORTS" FontSize="11" Opacity="0.88" HorizontalAlignment="Center"/>
+                                                    </Grid>
+                                                </Button>
+
+                                                <Button x:Name="btnHubTeachers"
+                                                        Grid.Column="3"
+                                                        Style="{StaticResource DashboardMetroTileButton}"
+                                                        Background="#6BC3B5"
+                                                        Foreground="#0C3434">
+                                                    <Grid Margin="14,12">
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="Auto"/>
+                                                            <RowDefinition Height="*"/>
+                                                            <RowDefinition Height="Auto"/>
+                                                        </Grid.RowDefinitions>
+                                                        <TextBlock Text="&#xE77B;" FontFamily="Segoe MDL2 Assets" FontSize="38" HorizontalAlignment="Center" Margin="0,4,0,10"/>
+                                                        <TextBlock Grid.Row="1" Text="TEACHERS" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        <TextBlock Grid.Row="2" Text="FACULTY INFORMATION FILES" FontSize="11" Opacity="0.88" HorizontalAlignment="Center"/>
+                                                    </Grid>
+                                                </Button>
+
+                                                <Button x:Name="btnHubAccountsCompliance"
+                                                        Grid.Column="4"
+                                                        Grid.ColumnSpan="2"
+                                                        Style="{StaticResource DashboardMetroTileButton}"
+                                                        Background="#135851"
+                                                        Foreground="White">
+                                                    <Grid Margin="18,10">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <Border Width="82"
+                                                                Height="82"
+                                                                Background="#0D3F4A"
+                                                                BorderBrush="#8ED3D0"
+                                                                BorderThickness="2"
+                                                                Padding="5"
+                                                                Margin="0,0,16,0"
+                                                                VerticalAlignment="Center">
+                                                            <Image Source="/Assets/Logo.jpg" Stretch="Uniform"/>
+                                                        </Border>
+                                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                            <TextBlock Text="ACCOUNTS AND" FontSize="15" FontWeight="Bold" Foreground="#CFFBF5"/>
+                                                            <TextBlock Text="COMPLIANCE" FontSize="28" FontWeight="Bold"/>
+                                                            <TextBlock Text="Requirements, archives, and account controls" FontSize="13" Foreground="#D7F6F2" Margin="0,6,0,0"/>
+                                                            <TextBlock Text="{Binding Text, ElementName=txtCurrentEnvironment}" FontSize="12" Foreground="#B6EBFF" Margin="0,8,0,0"/>
+                                                        </StackPanel>
+                                                    </Grid>
+                                                </Button>
                                             </Grid>
-                                        </Border>
 
-                                        <UniformGrid Grid.Row="1" Columns="12">
-                                            <Border Background="#2A617F"/>
-                                            <Border Background="#3A7B97"/>
-                                            <Border Background="#2F6D89"/>
-                                            <Border Background="#497E98"/>
-                                            <Border Background="#235770"/>
-                                            <Border Background="#3F7086"/>
-                                            <Border Background="#2A617F"/>
-                                            <Border Background="#4A839C"/>
-                                            <Border Background="#25566C"/>
-                                            <Border Background="#3A7B97"/>
-                                            <Border Background="#2F6D89"/>
-                                            <Border Background="#497E98"/>
-                                        </UniformGrid>
+                                            <Grid Grid.Row="3" Background="#0F4442">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
 
-                                        <Grid Grid.Row="2" Margin="24">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-
-                                            <Border Grid.Column="0"
-                                                Width="126"
-                                                Height="126"
-                                                CornerRadius="28"
-                                                Background="#0C284A"
-                                                BorderBrush="#7FD2F0"
-                                                BorderThickness="2"
-                                                Padding="12"
-                                                Margin="0,0,20,0">
-                                            <Image Source="/Assets/Logo.jpg" Stretch="Uniform"/>
-                                        </Border>
-
-                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                                <TextBlock x:Name="txtTodayInfo"
-                                                           Style="{StaticResource Text.CaptionStrong}"
-                                                           Foreground="#D8F6FF"
-                                                           Margin="0,0,0,6"/>
-                                                <TextBlock Text="School Enrollment Management System"
-                                                           Style="{StaticResource Text.PageTitle}"
-                                                           FontSize="30"
-                                                           Foreground="White"/>
-                                                <TextBlock Text="Central operations dashboard for enrollment, records, reports, and administration"
-                                                           Style="{StaticResource Text.Subtitle}"
-                                                           Foreground="#D9F0FF"
-                                                           Margin="0,8,0,0"/>
-                                                <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
-                                                    <Border Style="{StaticResource InfoBanner}" Background="#144D73" BorderBrush="#7BC9E8" Padding="10,8" Margin="0,0,10,0">
-                                                        <TextBlock Text="School profile, identity, and branding" Foreground="#F1FBFF"/>
-                                                    </Border>
-                                                    <Border Style="{StaticResource InfoBanner}" Background="#154E45" BorderBrush="#6FD6C4" Padding="10,8">
-                                                        <TextBlock Text="Centralized records and enrollment control" Foreground="#EDFFFB"/>
-                                                    </Border>
-                                                </StackPanel>
-                                            </StackPanel>
-
-                                            <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
-                                                <TextBlock Text="Academic Operations" FontSize="28" FontWeight="SemiBold" Foreground="White" TextAlignment="Right"/>
-                                                <TextBlock Text="Command Center" FontSize="28" FontWeight="SemiBold" Foreground="White" TextAlignment="Right"/>
-                                                <TextBlock Text="Dashboard hub for every major workflow" Style="{StaticResource Text.CaptionStrong}" Foreground="#D8F6FF" Margin="0,12,0,0" TextAlignment="Right"/>
-                                                <Border Style="{StaticResource InfoBanner}" Background="#145A52" BorderBrush="#78D3C4" Padding="12,10" Margin="0,14,0,0">
-                                                    <StackPanel>
-                                                        <TextBlock Text="DATABASE" Foreground="#D7FFF8" FontSize="11" FontWeight="SemiBold" TextAlignment="Right"/>
-                                                        <TextBlock Text="CONNECTED" Foreground="White" FontSize="20" FontWeight="Bold" TextAlignment="Right"/>
+                                                <Border Grid.Column="0"
+                                                        Grid.ColumnSpan="3"
+                                                        Style="{StaticResource DashboardMetroInfoBorder}"
+                                                        Background="#103E3D">
+                                                    <StackPanel VerticalAlignment="Center">
+                                                        <TextBlock x:Name="txtTodayInfo"
+                                                                   FontSize="18"
+                                                                   Foreground="White"
+                                                                   Margin="0,0,0,8"/>
+                                                        <TextBlock Text="Central dashboard for admissions, records, and daily school operations"
+                                                                   FontSize="16"
+                                                                   Foreground="#B9E8E3"/>
                                                     </StackPanel>
                                                 </Border>
-                                            </StackPanel>
-                                        </Grid>
-                                    </Grid>
-                                </Border>
 
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
+                                                <Button x:Name="btnHubMasterData"
+                                                        Grid.Column="3"
+                                                        Style="{StaticResource DashboardMetroTileButton}"
+                                                        Background="#4E9F8F"
+                                                        Foreground="#083231">
+                                                    <Grid Margin="14,10">
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="Auto"/>
+                                                            <RowDefinition Height="*"/>
+                                                            <RowDefinition Height="Auto"/>
+                                                        </Grid.RowDefinitions>
+                                                        <TextBlock Text="&#xE898;" FontFamily="Segoe MDL2 Assets" FontSize="34" HorizontalAlignment="Center" Margin="0,2,0,8"/>
+                                                        <TextBlock Grid.Row="1" Text="MASTER DATA" FontSize="15" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        <TextBlock Grid.Row="2" Text="YEARS, SECTIONS, CURRICULUM" FontSize="10" Opacity="0.88" HorizontalAlignment="Center"/>
+                                                    </Grid>
+                                                </Button>
 
-                                    <StackPanel Grid.Column="0">
-                                        <TextBlock Text="Dashboard" Style="{StaticResource Text.PageTitle}"/>
-                                        <TextBlock Text="Use the dashboard as the main launch point for every module in the system." Style="{StaticResource Text.Subtitle}"/>
-                                    </StackPanel>
+                                                <Button x:Name="btnDashboardRefresh"
+                                                        Grid.Column="4"
+                                                        Style="{StaticResource DashboardMetroTileButton}"
+                                                        Background="#2E8F89"
+                                                        Foreground="White">
+                                                    <Grid Margin="14,10">
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="Auto"/>
+                                                            <RowDefinition Height="*"/>
+                                                            <RowDefinition Height="Auto"/>
+                                                        </Grid.RowDefinitions>
+                                                        <TextBlock Text="&#xE72C;" FontFamily="Segoe MDL2 Assets" FontSize="30" HorizontalAlignment="Center" Margin="0,2,0,4"/>
+                                                        <TextBlock Grid.Row="1" Text="DATABASE&#x0a;CONNECTED" FontSize="18" FontWeight="Bold" TextAlignment="Center" VerticalAlignment="Center"/>
+                                                        <TextBlock Grid.Row="2" Text="REFRESH DASHBOARD" FontSize="10" Opacity="0.88" HorizontalAlignment="Center"/>
+                                                    </Grid>
+                                                </Button>
 
-                                    <Button x:Name="btnDashboardRefresh"
-                                            Grid.Column="1"
-                                            Content="Refresh"
-                                            Margin="12,0,0,0"
-                                            VerticalAlignment="Center"
-                                            Style="{StaticResource PageActionButton}"/>
-                                </Grid>
-                            </StackPanel>
+                                                <Button x:Name="btnHubMaintenance"
+                                                        Grid.Column="5"
+                                                        Style="{StaticResource DashboardMetroTileButton}"
+                                                        Background="#6CC5B7"
+                                                        Foreground="#0C3434">
+                                                    <Grid Margin="14,10">
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="Auto"/>
+                                                            <RowDefinition Height="*"/>
+                                                            <RowDefinition Height="Auto"/>
+                                                        </Grid.RowDefinitions>
+                                                        <TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="34" HorizontalAlignment="Center" Margin="0,2,0,8"/>
+                                                        <TextBlock Grid.Row="1" Text="MAINTENANCE" FontSize="15" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        <TextBlock Grid.Row="2" Text="BACKUP, RESTORE, ROLLOVER" FontSize="10" Opacity="0.88" HorizontalAlignment="Center"/>
+                                                    </Grid>
+                                                </Button>
+                                            </Grid>
 
-                            <UniformGrid Grid.Row="1" Columns="3" Margin="0,0,0,12">
-                                <controls:StatCard x:Name="cardTotalStudents" Title="Total Students" Value="0" Hint="Active student records"/>
-                                <controls:StatCard x:Name="cardEnrolledStudents" Title="Enrolled Students" Value="0" Hint="Currently enrolled learners"/>
-                                <controls:StatCard x:Name="cardPendingEnrollments" Title="Pending Enrollments" Value="0" Hint="Awaiting approval or review"/>
-                                <controls:StatCard x:Name="cardTotalTeachers" Title="Total Teachers" Value="0" Hint="Active teacher records"/>
-                                <controls:StatCard x:Name="cardAvailableSections" Title="Available Sections" Value="0" Hint="Sections with remaining capacity"/>
-                                <controls:StatCard x:Name="cardArchivedRecords" Title="Archived Records" Value="0" Hint="Non-restored archived items"/>
-                            </UniformGrid>
+                                            <Grid Grid.Row="4" Background="#114947">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
 
-                            <Grid Grid.Row="2">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="1.35*"/>
-                                    <ColumnDefinition Width="1*"/>
-                                </Grid.ColumnDefinitions>
+                                                <Button x:Name="btnHubScheduling"
+                                                        Grid.Column="0"
+                                                        Style="{StaticResource DashboardMetroTileButton}"
+                                                        Background="#7C3C25"
+                                                        Foreground="White">
+                                                    <Grid Margin="14,12">
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="Auto"/>
+                                                            <RowDefinition Height="*"/>
+                                                            <RowDefinition Height="Auto"/>
+                                                        </Grid.RowDefinitions>
+                                                        <TextBlock Text="&#xE823;" FontFamily="Segoe MDL2 Assets" FontSize="36" HorizontalAlignment="Center" Margin="0,2,0,8"/>
+                                                        <TextBlock Grid.Row="1" Text="SCHEDULING" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        <TextBlock Grid.Row="2" Text="CLASS OFFERINGS AND LOADS" FontSize="10" Opacity="0.88" HorizontalAlignment="Center"/>
+                                                    </Grid>
+                                                </Button>
 
-                                <Border Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,10,0">
-                                    <Grid>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="*"/>
-                                        </Grid.RowDefinitions>
+                                                <Border Grid.Column="1" Style="{StaticResource DashboardMetroInfoBorder}" Background="#CB7A15">
+                                                    <StackPanel VerticalAlignment="Center">
+                                                        <TextBlock Text="ACTIVE" FontSize="11" FontWeight="Bold" Foreground="#FFF0D4" HorizontalAlignment="Center"/>
+                                                        <TextBlock Text="STUDENTS" FontSize="18" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"/>
+                                                    </StackPanel>
+                                                </Border>
 
-                                        <controls:SectionHeader Grid.Row="0"
-                                                                Title="Main Navigation"
-                                                                Subtitle="Launch the major operational areas from one dashboard surface"
-                                                                Margin="0,0,0,8"/>
+                                                <Border Grid.Column="2" Style="{StaticResource DashboardMetroInfoBorder}" Background="#E2A317">
+                                                    <StackPanel VerticalAlignment="Center">
+                                                        <TextBlock Text="ENROLLED" FontSize="11" FontWeight="Bold" Foreground="#FFF7D4" HorizontalAlignment="Center"/>
+                                                        <TextBlock Text="LEARNERS" FontSize="18" FontWeight="Bold" Foreground="#4A2E00" HorizontalAlignment="Center"/>
+                                                    </StackPanel>
+                                                </Border>
 
-                                        <UniformGrid Grid.Row="1" Columns="4" Margin="0,0,0,12">
-                                <Button x:Name="btnHubStudents" Style="{StaticResource DashboardHubTileButton}" Background="#147A78" BorderBrush="#49B8B0" Foreground="White" Margin="0,0,10,10">
-                                    <Grid Margin="18">
-                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                        <TextBlock Text="&#xE716;" FontFamily="Segoe MDL2 Assets" FontSize="34" Foreground="White"/>
-                                        <TextBlock Grid.Row="1" Text="Students" FontSize="22" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="White"/>
-                                        <TextBlock Grid.Row="2" Text="Manage student identity, profiles, accounts, and status." Style="{StaticResource Text.Caption}" Foreground="#E6FFFD" TextWrapping="Wrap"/>
-                                    </Grid>
-                                </Button>
-                                <Button x:Name="btnHubTeachers" Style="{StaticResource DashboardHubTileButton}" Background="#2C6FA3" BorderBrush="#78B7E8" Foreground="White" Margin="0,0,10,10">
-                                    <Grid Margin="18">
-                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                        <TextBlock Text="&#xE77B;" FontFamily="Segoe MDL2 Assets" FontSize="34" Foreground="White"/>
-                                        <TextBlock Grid.Row="1" Text="Teachers" FontSize="22" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="White"/>
-                                        <TextBlock Grid.Row="2" Text="Open teacher records, credentials, and activity controls." Style="{StaticResource Text.Caption}" Foreground="#EEF8FF" TextWrapping="Wrap"/>
-                                    </Grid>
-                                </Button>
-                                <Button x:Name="btnHubEnrollment" Style="{StaticResource DashboardHubTileButton}" Background="#0F8F67" BorderBrush="#54D2A6" Foreground="White" Margin="0,0,10,10">
-                                    <Grid Margin="18">
-                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                        <TextBlock Text="&#xE8C7;" FontFamily="Segoe MDL2 Assets" FontSize="34" Foreground="White"/>
-                                        <TextBlock Grid.Row="1" Text="Enrollment" FontSize="22" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="White"/>
-                                        <TextBlock Grid.Row="2" Text="Process applications, approvals, transfers, and queue actions." Style="{StaticResource Text.Caption}" Foreground="#E7FFF5" TextWrapping="Wrap"/>
-                                    </Grid>
-                                </Button>
-                                <Button x:Name="btnHubReports" Style="{StaticResource DashboardHubTileButton}" Background="#D08A19" BorderBrush="#F4C966" Foreground="White" Margin="0,0,0,10">
-                                    <Grid Margin="18">
-                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                        <TextBlock Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets" FontSize="34" Foreground="White"/>
-                                        <TextBlock Grid.Row="1" Text="Reports" FontSize="22" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="White"/>
-                                        <TextBlock Grid.Row="2" Text="Generate dashboard outputs, exports, and report presets." Style="{StaticResource Text.Caption}" Foreground="#FFF8E8" TextWrapping="Wrap"/>
-                                    </Grid>
-                                </Button>
-                                <Button x:Name="btnHubMasterData" Style="{StaticResource DashboardHubTileButton}" Background="#7D4C9E" BorderBrush="#BE92DB" Foreground="White" Margin="0,0,10,0">
-                                    <Grid Margin="18">
-                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                        <TextBlock Text="&#xE943;" FontFamily="Segoe MDL2 Assets" FontSize="34" Foreground="White"/>
-                                        <TextBlock Grid.Row="1" Text="Master Data" FontSize="22" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="White"/>
-                                        <TextBlock Grid.Row="2" Text="School settings, years, grade levels, subjects, curriculum, and sections." Style="{StaticResource Text.Caption}" Foreground="#F7EEFF" TextWrapping="Wrap"/>
-                                    </Grid>
-                                </Button>
-                                <Button x:Name="btnHubScheduling" Style="{StaticResource DashboardHubTileButton}" Background="#356D55" BorderBrush="#83C7A5" Foreground="White" Margin="0,0,10,0">
-                                    <Grid Margin="18">
-                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                        <TextBlock Text="&#xE823;" FontFamily="Segoe MDL2 Assets" FontSize="34" Foreground="White"/>
-                                        <TextBlock Grid.Row="1" Text="Scheduling" FontSize="22" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="White"/>
-                                        <TextBlock Grid.Row="2" Text="Offerings, schedules, rooms, time slots, and teacher loads." Style="{StaticResource Text.Caption}" Foreground="#ECFFF4" TextWrapping="Wrap"/>
-                                    </Grid>
-                                </Button>
-                                <Button x:Name="btnHubAccountsCompliance" Style="{StaticResource DashboardHubTileButton}" Background="#BF5B22" BorderBrush="#F0A46C" Foreground="White" Margin="0,0,10,0">
-                                    <Grid Margin="18">
-                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                        <TextBlock Text="&#xEA18;" FontFamily="Segoe MDL2 Assets" FontSize="34" Foreground="White"/>
-                                        <TextBlock Grid.Row="1" Text="Accounts &amp; Compliance" FontSize="22" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="White"/>
-                                        <TextBlock Grid.Row="2" Text="Student accounts, requirements, archive center, and compliance actions." Style="{StaticResource Text.Caption}" Foreground="#FFF1E7" TextWrapping="Wrap"/>
-                                    </Grid>
-                                </Button>
-                                <Button x:Name="btnHubMaintenance" Style="{StaticResource DashboardHubTileButton}" Background="#A33B34" BorderBrush="#E08780" Foreground="White">
-                                    <Grid Margin="18">
-                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                        <TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="34" Foreground="White"/>
-                                        <TextBlock Grid.Row="1" Text="Maintenance" FontSize="22" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="White"/>
-                                        <TextBlock Grid.Row="2" Text="Backup, restore, and year-end rollover administration." Style="{StaticResource Text.Caption}" Foreground="#FFF0EF" TextWrapping="Wrap"/>
-                                    </Grid>
-                                </Button>
-                                        </UniformGrid>
-                                    </Grid>
-                                </Border>
+                                                <Border Grid.Column="3" Style="{StaticResource DashboardMetroInfoBorder}" Background="#F1C64E">
+                                                    <StackPanel VerticalAlignment="Center">
+                                                        <TextBlock Text="PENDING" FontSize="11" FontWeight="Bold" Foreground="#7A5200" HorizontalAlignment="Center"/>
+                                                        <TextBlock Text="REVIEWS" FontSize="18" FontWeight="Bold" Foreground="#5B3B00" HorizontalAlignment="Center"/>
+                                                    </StackPanel>
+                                                </Border>
 
-                                <Grid Grid.Column="1">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
+                                                <Border Grid.Column="4" Style="{StaticResource DashboardMetroInfoBorder}" Background="#E8B920">
+                                                    <StackPanel VerticalAlignment="Center">
+                                                        <TextBlock Text="OPEN" FontSize="11" FontWeight="Bold" Foreground="#7C5100" HorizontalAlignment="Center"/>
+                                                        <TextBlock Text="SECTIONS" FontSize="18" FontWeight="Bold" Foreground="#583900" HorizontalAlignment="Center"/>
+                                                    </StackPanel>
+                                                </Border>
 
-                                    <Border Grid.Row="0" Style="{StaticResource CardPanel}" Margin="0,0,0,10">
-                                        <Grid>
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="*"/>
-                                            </Grid.RowDefinitions>
+                                                <Border Grid.Column="5" Style="{StaticResource DashboardMetroInfoBorder}" Background="#D68112">
+                                                    <StackPanel VerticalAlignment="Center">
+                                                        <TextBlock Text="ARCHIVED" FontSize="11" FontWeight="Bold" Foreground="#FFF1D3" HorizontalAlignment="Center"/>
+                                                        <TextBlock Text="RECORDS" FontSize="18" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"/>
+                                                    </StackPanel>
+                                                </Border>
+                                            </Grid>
 
-                                            <controls:SectionHeader Grid.Row="0"
-                                                                    Title="Recent Activity"
-                                                                    Subtitle="Latest audit and operational actions across the system"
-                                                                    Margin="0,0,0,8"/>
-                                            <Border Grid.Row="1" Style="{StaticResource InfoBanner}" Margin="0,0,0,8">
-                                                <TextBlock x:Name="txtDashboardUpdatedAt" Style="{StaticResource Text.CaptionStrong}"/>
-                                            </Border>
-                                            <DataGrid Grid.Row="2"
-                                                      x:Name="gridDashboardActivity"
-                                                      MinHeight="220"
-                                                      MaxHeight="320"
-                                                      IsReadOnly="True"/>
-                                        </Grid>
-                                    </Border>
-
-                                    <Border Grid.Row="1" Style="{StaticResource CardPanel}">
-                                        <Grid>
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="Auto"/>
-                                            </Grid.RowDefinitions>
-
-                                            <controls:SectionHeader Grid.Row="0"
-                                                                    Title="Operational Watchlist"
-                                                                    Subtitle="Current queue, reversal, waitlist, and critical operations signals"
-                                                                    Margin="0,0,0,8"/>
-                                            <Border Grid.Row="1" Style="{StaticResource InfoBanner}" Margin="0,0,0,8">
-                                                <TextBlock x:Name="txtDashboardQueueMetric" Style="{StaticResource Text.CaptionStrong}" TextWrapping="Wrap"/>
-                                            </Border>
-                                            <Border Grid.Row="2" Style="{StaticResource InfoBanner}" Margin="0,0,0,8">
-                                                <TextBlock x:Name="txtDashboardReversalMetric" Style="{StaticResource Text.CaptionStrong}" TextWrapping="Wrap"/>
-                                            </Border>
-                                            <Border Grid.Row="3" Style="{StaticResource InfoBanner}" Margin="0,0,0,8">
-                                                <TextBlock x:Name="txtDashboardWaitlistMetric" Style="{StaticResource Text.CaptionStrong}" TextWrapping="Wrap"/>
-                                            </Border>
-                                            <Border Grid.Row="4" Style="{StaticResource InfoBanner}">
-                                                <TextBlock x:Name="txtDashboardCriticalOpsMetric" Style="{StaticResource Text.CaptionStrong}" TextWrapping="Wrap"/>
+                                            <Border Grid.Row="5" Background="#E9EEF0" BorderBrush="#B8C1C8" BorderThickness="0,1,0,0">
+                                                <Grid Margin="12,0">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Text="Dashboard"
+                                                               FontSize="16"
+                                                               FontWeight="SemiBold"
+                                                               Foreground="#2C3B43"
+                                                               VerticalAlignment="Center"/>
+                                                    <TextBlock Grid.Column="1"
+                                                               Text="{Binding Text, ElementName=txtCurrentUser}"
+                                                               FontSize="13"
+                                                               Foreground="#52646D"
+                                                               VerticalAlignment="Center"/>
+                                                </Grid>
                                             </Border>
                                         </Grid>
                                     </Border>
+                                </Viewbox>
+                                <Grid Visibility="Collapsed" IsHitTestVisible="False">
+                                    <UniformGrid Columns="3">
+                                        <controls:StatCard x:Name="cardTotalStudents" Title="Total Students" Value="0" Hint="Active student records"/>
+                                        <controls:StatCard x:Name="cardEnrolledStudents" Title="Enrolled Students" Value="0" Hint="Currently enrolled learners"/>
+                                        <controls:StatCard x:Name="cardPendingEnrollments" Title="Pending Enrollments" Value="0" Hint="Awaiting approval or review"/>
+                                        <controls:StatCard x:Name="cardTotalTeachers" Title="Total Teachers" Value="0" Hint="Active teacher records"/>
+                                        <controls:StatCard x:Name="cardAvailableSections" Title="Available Sections" Value="0" Hint="Sections with remaining capacity"/>
+                                        <controls:StatCard x:Name="cardArchivedRecords" Title="Archived Records" Value="0" Hint="Non-restored archived items"/>
+                                    </UniformGrid>
+                                    <TextBlock x:Name="txtDashboardUpdatedAt"/>
+                                    <DataGrid x:Name="gridDashboardActivity" IsReadOnly="True"/>
+                                    <TextBlock x:Name="txtDashboardQueueMetric" TextWrapping="Wrap"/>
+                                    <TextBlock x:Name="txtDashboardReversalMetric" TextWrapping="Wrap"/>
+                                    <TextBlock x:Name="txtDashboardWaitlistMetric" TextWrapping="Wrap"/>
+                                    <TextBlock x:Name="txtDashboardCriticalOpsMetric" TextWrapping="Wrap"/>
                                 </Grid>
                             </Grid>
-
-                        </Grid>
                         </ScrollViewer>
                     </TabItem>
 
