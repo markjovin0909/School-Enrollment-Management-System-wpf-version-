@@ -461,44 +461,64 @@
                                                         </Grid.RowDefinitions>
                                                         <TextBlock Text="&#xE823;" FontFamily="Segoe MDL2 Assets" FontSize="36" HorizontalAlignment="Center" Margin="0,2,0,8"/>
                                                         <TextBlock Grid.Row="1" Text="SCHEDULING" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                        <TextBlock Grid.Row="2" Text="CLASS OFFERINGS AND LOADS" FontSize="10" Opacity="0.88" HorizontalAlignment="Center"/>
+                                                        <TextBlock Grid.Row="2" Text="OPEN STUDENT GRADES" FontSize="10" Opacity="0.88" HorizontalAlignment="Center"/>
                                                     </Grid>
                                                 </Button>
 
-                                                <Border Grid.Column="1" Style="{StaticResource DashboardMetroInfoBorder}" Background="#CB7A15">
+                                                <Button x:Name="btnDashActiveStudents"
+                                                        Grid.Column="1"
+                                                        Style="{StaticResource DashboardMetroTileButton}"
+                                                        Background="#CB7A15"
+                                                        Foreground="White">
                                                     <StackPanel VerticalAlignment="Center">
                                                         <TextBlock Text="ACTIVE" FontSize="11" FontWeight="Bold" Foreground="#FFF0D4" HorizontalAlignment="Center"/>
                                                         <TextBlock Text="STUDENTS" FontSize="18" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"/>
                                                     </StackPanel>
-                                                </Border>
+                                                </Button>
 
-                                                <Border Grid.Column="2" Style="{StaticResource DashboardMetroInfoBorder}" Background="#E2A317">
+                                                <Button x:Name="btnDashEnrolledLearners"
+                                                        Grid.Column="2"
+                                                        Style="{StaticResource DashboardMetroTileButton}"
+                                                        Background="#E2A317"
+                                                        Foreground="#4A2E00">
                                                     <StackPanel VerticalAlignment="Center">
                                                         <TextBlock Text="ENROLLED" FontSize="11" FontWeight="Bold" Foreground="#FFF7D4" HorizontalAlignment="Center"/>
                                                         <TextBlock Text="LEARNERS" FontSize="18" FontWeight="Bold" Foreground="#4A2E00" HorizontalAlignment="Center"/>
                                                     </StackPanel>
-                                                </Border>
+                                                </Button>
 
-                                                <Border Grid.Column="3" Style="{StaticResource DashboardMetroInfoBorder}" Background="#F1C64E">
+                                                <Button x:Name="btnDashPendingReviews"
+                                                        Grid.Column="3"
+                                                        Style="{StaticResource DashboardMetroTileButton}"
+                                                        Background="#F1C64E"
+                                                        Foreground="#5B3B00">
                                                     <StackPanel VerticalAlignment="Center">
                                                         <TextBlock Text="PENDING" FontSize="11" FontWeight="Bold" Foreground="#7A5200" HorizontalAlignment="Center"/>
                                                         <TextBlock Text="REVIEWS" FontSize="18" FontWeight="Bold" Foreground="#5B3B00" HorizontalAlignment="Center"/>
                                                     </StackPanel>
-                                                </Border>
+                                                </Button>
 
-                                                <Border Grid.Column="4" Style="{StaticResource DashboardMetroInfoBorder}" Background="#E8B920">
+                                                <Button x:Name="btnDashOpenSections"
+                                                        Grid.Column="4"
+                                                        Style="{StaticResource DashboardMetroTileButton}"
+                                                        Background="#E8B920"
+                                                        Foreground="#583900">
                                                     <StackPanel VerticalAlignment="Center">
                                                         <TextBlock Text="OPEN" FontSize="11" FontWeight="Bold" Foreground="#7C5100" HorizontalAlignment="Center"/>
                                                         <TextBlock Text="SECTIONS" FontSize="18" FontWeight="Bold" Foreground="#583900" HorizontalAlignment="Center"/>
                                                     </StackPanel>
-                                                </Border>
+                                                </Button>
 
-                                                <Border Grid.Column="5" Style="{StaticResource DashboardMetroInfoBorder}" Background="#D68112">
+                                                <Button x:Name="btnDashArchivedRecords"
+                                                        Grid.Column="5"
+                                                        Style="{StaticResource DashboardMetroTileButton}"
+                                                        Background="#D68112"
+                                                        Foreground="White">
                                                     <StackPanel VerticalAlignment="Center">
                                                         <TextBlock Text="ARCHIVED" FontSize="11" FontWeight="Bold" Foreground="#FFF1D3" HorizontalAlignment="Center"/>
                                                         <TextBlock Text="RECORDS" FontSize="18" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"/>
                                                     </StackPanel>
-                                                </Border>
+                                                </Button>
                                             </Grid>
 
                                             <Border Grid.Row="5" Background="#E9EEF0" BorderBrush="#B8C1C8" BorderThickness="0,1,0,0">
@@ -1463,6 +1483,7 @@
                                         <TextBlock Text="Launch Modules" Style="{StaticResource Text.CaptionStrong}"/>
                                         <TextBlock Text="Open scheduling components without leaving the tab." Style="{StaticResource Text.Caption}" Margin="0,2,0,10"/>
                                         <Button x:Name="btnOpsOfferings" Content="Class Offerings" Style="{StaticResource OpsModuleButton}"/>
+                                        <Button x:Name="btnOpsStudentGrades" Content="Student Grades" Style="{StaticResource OpsModuleButton}"/>
                                         <Button x:Name="btnOpsSchedules" Content="Schedules" Style="{StaticResource OpsModuleButton}"/>
                                         <Button x:Name="btnOpsTeacherLoads" Content="Teacher Loads" Style="{StaticResource OpsModuleButton}"/>
                                         <Button x:Name="btnOpsRooms" Content="Rooms" Style="{StaticResource OpsModuleButton}"/>

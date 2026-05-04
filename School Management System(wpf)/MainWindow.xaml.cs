@@ -134,9 +134,14 @@ namespace School_Management_System
             btnHubEnrollment.Click += (_, _) => NavigateMainTab(3);
             btnHubReports.Click += (_, _) => NavigateMainTab(4);
             btnHubMasterData.Click += (_, _) => NavigateMainTab(5);
-            btnHubScheduling.Click += (_, _) => NavigateMainTab(6);
+            btnHubScheduling.Click += (_, _) => OpenSchedulingStudentGrades();
             btnHubAccountsCompliance.Click += (_, _) => NavigateMainTab(7);
             btnHubMaintenance.Click += (_, _) => NavigateMainTab(8);
+            btnDashActiveStudents.Click += (_, _) => NavigateMainTab(1);
+            btnDashEnrolledLearners.Click += (_, _) => NavigateMainTab(3);
+            btnDashPendingReviews.Click += (_, _) => NavigateMainTab(3);
+            btnDashOpenSections.Click += (_, _) => OpenMasterDataSections();
+            btnDashArchivedRecords.Click += (_, _) => OpenArchiveCenter();
 
             tabsMain.SelectionChanged += (_, _) => UpdateNavigationState();
             NavigateMainTab(0);
@@ -325,6 +330,7 @@ namespace School_Management_System
             BindOperationsModuleButton(btnOpsSections, OperationsSection.MasterData, "sections", () => new SectionsWindow());
 
             BindOperationsModuleButton(btnOpsOfferings, OperationsSection.Scheduling, "class_offerings", () => new ClassOfferingsWindow());
+            BindOperationsModuleButton(btnOpsStudentGrades, OperationsSection.Scheduling, "student_grades", () => new StudentGradesWindow());
             BindOperationsModuleButton(btnOpsSchedules, OperationsSection.Scheduling, "schedules", () => new SchedulesWindow());
             BindOperationsModuleButton(btnOpsTeacherLoads, OperationsSection.Scheduling, "teacher_loads", () => new TeacherLoadsWindow(hostedInline: true));
             BindOperationsModuleButton(btnOpsRooms, OperationsSection.Scheduling, "rooms", () => new RoomsWindow());
@@ -481,6 +487,24 @@ namespace School_Management_System
                 ? mapped
                 : selectedButton.Content?.ToString() ?? "Module";
             info.Text = $"{sectionLabel} active module: {label}. Use the launch list to switch context without leaving the page.";
+        }
+
+        private void OpenSchedulingStudentGrades()
+        {
+            NavigateMainTab(6);
+            LoadOperationsModule(OperationsSection.Scheduling, btnOpsStudentGrades, "student_grades", () => new StudentGradesWindow());
+        }
+
+        private void OpenMasterDataSections()
+        {
+            NavigateMainTab(5);
+            LoadOperationsModule(OperationsSection.MasterData, btnOpsSections, "sections", () => new SectionsWindow());
+        }
+
+        private void OpenArchiveCenter()
+        {
+            NavigateMainTab(7);
+            LoadOperationsModule(OperationsSection.AccountsCompliance, btnOpsArchive, "archive_center", () => new ArchiveCenterWindow());
         }
 
         private void EnsureDefaultOperationsModuleForTab(int tabIndex)
