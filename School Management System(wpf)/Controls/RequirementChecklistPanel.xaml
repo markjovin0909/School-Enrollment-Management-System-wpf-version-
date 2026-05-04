@@ -10,10 +10,21 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <DockPanel Grid.Row="0" Margin="0,0,0,8">
-            <TextBlock Text="{Binding Title, ElementName=Root}" Style="{StaticResource Text.SectionTitle}"/>
-            <TextBlock Text="{Binding SummaryText, ElementName=Root}" Style="{StaticResource Text.Caption}" DockPanel.Dock="Right" VerticalAlignment="Bottom"/>
-        </DockPanel>
+        <Grid Grid.Row="0" Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0"
+                       Text="{Binding Title, ElementName=Root}"
+                       Style="{StaticResource Text.SectionTitle}"
+                       Margin="0,0,12,0"/>
+            <TextBlock Grid.Column="1"
+                       Text="{Binding SummaryText, ElementName=Root}"
+                       Style="{StaticResource Text.Caption}"
+                       VerticalAlignment="Bottom"
+                       TextAlignment="Right"/>
+        </Grid>
 
         <Border Grid.Row="1" Style="{StaticResource InfoBanner}" Margin="0,0,0,10">
             <TextBlock Text="{Binding HintText, ElementName=Root}" Style="{StaticResource Text.Caption}" TextWrapping="Wrap"/>
@@ -21,6 +32,7 @@
 
         <DataGrid Grid.Row="2"
                   x:Name="gridChecklist"
+                  AutoGenerateColumns="False"
                   ItemsSource="{Binding Items, ElementName=Root}"
                   SelectedItem="{Binding SelectedItem, ElementName=Root, Mode=TwoWay}"
                   SelectionChanged="GridChecklist_SelectionChanged"

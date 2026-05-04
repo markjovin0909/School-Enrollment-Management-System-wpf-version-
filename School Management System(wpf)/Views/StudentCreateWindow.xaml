@@ -9,7 +9,23 @@
         MaxHeight="{x:Static SystemParameters.MaximizedPrimaryScreenHeight}"
         MaxWidth="{x:Static SystemParameters.MaximizedPrimaryScreenWidth}"
         WindowStartupLocation="CenterOwner"
-        Style="{StaticResource DialogWindow}">
+        Background="{DynamicResource Brush.Background}"
+        Foreground="{DynamicResource Brush.TextPrimary}"
+        FontFamily="{DynamicResource FontFamily.Base}"
+        FontSize="13"
+        ResizeMode="NoResize">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Themes/Colors.xaml"/>
+                <ResourceDictionary Source="/Themes/Typography.xaml"/>
+                <ResourceDictionary Source="/Themes/Buttons.xaml"/>
+                <ResourceDictionary Source="/Themes/Inputs.xaml"/>
+                <ResourceDictionary Source="/Themes/Cards.xaml"/>
+                <ResourceDictionary Source="/Themes/Dialogs.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <Grid Style="{StaticResource DialogRootGrid}">
             <Grid.RowDefinitions>

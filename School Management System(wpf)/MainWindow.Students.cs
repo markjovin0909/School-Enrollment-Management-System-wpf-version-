@@ -59,11 +59,22 @@ namespace School_Management_System
 
         private void OpenCreateStudentDialog()
         {
-            var dialog = new StudentCreateWindow { Owner = this };
-            if (dialog.ShowDialog() == true && dialog.CreatedStudentId.HasValue)
+            try
             {
-                LoadStudentPreferenceLookups();
-                LoadStudents(dialog.CreatedStudentId.Value);
+                var dialog = new StudentCreateWindow { Owner = this };
+                if (dialog.ShowDialog() == true && dialog.CreatedStudentId.HasValue)
+                {
+                    LoadStudentPreferenceLookups();
+                    LoadStudents(dialog.CreatedStudentId.Value);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Open create student dialog failed: {ex.Message}",
+                    "Students",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
             }
         }
 

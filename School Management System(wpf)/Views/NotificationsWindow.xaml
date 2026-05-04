@@ -1,0 +1,139 @@
+<Window x:Class="School_Management_System.Views.NotificationsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Notifications"
+        Width="1040"
+        Height="760"
+        MinWidth="920"
+        MinHeight="680"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="CanResize"
+        Background="{DynamicResource Brush.Background}"
+        Foreground="{DynamicResource Brush.TextPrimary}"
+        FontFamily="{DynamicResource FontFamily.Base}"
+        FontSize="13">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Style="{StaticResource DialogShell}">
+            <DockPanel LastChildFill="False">
+                <StackPanel DockPanel.Dock="Left">
+                    <TextBlock Text="Notifications" Style="{StaticResource DialogHeaderTitle}"/>
+                    <TextBlock x:Name="txtSubtitle"
+                               Text="Review updates before entering the dashboard."
+                               Style="{StaticResource DialogHeaderSubtitle}"/>
+                </StackPanel>
+                <Border DockPanel.Dock="Right"
+                        Style="{StaticResource InfoBanner}"
+                        Padding="12,10"
+                        Margin="16,0,0,0"
+                        VerticalAlignment="Center">
+                    <StackPanel>
+                        <TextBlock Text="Unread" Style="{StaticResource Text.CaptionStrong}" HorizontalAlignment="Center"/>
+                        <TextBlock x:Name="txtUnreadCount" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+            </DockPanel>
+        </Border>
+
+        <Border Grid.Row="1"
+                x:Name="statusBanner"
+                Style="{StaticResource InfoBanner}"
+                Margin="0,12,0,12"
+                Visibility="Collapsed">
+            <StackPanel>
+                <TextBlock x:Name="txtStatusTitle" Style="{StaticResource Text.CaptionStrong}" Margin="0,0,0,2"/>
+                <TextBlock x:Name="txtStatusMessage" TextWrapping="Wrap"/>
+            </StackPanel>
+        </Border>
+
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.2*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" Style="{StaticResource DialogSection}" Margin="0,0,10,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Margin="0,0,0,10">
+                        <TextBlock Text="System Notifications" Style="{StaticResource Text.SectionTitle}" FontSize="18"/>
+                        <TextBlock Text="User and role-based items waiting for review." Style="{StaticResource Text.Subtitle}"/>
+                    </StackPanel>
+
+                    <DataGrid Grid.Row="1"
+                              x:Name="gridNotifications"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              CanUserAddRows="False"
+                              HeadersVisibility="Column"
+                              SelectionMode="Single">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="When" Binding="{Binding CreatedAtText}" Width="170"/>
+                            <DataGridTextColumn Header="Category" Binding="{Binding Category}" Width="130"/>
+                            <DataGridTextColumn Header="Title" Binding="{Binding Title}" Width="220"/>
+                            <DataGridTextColumn Header="Message" Binding="{Binding Message}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
+
+            <Border Grid.Column="1" Style="{StaticResource DialogSection}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Margin="0,0,0,10">
+                        <TextBlock Text="Announcements" Style="{StaticResource Text.SectionTitle}" FontSize="18"/>
+                        <TextBlock Text="Recent posted announcements from the system." Style="{StaticResource Text.Subtitle}"/>
+                    </StackPanel>
+
+                    <DataGrid Grid.Row="1"
+                              x:Name="gridAnnouncements"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              CanUserAddRows="False"
+                              HeadersVisibility="Column"
+                              SelectionMode="Single">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Posted" Binding="{Binding PostedAtText}" Width="150"/>
+                            <DataGridTextColumn Header="Title" Binding="{Binding Title}" Width="180"/>
+                            <DataGridTextColumn Header="Audience" Binding="{Binding Audience}" Width="110"/>
+                            <DataGridTextColumn Header="Body" Binding="{Binding Body}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <DockPanel Grid.Row="3" Style="{StaticResource DialogActionBar}" LastChildFill="False">
+            <Button x:Name="btnContinue"
+                    Content="Continue to Dashboard"
+                    Width="180"
+                    DockPanel.Dock="Right"
+                    Margin="8,0,0,0"/>
+            <Button x:Name="btnRefresh"
+                    Content="Refresh"
+                    Width="110"
+                    Style="{StaticResource SecondaryActionButton}"
+                    DockPanel.Dock="Right"
+                    Margin="8,0,0,0"/>
+            <Button x:Name="btnMarkAllRead"
+                    Content="Mark All Read"
+                    Width="130"
+                    Style="{StaticResource GhostButton}"
+                    DockPanel.Dock="Right"/>
+        </DockPanel>
+    </Grid>
+</Window>

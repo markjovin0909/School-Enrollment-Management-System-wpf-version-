@@ -24,15 +24,27 @@ namespace School_Management_System.Views
         {
             InitializeComponent();
 
-            cboStudentStatus.ItemsSource = Enum.GetValues(typeof(UserStatus));
-            cboStudentSex.ItemsSource = Enum.GetValues(typeof(Sex));
+            try
+            {
+                cboStudentStatus.ItemsSource = Enum.GetValues(typeof(UserStatus));
+                cboStudentSex.ItemsSource = Enum.GetValues(typeof(Sex));
 
-            btnCreate.Click += (_, _) => CreateStudent();
-            btnClear.Click += (_, _) => ResetEditor();
-            btnCancel.Click += (_, _) => Close();
+                btnCreate.Click += (_, _) => CreateStudent();
+                btnClear.Click += (_, _) => ResetEditor();
+                btnCancel.Click += (_, _) => Close();
 
-            LoadLookups();
-            ResetEditor();
+                LoadLookups();
+                ResetEditor();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Student create window initialization failed: {ex.Message}",
+                    "Create Student",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+                throw;
+            }
         }
 
         private void LoadLookups()

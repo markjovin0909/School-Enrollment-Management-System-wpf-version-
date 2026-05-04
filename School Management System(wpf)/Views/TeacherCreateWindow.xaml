@@ -9,7 +9,11 @@
         MaxHeight="{x:Static SystemParameters.MaximizedPrimaryScreenHeight}"
         MaxWidth="{x:Static SystemParameters.MaximizedPrimaryScreenWidth}"
         WindowStartupLocation="CenterOwner"
-        Style="{StaticResource DialogWindow}">
+        Background="{DynamicResource Brush.Background}"
+        Foreground="{DynamicResource Brush.TextPrimary}"
+        FontFamily="{DynamicResource FontFamily.Base}"
+        FontSize="13"
+        ResizeMode="NoResize">
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <Grid Style="{StaticResource DialogRootGrid}">
             <Grid.RowDefinitions>

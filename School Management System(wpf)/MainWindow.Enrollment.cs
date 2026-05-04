@@ -46,31 +46,43 @@ namespace School_Management_System
                 cboEnrollStatusChange.SelectedItem = EnrollmentStatus.PENDING;
             }
 
+            cboEnrollFilterSchoolYear.SelectionChanged += (_, _) =>
+            {
+                if (_suppressEnrollmentEvents) return;
+                SetSessionStateLong("enrollment.filter.schoolYearId", (cboEnrollFilterSchoolYear.SelectedItem as SchoolYear)?.Id);
+                LoadEnrollmentStudents();
+            };
+            cboEnrollFilterGrade.SelectionChanged += (_, _) =>
+            {
+                if (_suppressEnrollmentEvents) return;
+                SetSessionStateLong("enrollment.filter.gradeId", (cboEnrollFilterGrade.SelectedItem as GradeLevel)?.Id);
+                LoadEnrollmentStudents();
+            };
             cboEnrollSchoolYear.SelectionChanged += (_, _) =>
             {
                 if (_suppressEnrollmentEvents) return;
                 SetSessionStateLong("enrollment.schoolYearId", (cboEnrollSchoolYear.SelectedItem as SchoolYear)?.Id);
                 BindEnrollmentSections();
-                LoadEnrollmentStudents();
+                UpdateEnrollmentReviewContext(GetSelectedEnrollment());
             };
             cboEnrollGrade.SelectionChanged += (_, _) =>
             {
                 if (_suppressEnrollmentEvents) return;
                 SetSessionStateLong("enrollment.gradeId", (cboEnrollGrade.SelectedItem as GradeLevel)?.Id);
                 BindEnrollmentSections();
-                LoadEnrollmentStudents();
+                UpdateEnrollmentReviewContext(GetSelectedEnrollment());
             };
             cboEnrollSection.SelectionChanged += (_, _) =>
             {
                 if (_suppressEnrollmentEvents) return;
                 SetSessionStateLong("enrollment.sectionId", (cboEnrollSection.SelectedItem as Section)?.Id);
-                LoadEnrollmentStudents();
+                LoadEnrollmentClassView((cboEnrollSchoolYear.SelectedItem as SchoolYear)?.Id, (cboEnrollSection.SelectedItem as Section)?.Id);
             };
             cboEnrollCurriculum.SelectionChanged += (_, _) =>
             {
                 if (_suppressEnrollmentEvents) return;
                 SetSessionStateLong("enrollment.curriculumId", (cboEnrollCurriculum.SelectedItem as Curriculum)?.Id);
-                LoadEnrollmentStudents();
+                UpdateEnrollmentReviewContext(GetSelectedEnrollment());
             };
             cboEnrollStatusFilter.SelectionChanged += (_, _) =>
             {
@@ -119,6 +131,16 @@ namespace School_Management_System
             _students = _studentService.GetAll().ToList();
 
             _suppressEnrollmentEvents = true;
+            cboEnrollFilterSchoolYear.ItemsSource = _schoolYears;
+            cboEnrollFilterSchoolYear.DisplayMemberPath = "Name";
+            var savedFilterSchoolYear = ResolveById(_schoolYears, GetSessionStateLong("enrollment.filter.schoolYearId"), x => x.Id);
+            cboEnrollFilterSchoolYear.SelectedItem = savedFilterSchoolYear ?? _schoolYears.FirstOrDefault(x => x.Status == SchoolYearStatus.ACTIVE) ?? _schoolYears.FirstOrDefault();
+
+            cboEnrollFilterGrade.ItemsSource = _gradeLevels;
+            cboEnrollFilterGrade.DisplayMemberPath = "Code";
+            var savedFilterGrade = ResolveById(_gradeLevels, GetSessionStateLong("enrollment.filter.gradeId"), x => x.Id);
+            cboEnrollFilterGrade.SelectedItem = savedFilterGrade;
+
             cboEnrollSchoolYear.ItemsSource = _schoolYears;
             cboEnrollSchoolYear.DisplayMemberPath = "Name";
             var savedSchoolYear = ResolveById(_schoolYears, GetSessionStateLong("enrollment.schoolYearId"), x => x.Id);
@@ -143,6 +165,8 @@ namespace School_Management_System
             BindEnrollmentSections();
             _suppressEnrollmentEvents = false;
 
+            SetSessionStateLong("enrollment.filter.schoolYearId", (cboEnrollFilterSchoolYear.SelectedItem as SchoolYear)?.Id);
+            SetSessionStateLong("enrollment.filter.gradeId", (cboEnrollFilterGrade.SelectedItem as GradeLevel)?.Id);
             SetSessionStateLong("enrollment.schoolYearId", (cboEnrollSchoolYear.SelectedItem as SchoolYear)?.Id);
             SetSessionStateLong("enrollment.gradeId", (cboEnrollGrade.SelectedItem as GradeLevel)?.Id);
             SetSessionStateLong("enrollment.curriculumId", (cboEnrollCurriculum.SelectedItem as Curriculum)?.Id);
@@ -171,8 +195,8 @@ namespace School_Management_System
 
         private void LoadEnrollmentStudents(long? preferredStudentId = null)
         {
-            var schoolYear = cboEnrollSchoolYear.SelectedItem as SchoolYear;
-            var section = cboEnrollSection.SelectedItem as Section;
+            var schoolYear = cboEnrollFilterSchoolYear.SelectedItem as SchoolYear;
+            var gradeFilter = cboEnrollFilterGrade.SelectedItem as GradeLevel;
             var search = (txtEnrollSearch.Text ?? string.Empty).Trim();
             var statusFilter = (cboEnrollStatusFilter.SelectedItem as string ?? "All Statuses").Trim();
             var enrollments = _enrollmentService.GetAll().ToList();
@@ -242,10 +266,12 @@ namespace School_Management_System
                     }
                 }
 
-                if (section != null && enrollment != null && enrollment.SectionId != section.Id)
+                if (gradeFilter != null)
                 {
-                    // keep visible if searching explicitly; otherwise filter to selected section context
-                    if (string.IsNullOrWhiteSpace(search))
+                    var matchesGrade =
+                        student.PreferredGradeLevelId == gradeFilter.Id ||
+                        enrollment?.GradeLevelId == gradeFilter.Id;
+                    if (!matchesGrade)
                     {
                         continue;
                     }
@@ -283,7 +309,7 @@ namespace School_Management_System
                 UpdateEnrollmentReviewContext(null);
             }
 
-            LoadEnrollmentClassView(schoolYear?.Id, section?.Id);
+            LoadEnrollmentClassView((cboEnrollSchoolYear.SelectedItem as SchoolYear)?.Id, (cboEnrollSection.SelectedItem as Section)?.Id);
         }
 
         private void SelectEnrollmentStudent(long studentId)
@@ -493,7 +519,7 @@ namespace School_Management_System
 
         private Enrollment? GetSelectedEnrollment()
         {
-            if (!_selectedEnrollmentStudentId.HasValue || cboEnrollSchoolYear.SelectedItem is not SchoolYear schoolYear)
+            if (!_selectedEnrollmentStudentId.HasValue || cboEnrollFilterSchoolYear.SelectedItem is not SchoolYear schoolYear)
             {
                 return null;
             }
@@ -550,7 +576,7 @@ namespace School_Management_System
                 txtEnrollReviewState.Text = "Status: - | Approval: -";
                 txtEnrollReviewMeta.Text = "Select a queue item to review details.";
                 txtEnrollRequirementSummary.Text = "No student selected.";
-                txtEnrollRecommendedSection.Text = "Recommended section will appear after selecting a student and matching the active grade and school year.";
+                txtEnrollRecommendedSection.Text = "Recommended section will appear after selecting a student and matching the target school year and target grade.";
                 enrollRequirementChecklistPanel.Items = Array.Empty<RequirementChecklistItem>();
                 enrollRequirementChecklistPanel.SummaryText = "No student selected.";
                 HideEnrollmentStaleWarning();
@@ -655,21 +681,22 @@ namespace School_Management_System
         private string ResolveRecommendedSectionText(Student student)
         {
             var schoolYearId = (cboEnrollSchoolYear.SelectedItem as SchoolYear)?.Id;
-            if (!schoolYearId.HasValue || !student.PreferredGradeLevelId.HasValue)
+            var gradeId = (cboEnrollGrade.SelectedItem as GradeLevel)?.Id ?? student.PreferredGradeLevelId;
+            if (!schoolYearId.HasValue || !gradeId.HasValue)
             {
-                return "Recommended section unavailable because the student preference or active school year context is incomplete.";
+                return "Recommended section unavailable because the target school year or target grade is incomplete.";
             }
 
             var recommended = _sections
                 .Where(x => x.SchoolYearId == schoolYearId.Value &&
-                            x.GradeLevelId == student.PreferredGradeLevelId.Value &&
+                            x.GradeLevelId == gradeId.Value &&
                             !x.IsArchived)
                 .OrderBy(x => x.Name)
                 .FirstOrDefault();
 
             if (recommended == null)
             {
-                return "No recommended section found for the selected school year and preferred grade.";
+                return "No recommended section found for the selected target school year and target grade.";
             }
 
             var curriculumLabel = student.PreferredCurriculumId.HasValue

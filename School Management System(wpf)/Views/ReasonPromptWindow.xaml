@@ -8,7 +8,10 @@
         MinHeight="500"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
-        Style="{StaticResource DialogWindow}">
+        Background="{DynamicResource Brush.Background}"
+        Foreground="{DynamicResource Brush.TextPrimary}"
+        FontFamily="{DynamicResource FontFamily.Base}"
+        FontSize="13">
     <Grid Style="{StaticResource DialogRootGrid}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
