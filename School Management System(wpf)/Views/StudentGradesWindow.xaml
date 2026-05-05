@@ -3,10 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="clr-namespace:School_Management_System.Controls"
         Title="Student Grades"
-        Width="1360" Height="780"
-        MinWidth="1120" MinHeight="660"
+        Width="1380" Height="820"
+        MinWidth="1160" MinHeight="700"
         WindowStartupLocation="CenterOwner"
-        Background="{DynamicResource Legacy.BgBrush}">
+        Background="#EEF3F9">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -14,138 +14,310 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
-    <Grid Margin="12">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1.8*"/>
-            <ColumnDefinition Width="1*"/>
-        </Grid.ColumnDefinitions>
+
+    <Grid Background="#EEF3F9">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <controls:SectionHeader Grid.Row="0" Grid.ColumnSpan="2"
-                                Title="Student Grades"
-                                Subtitle="Review class roster grades per offering and grading period"
-                                Margin="0,0,0,10"/>
+        <Border Grid.Row="0"
+                Background="#F8FAFC"
+                BorderBrush="#D7DFEA"
+                BorderThickness="0,0,0,1">
+            <Grid Margin="18,14">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-        <Border Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource CardPanel}" Margin="0,0,0,8" Padding="10">
-            <StackPanel>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="180"/>
-                        <ColumnDefinition Width="150"/>
-                        <ColumnDefinition Width="180"/>
-                        <ColumnDefinition Width="260"/>
-                        <ColumnDefinition Width="180"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                    <Border Width="44"
+                            Height="44"
+                            CornerRadius="12"
+                            Background="#FFFFFF"
+                            BorderBrush="#D7DFEA"
+                            BorderThickness="1"
+                            Margin="0,0,12,0">
+                        <Viewbox>
+                            <TextBlock Text="&#xE8D2;"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       Foreground="#2563EB"
+                                       Margin="10"/>
+                        </Viewbox>
+                    </Border>
 
-                    <ComboBox Grid.Column="0" x:Name="cboSchoolYear" Margin="0,0,8,0" DisplayMemberPath="Name" SelectedValuePath="Id"/>
-                    <ComboBox Grid.Column="1" x:Name="cboGradeLevel" Margin="0,0,8,0" DisplayMemberPath="Name" SelectedValuePath="Id"/>
-                    <ComboBox Grid.Column="2" x:Name="cboSection" Margin="0,0,8,0" DisplayMemberPath="Name" SelectedValuePath="Id"/>
-                    <ComboBox Grid.Column="3" x:Name="cboOffering" Margin="0,0,8,0" DisplayMemberPath="Label" SelectedValuePath="Id"/>
-                    <ComboBox Grid.Column="4" x:Name="cboGradingPeriod" Margin="0,0,8,0" DisplayMemberPath="Name" SelectedValuePath="Id"/>
-                    <TextBox Grid.Column="5" x:Name="txtSearch" Margin="0,0,8,0" ToolTip="Search by student number, LRN, or student name"/>
-                    <StackPanel Grid.Column="6" Orientation="Horizontal">
-                        <Button x:Name="btnRefresh" Content="Refresh" Width="90" Style="{StaticResource GhostButton}" Margin="0,0,8,0"/>
-                        <Button x:Name="btnSave" Content="Save Grades" Width="108"/>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="Student Grades"
+                                   FontSize="22"
+                                   FontWeight="SemiBold"
+                                   Foreground="#0F172A"/>
+                        <TextBlock Text="Review class rosters, enter quarterly scores, and save grade updates."
+                                   Style="{StaticResource Text.Caption}"
+                                   Foreground="#64748B"/>
                     </StackPanel>
-                </Grid>
+                </StackPanel>
 
-                <Border Style="{StaticResource InfoBanner}" Margin="0,10,0,0">
-                    <TextBlock x:Name="txtWeightsHint"
-                               Text="Quarter grade uses active grade component weights."
-                               TextWrapping="Wrap"/>
+                <Border Grid.Column="1"
+                        Background="#E0ECFF"
+                        BorderBrush="#BFDBFE"
+                        BorderThickness="1"
+                        CornerRadius="14"
+                        Padding="12,8"
+                        VerticalAlignment="Center">
+                    <StackPanel>
+                        <TextBlock Text="Academic Records"
+                                   FontSize="11"
+                                   FontWeight="SemiBold"
+                                   Foreground="#1D4ED8"
+                                   HorizontalAlignment="Right"/>
+                        <TextBlock Text="Standalone Workspace"
+                                   FontSize="13"
+                                   FontWeight="Bold"
+                                   Foreground="#1E3A8A"
+                                   HorizontalAlignment="Right"/>
+                    </StackPanel>
                 </Border>
-            </StackPanel>
-        </Border>
-
-        <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,8,0">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-                <TextBlock Text="Grade Roster"
-                           Style="{StaticResource Text.SectionTitle}"
-                           Margin="0,0,0,10"/>
-                <DataGrid Grid.Row="1"
-                          x:Name="gridGrades"
-                          AutoGenerateColumns="False"
-                          CanUserAddRows="False"
-                          EnableRowVirtualization="True"
-                          EnableColumnVirtualization="True"
-                          ScrollViewer.CanContentScroll="True">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="Student No" Binding="{Binding StudentNumber}" Width="120" IsReadOnly="True"/>
-                        <DataGridTextColumn Header="LRN" Binding="{Binding Lrn}" Width="140" IsReadOnly="True"/>
-                        <DataGridTextColumn Header="Student" Binding="{Binding StudentName}" Width="220" IsReadOnly="True"/>
-                        <DataGridTextColumn Header="Written Works" Binding="{Binding WrittenWorksText, UpdateSourceTrigger=PropertyChanged}" Width="110"/>
-                        <DataGridTextColumn Header="Performance Tasks" Binding="{Binding PerformanceTasksText, UpdateSourceTrigger=PropertyChanged}" Width="120"/>
-                        <DataGridTextColumn Header="Quarterly Assessment" Binding="{Binding QuarterlyAssessmentText, UpdateSourceTrigger=PropertyChanged}" Width="126"/>
-                        <DataGridTextColumn Header="Quarter Grade" Binding="{Binding QuarterGradeText}" Width="96" IsReadOnly="True"/>
-                        <DataGridTextColumn Header="Submitted" Binding="{Binding SubmittedAtText}" Width="126" IsReadOnly="True"/>
-                        <DataGridTextColumn Header="Locked" Binding="{Binding LockedState}" Width="86" IsReadOnly="True"/>
-                    </DataGrid.Columns>
-                </DataGrid>
             </Grid>
         </Border>
 
-        <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource CardPanel}" Margin="8,0,0,0">
-            <StackPanel>
-                <controls:SectionHeader Title="Selected Grade"
-                                        Subtitle="Current roster context, selected student, and grading state"
-                                        Margin="0,0,0,8"/>
-                <Border Style="{StaticResource InfoBanner}" Margin="0,0,0,12">
-                    <TextBlock x:Name="txtRosterHint"
-                               Text="Select a school year, class offering, and grading period to load the roster."
-                               TextWrapping="Wrap"/>
+        <ScrollViewer Grid.Row="1"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+            <Grid Margin="14">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="0"
+                        Style="{StaticResource InfoBanner}"
+                        Margin="0,0,0,12">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel>
+                            <TextBlock Text="Grade Entry Workspace"
+                                       Style="{StaticResource Text.CaptionStrong}"/>
+                            <TextBlock Text="Choose the school year, section offering, and grading period before updating student scores."
+                                       Style="{StaticResource Text.Caption}"
+                                       TextWrapping="Wrap"
+                                       Margin="0,4,0,0"/>
+                        </StackPanel>
+
+                        <TextBlock Grid.Column="1"
+                                   x:Name="txtSummary"
+                                   Margin="16,0,0,0"
+                                   VerticalAlignment="Center"
+                                   Foreground="{StaticResource BrushMuted}"/>
+                    </Grid>
                 </Border>
 
-                <UniformGrid Columns="2">
-                    <StackPanel Margin="0,0,8,10">
-                        <TextBlock Text="Offering" Style="{StaticResource Text.Caption}"/>
-                        <TextBlock x:Name="txtOfferingValue" Style="{StaticResource Text.Body}" Text="-"/>
-                    </StackPanel>
-                    <StackPanel Margin="8,0,0,10">
-                        <TextBlock Text="Grading Period" Style="{StaticResource Text.Caption}"/>
-                        <TextBlock x:Name="txtPeriodValue" Style="{StaticResource Text.Body}" Text="-"/>
-                    </StackPanel>
-                    <StackPanel Margin="0,0,8,10">
-                        <TextBlock Text="Student" Style="{StaticResource Text.Caption}"/>
-                        <TextBlock x:Name="txtStudentValue" Style="{StaticResource Text.Body}" Text="-"/>
-                    </StackPanel>
-                    <StackPanel Margin="8,0,0,10">
-                        <TextBlock Text="Status" Style="{StaticResource Text.Caption}"/>
-                        <TextBlock x:Name="txtLockStateValue" Style="{StaticResource Text.Body}" Text="-"/>
-                    </StackPanel>
-                    <StackPanel Margin="0,0,8,10">
-                        <TextBlock Text="Written Works" Style="{StaticResource Text.Caption}"/>
-                        <TextBlock x:Name="txtWrittenWorksValue" Style="{StaticResource Text.Body}" Text="-"/>
-                    </StackPanel>
-                    <StackPanel Margin="8,0,0,10">
-                        <TextBlock Text="Performance Tasks" Style="{StaticResource Text.Caption}"/>
-                        <TextBlock x:Name="txtPerformanceTasksValue" Style="{StaticResource Text.Body}" Text="-"/>
-                    </StackPanel>
-                    <StackPanel Margin="0,0,8,10">
-                        <TextBlock Text="Quarterly Assessment" Style="{StaticResource Text.Caption}"/>
-                        <TextBlock x:Name="txtQuarterlyAssessmentValue" Style="{StaticResource Text.Body}" Text="-"/>
-                    </StackPanel>
-                    <StackPanel Margin="8,0,0,10">
-                        <TextBlock Text="Quarter Grade" Style="{StaticResource Text.Caption}"/>
-                        <TextBlock x:Name="txtQuarterGradeValue" Style="{StaticResource Text.Body}" Text="-"/>
-                    </StackPanel>
-                </UniformGrid>
+                <Border Grid.Row="1"
+                        Style="{StaticResource CardPanel}"
+                        Margin="0,0,0,12">
+                    <StackPanel>
+                        <TextBlock Text="Filters"
+                                   Style="{StaticResource Text.SectionTitle}"
+                                   Margin="0,0,0,10"/>
 
-                <TextBlock Text="Submitted / Locked" Style="{StaticResource Text.Caption}" Margin="0,4,0,4"/>
-                <TextBlock x:Name="txtTimestampsValue" Style="{StaticResource Text.Body}" Text="-"/>
-            </StackPanel>
-        </Border>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="180"/>
+                                <ColumnDefinition Width="150"/>
+                                <ColumnDefinition Width="180"/>
+                                <ColumnDefinition Width="270"/>
+                                <ColumnDefinition Width="180"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
 
-        <TextBlock Grid.Row="3" Grid.ColumnSpan="2" x:Name="txtSummary" Margin="2,8,2,0" Foreground="{StaticResource BrushMuted}"/>
+                            <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                                <TextBlock Text="School Year" Style="{StaticResource Text.Caption}" Margin="0,0,0,4"/>
+                                <ComboBox x:Name="cboSchoolYear" DisplayMemberPath="Name" SelectedValuePath="Id" Margin="0"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1" Margin="0,0,8,0">
+                                <TextBlock Text="Grade Level" Style="{StaticResource Text.Caption}" Margin="0,0,0,4"/>
+                                <ComboBox x:Name="cboGradeLevel" DisplayMemberPath="Name" SelectedValuePath="Id" Margin="0"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2" Margin="0,0,8,0">
+                                <TextBlock Text="Section" Style="{StaticResource Text.Caption}" Margin="0,0,0,4"/>
+                                <ComboBox x:Name="cboSection" DisplayMemberPath="Name" SelectedValuePath="Id" Margin="0"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="3" Margin="0,0,8,0">
+                                <TextBlock Text="Class Offering" Style="{StaticResource Text.Caption}" Margin="0,0,0,4"/>
+                                <ComboBox x:Name="cboOffering" DisplayMemberPath="Label" SelectedValuePath="Id" Margin="0"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="4" Margin="0,0,8,0">
+                                <TextBlock Text="Grading Period" Style="{StaticResource Text.Caption}" Margin="0,0,0,4"/>
+                                <ComboBox x:Name="cboGradingPeriod" DisplayMemberPath="Name" SelectedValuePath="Id" Margin="0"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="5" Margin="0,0,8,0">
+                                <TextBlock Text="Search Student" Style="{StaticResource Text.Caption}" Margin="0,0,0,4"/>
+                                <TextBox x:Name="txtSearch"
+                                         Margin="0"
+                                         ToolTip="Search by student number, LRN, or student name"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="6"
+                                        Orientation="Horizontal"
+                                        VerticalAlignment="Bottom">
+                                <Button x:Name="btnRefresh"
+                                        Content="Refresh"
+                                        Width="90"
+                                        Style="{StaticResource GhostButton}"
+                                        Margin="0,0,8,0"/>
+                                <Button x:Name="btnSave"
+                                        Content="Save Grades"
+                                        Width="108"
+                                        Margin="0"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <Border Style="{StaticResource InfoBanner}" Margin="0,12,0,0">
+                            <TextBlock x:Name="txtWeightsHint"
+                                       Text="Quarter grade uses active grade component weights."
+                                       TextWrapping="Wrap"/>
+                        </Border>
+                    </StackPanel>
+                </Border>
+
+                <Grid Grid.Row="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.8*"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0"
+                            Style="{StaticResource CardPanel}"
+                            Margin="0,0,10,0">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Margin="0,0,0,10">
+                                <TextBlock Text="Grade Roster"
+                                           Style="{StaticResource Text.SectionTitle}"/>
+                                <TextBlock Text="Editable rows are available only for open grading periods and unlocked student grades."
+                                           Style="{StaticResource Text.Caption}"
+                                           Margin="0,4,0,0"/>
+                            </StackPanel>
+
+                            <DataGrid Grid.Row="1"
+                                      x:Name="gridGrades"
+                                      AutoGenerateColumns="False"
+                                      CanUserAddRows="False"
+                                      EnableRowVirtualization="True"
+                                      EnableColumnVirtualization="True"
+                                      ScrollViewer.CanContentScroll="True">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Student No" Binding="{Binding StudentNumber}" Width="120" IsReadOnly="True"/>
+                                    <DataGridTextColumn Header="LRN" Binding="{Binding Lrn}" Width="140" IsReadOnly="True"/>
+                                    <DataGridTextColumn Header="Student" Binding="{Binding StudentName}" Width="220" IsReadOnly="True"/>
+                                    <DataGridTextColumn Header="Written Works" Binding="{Binding WrittenWorksText, UpdateSourceTrigger=PropertyChanged}" Width="110"/>
+                                    <DataGridTextColumn Header="Performance Tasks" Binding="{Binding PerformanceTasksText, UpdateSourceTrigger=PropertyChanged}" Width="120"/>
+                                    <DataGridTextColumn Header="Quarterly Assessment" Binding="{Binding QuarterlyAssessmentText, UpdateSourceTrigger=PropertyChanged}" Width="126"/>
+                                    <DataGridTextColumn Header="Quarter Grade" Binding="{Binding QuarterGradeText}" Width="96" IsReadOnly="True"/>
+                                    <DataGridTextColumn Header="Submitted" Binding="{Binding SubmittedAtText}" Width="126" IsReadOnly="True"/>
+                                    <DataGridTextColumn Header="Locked" Binding="{Binding LockedState}" Width="86" IsReadOnly="True"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+                    </Border>
+
+                    <Grid Grid.Column="1">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <Border Grid.Row="0"
+                                Background="#0A3F3D"
+                                CornerRadius="18"
+                                Padding="18"
+                                Margin="0,0,0,10">
+                            <StackPanel>
+                                <TextBlock Text="Selected Grade Snapshot"
+                                           FontSize="18"
+                                           FontWeight="SemiBold"
+                                           Foreground="White"/>
+                                <TextBlock Text="Use this panel to confirm roster context and lock status before saving changes."
+                                           FontSize="12"
+                                           Foreground="#B9E8E3"
+                                           TextWrapping="Wrap"
+                                           Margin="0,6,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Row="1"
+                                Style="{StaticResource CardPanel}"
+                                Margin="0">
+                            <StackPanel>
+                                <controls:SectionHeader Title="Selected Grade"
+                                                        Subtitle="Current roster context, selected student, and grading state"
+                                                        Margin="0,0,0,8"/>
+                                <Border Style="{StaticResource InfoBanner}" Margin="0,0,0,12">
+                                    <TextBlock x:Name="txtRosterHint"
+                                               Text="Select a school year, class offering, and grading period to load the roster."
+                                               TextWrapping="Wrap"/>
+                                </Border>
+
+                                <UniformGrid Columns="2">
+                                    <StackPanel Margin="0,0,8,10">
+                                        <TextBlock Text="Offering" Style="{StaticResource Text.Caption}"/>
+                                        <TextBlock x:Name="txtOfferingValue" Style="{StaticResource Text.Body}" Text="-"/>
+                                    </StackPanel>
+                                    <StackPanel Margin="8,0,0,10">
+                                        <TextBlock Text="Grading Period" Style="{StaticResource Text.Caption}"/>
+                                        <TextBlock x:Name="txtPeriodValue" Style="{StaticResource Text.Body}" Text="-"/>
+                                    </StackPanel>
+                                    <StackPanel Margin="0,0,8,10">
+                                        <TextBlock Text="Student" Style="{StaticResource Text.Caption}"/>
+                                        <TextBlock x:Name="txtStudentValue" Style="{StaticResource Text.Body}" Text="-"/>
+                                    </StackPanel>
+                                    <StackPanel Margin="8,0,0,10">
+                                        <TextBlock Text="Status" Style="{StaticResource Text.Caption}"/>
+                                        <TextBlock x:Name="txtLockStateValue" Style="{StaticResource Text.Body}" Text="-"/>
+                                    </StackPanel>
+                                    <StackPanel Margin="0,0,8,10">
+                                        <TextBlock Text="Written Works" Style="{StaticResource Text.Caption}"/>
+                                        <TextBlock x:Name="txtWrittenWorksValue" Style="{StaticResource Text.Body}" Text="-"/>
+                                    </StackPanel>
+                                    <StackPanel Margin="8,0,0,10">
+                                        <TextBlock Text="Performance Tasks" Style="{StaticResource Text.Caption}"/>
+                                        <TextBlock x:Name="txtPerformanceTasksValue" Style="{StaticResource Text.Body}" Text="-"/>
+                                    </StackPanel>
+                                    <StackPanel Margin="0,0,8,10">
+                                        <TextBlock Text="Quarterly Assessment" Style="{StaticResource Text.Caption}"/>
+                                        <TextBlock x:Name="txtQuarterlyAssessmentValue" Style="{StaticResource Text.Body}" Text="-"/>
+                                    </StackPanel>
+                                    <StackPanel Margin="8,0,0,10">
+                                        <TextBlock Text="Quarter Grade" Style="{StaticResource Text.Caption}"/>
+                                        <TextBlock x:Name="txtQuarterGradeValue" Style="{StaticResource Text.Body}" Text="-"/>
+                                    </StackPanel>
+                                </UniformGrid>
+
+                                <TextBlock Text="Submitted / Locked" Style="{StaticResource Text.Caption}" Margin="0,4,0,4"/>
+                                <TextBlock x:Name="txtTimestampsValue" Style="{StaticResource Text.Body}" Text="-" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </Grid>
+        </ScrollViewer>
     </Grid>
 </Window>

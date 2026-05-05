@@ -51,6 +51,8 @@ namespace School_Management_System.Data
             modelBuilder.Entity<Student>().Property(e => e.Sex).HasConversion<string>();
 
             modelBuilder.Entity<SchoolYear>().Property(e => e.Status).HasConversion<string>();
+            modelBuilder.Entity<GradeComponent>().Property(e => e.Name).HasConversion<string>();
+            modelBuilder.Entity<GradingPeriod>().Property(e => e.Status).HasConversion<string>();
             modelBuilder.Entity<ClassOffering>().Property(e => e.Status).HasConversion<string>();
             modelBuilder.Entity<Enrollment>().Property(e => e.Status).HasConversion<string>();
             modelBuilder.Entity<Enrollment>().Property(e => e.ApprovalStatus).HasConversion<string>();

@@ -54,6 +54,7 @@ namespace School_Management_System
         private readonly Dictionary<OperationsSection, TextBlock> _opsPlaceholders = new();
         private readonly Dictionary<OperationsSection, TextBlock> _opsWorkspaceInfo = new();
         private readonly Dictionary<OperationsSection, Action> _opsDefaultLoaders = new();
+        private StudentGradesWindow? _studentGradesWindow;
 
         private DataTable _studentsTable = new();
         private DataTable _teachersTable = new();
@@ -134,10 +135,10 @@ namespace School_Management_System
             btnHubEnrollment.Click += (_, _) => NavigateMainTab(3);
             btnHubReports.Click += (_, _) => NavigateMainTab(4);
             btnHubMasterData.Click += (_, _) => NavigateMainTab(5);
-            btnHubScheduling.Click += (_, _) => OpenSchedulingStudentGrades();
+            btnHubScheduling.Click += (_, _) => NavigateMainTab(6);
             btnHubAccountsCompliance.Click += (_, _) => NavigateMainTab(7);
             btnHubMaintenance.Click += (_, _) => NavigateMainTab(8);
-            btnDashActiveStudents.Click += (_, _) => NavigateMainTab(1);
+            btnDashActiveStudents.Click += (_, _) => OpenStudentGradesWindow();
             btnDashEnrolledLearners.Click += (_, _) => NavigateMainTab(3);
             btnDashPendingReviews.Click += (_, _) => NavigateMainTab(3);
             btnDashOpenSections.Click += (_, _) => OpenMasterDataSections();
@@ -330,7 +331,6 @@ namespace School_Management_System
             BindOperationsModuleButton(btnOpsSections, OperationsSection.MasterData, "sections", () => new SectionsWindow());
 
             BindOperationsModuleButton(btnOpsOfferings, OperationsSection.Scheduling, "class_offerings", () => new ClassOfferingsWindow());
-            BindOperationsModuleButton(btnOpsStudentGrades, OperationsSection.Scheduling, "student_grades", () => new StudentGradesWindow());
             BindOperationsModuleButton(btnOpsSchedules, OperationsSection.Scheduling, "schedules", () => new SchedulesWindow());
             BindOperationsModuleButton(btnOpsTeacherLoads, OperationsSection.Scheduling, "teacher_loads", () => new TeacherLoadsWindow(hostedInline: true));
             BindOperationsModuleButton(btnOpsRooms, OperationsSection.Scheduling, "rooms", () => new RoomsWindow());
@@ -489,10 +489,28 @@ namespace School_Management_System
             info.Text = $"{sectionLabel} active module: {label}. Use the launch list to switch context without leaving the page.";
         }
 
-        private void OpenSchedulingStudentGrades()
+        private void OpenStudentGradesWindow()
         {
-            NavigateMainTab(6);
-            LoadOperationsModule(OperationsSection.Scheduling, btnOpsStudentGrades, "student_grades", () => new StudentGradesWindow());
+            if (_studentGradesWindow != null)
+            {
+                if (_studentGradesWindow.IsVisible)
+                {
+                    _studentGradesWindow.Activate();
+                    return;
+                }
+
+                _studentGradesWindow = null;
+            }
+
+            _studentGradesWindow = new StudentGradesWindow
+            {
+                Owner = this,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner
+            };
+
+            _studentGradesWindow.Closed += (_, _) => _studentGradesWindow = null;
+            _studentGradesWindow.Show();
+            _studentGradesWindow.Activate();
         }
 
         private void OpenMasterDataSections()
