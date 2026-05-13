@@ -254,50 +254,18 @@
 
                                             <Grid Grid.Row="2" Background="#124C49">
                                                 <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="1.45*"/>
+                                                    <ColumnDefinition Width="1.45*"/>
+                                                    <ColumnDefinition Width="1.45*"/>
+                                                    <ColumnDefinition Width="0.73*"/>
+                                                    <ColumnDefinition Width="0.73*"/>
+                                                    <ColumnDefinition Width="0.73*"/>
+                                                    <ColumnDefinition Width="0.73*"/>
+                                                    <ColumnDefinition Width="0.73*"/>
                                                 </Grid.ColumnDefinitions>
 
-                                                <Button x:Name="btnHubStudents"
-                                                        Grid.Column="0"
-                                                        Style="{StaticResource DashboardMetroTileButton}"
-                                                        Background="#0E5350"
-                                                        Foreground="White">
-                                                    <Grid Margin="14,12">
-                                                        <Grid.RowDefinitions>
-                                                            <RowDefinition Height="Auto"/>
-                                                            <RowDefinition Height="*"/>
-                                                            <RowDefinition Height="Auto"/>
-                                                        </Grid.RowDefinitions>
-                                                        <TextBlock Text="&#xE8D4;" FontFamily="Segoe MDL2 Assets" FontSize="38" HorizontalAlignment="Center" Margin="0,4,0,10"/>
-                                                        <TextBlock Grid.Row="1" Text="STUDENTS" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                        <TextBlock Grid.Row="2" Text="MANAGE LEARNER FILES" FontSize="11" Opacity="0.88" HorizontalAlignment="Center"/>
-                                                    </Grid>
-                                                </Button>
-
-                                                <Button x:Name="btnHubEnrollment"
-                                                        Grid.Column="1"
-                                                        Style="{StaticResource DashboardMetroTileButton}"
-                                                        Background="#2D9B91"
-                                                        Foreground="White">
-                                                    <Grid Margin="14,12">
-                                                        <Grid.RowDefinitions>
-                                                            <RowDefinition Height="Auto"/>
-                                                            <RowDefinition Height="*"/>
-                                                            <RowDefinition Height="Auto"/>
-                                                        </Grid.RowDefinitions>
-                                                        <TextBlock Text="&#xE8C7;" FontFamily="Segoe MDL2 Assets" FontSize="38" HorizontalAlignment="Center" Margin="0,4,0,10"/>
-                                                        <TextBlock Grid.Row="1" Text="ENROLLMENT" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                        <TextBlock Grid.Row="2" Text="PROCESS APPLICATIONS" FontSize="11" Opacity="0.88" HorizontalAlignment="Center"/>
-                                                    </Grid>
-                                                </Button>
-
                                                 <Button x:Name="btnHubReports"
-                                                        Grid.Column="2"
+                                                        Grid.Column="0"
                                                         Style="{StaticResource DashboardMetroTileButton}"
                                                         Background="#39B4A9"
                                                         Foreground="White">
@@ -313,29 +281,50 @@
                                                     </Grid>
                                                 </Button>
 
-                                                <Button x:Name="btnHubTeachers"
-                                                        Grid.Column="3"
+                                                <Button x:Name="btnDashActiveStudents"
+                                                        Grid.Column="1"
                                                         Style="{StaticResource DashboardMetroTileButton}"
-                                                        Background="#6BC3B5"
-                                                        Foreground="#0C3434">
-                                                    <Grid Margin="14,12">
+                                                        Background="#3D9A94"
+                                                        Foreground="White">
+                                                    <Grid Margin="14,10">
                                                         <Grid.RowDefinitions>
                                                             <RowDefinition Height="Auto"/>
                                                             <RowDefinition Height="*"/>
                                                             <RowDefinition Height="Auto"/>
                                                         </Grid.RowDefinitions>
-                                                        <TextBlock Text="&#xE77B;" FontFamily="Segoe MDL2 Assets" FontSize="38" HorizontalAlignment="Center" Margin="0,4,0,10"/>
-                                                        <TextBlock Grid.Row="1" Text="TEACHERS" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                        <TextBlock Grid.Row="2" Text="FACULTY INFORMATION FILES" FontSize="11" Opacity="0.88" HorizontalAlignment="Center"/>
+                                                        <TextBlock Text="&#xE8C8;" FontFamily="Segoe MDL2 Assets" FontSize="34" HorizontalAlignment="Center" Margin="0,2,0,8"/>
+                                                        <StackPanel Grid.Row="1" VerticalAlignment="Center">
+                                                            <TextBlock Text="STUDENT" FontSize="11" FontWeight="Bold" Foreground="#D9F8F3" HorizontalAlignment="Center"/>
+                                                            <TextBlock Text="GRADES" FontSize="19" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"/>
+                                                        </StackPanel>
+                                                        <TextBlock Grid.Row="2" Text="VIEW ACADEMIC PERFORMANCE" FontSize="10" Opacity="0.9" Foreground="#D9F8F3" HorizontalAlignment="Center"/>
                                                     </Grid>
                                                 </Button>
 
-                                                <Button x:Name="btnHubAccountsCompliance"
-                                                        Grid.Column="4"
-                                                        Grid.ColumnSpan="2"
+                                                <Button x:Name="btnDashArchivedRecords"
+                                                        Grid.Column="2"
                                                         Style="{StaticResource DashboardMetroTileButton}"
-                                                        Background="#135851"
+                                                        Background="#1E6D69"
                                                         Foreground="White">
+                                                    <Grid Margin="14,10">
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="Auto"/>
+                                                            <RowDefinition Height="*"/>
+                                                            <RowDefinition Height="Auto"/>
+                                                        </Grid.RowDefinitions>
+                                                        <TextBlock Text="&#xE7B8;" FontFamily="Segoe MDL2 Assets" FontSize="34" HorizontalAlignment="Center" Margin="0,2,0,8"/>
+                                                        <StackPanel Grid.Row="1" VerticalAlignment="Center">
+                                                            <TextBlock Text="ARCHIVED" FontSize="11" FontWeight="Bold" Foreground="#D8F3F0" HorizontalAlignment="Center"/>
+                                                            <TextBlock Text="RECORDS" FontSize="19" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"/>
+                                                        </StackPanel>
+                                                        <TextBlock Grid.Row="2" Text="ACCESS STORED FILES" FontSize="10" Opacity="0.9" Foreground="#D8F3F0" HorizontalAlignment="Center"/>
+                                                    </Grid>
+                                                </Button>
+
+                                                <Border Grid.Column="3"
+                                                        Grid.ColumnSpan="5"
+                                                        Style="{StaticResource DashboardMetroInfoBorder}"
+                                                        Background="#135851">
                                                     <Grid Margin="18,10">
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="Auto"/>
@@ -353,12 +342,12 @@
                                                         </Border>
                                                         <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                                             <TextBlock Text="ACCOUNTS AND" FontSize="15" FontWeight="Bold" Foreground="#CFFBF5"/>
-                                                            <TextBlock Text="COMPLIANCE" FontSize="28" FontWeight="Bold"/>
+                                                            <TextBlock Text="COMPLIANCE" FontSize="28" FontWeight="Bold" Foreground="White"/>
                                                             <TextBlock Text="Requirements, archives, and account controls" FontSize="13" Foreground="#D7F6F2" Margin="0,6,0,0"/>
                                                             <TextBlock Text="{Binding Text, ElementName=txtCurrentEnvironment}" FontSize="12" Foreground="#B6EBFF" Margin="0,8,0,0"/>
                                                         </StackPanel>
                                                     </Grid>
-                                                </Button>
+                                                </Border>
                                             </Grid>
 
                                             <Grid Grid.Row="3" Background="#0F4442">
@@ -444,12 +433,61 @@
                                                     <ColumnDefinition Width="*"/>
                                                     <ColumnDefinition Width="*"/>
                                                     <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="*"/>
                                                 </Grid.ColumnDefinitions>
 
-                                                <Button x:Name="btnHubScheduling"
+                                                <Button x:Name="btnHubStudents"
                                                         Grid.Column="0"
+                                                        Style="{StaticResource DashboardMetroTileButton}"
+                                                        Background="#0E5350"
+                                                        Foreground="White">
+                                                    <Grid Margin="14,12">
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="Auto"/>
+                                                            <RowDefinition Height="*"/>
+                                                            <RowDefinition Height="Auto"/>
+                                                        </Grid.RowDefinitions>
+                                                        <TextBlock Text="&#xE8D4;" FontFamily="Segoe MDL2 Assets" FontSize="38" HorizontalAlignment="Center" Margin="0,4,0,10"/>
+                                                        <TextBlock Grid.Row="1" Text="STUDENTS" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        <TextBlock Grid.Row="2" Text="MANAGE LEARNER FILES" FontSize="11" Opacity="0.88" HorizontalAlignment="Center"/>
+                                                    </Grid>
+                                                </Button>
+
+                                                <Button x:Name="btnHubEnrollment"
+                                                        Grid.Column="1"
+                                                        Style="{StaticResource DashboardMetroTileButton}"
+                                                        Background="#2D9B91"
+                                                        Foreground="White">
+                                                    <Grid Margin="14,12">
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="Auto"/>
+                                                            <RowDefinition Height="*"/>
+                                                            <RowDefinition Height="Auto"/>
+                                                        </Grid.RowDefinitions>
+                                                        <TextBlock Text="&#xE8C7;" FontFamily="Segoe MDL2 Assets" FontSize="38" HorizontalAlignment="Center" Margin="0,4,0,10"/>
+                                                        <TextBlock Grid.Row="1" Text="ENROLLMENT" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        <TextBlock Grid.Row="2" Text="PROCESS APPLICATIONS" FontSize="11" Opacity="0.88" HorizontalAlignment="Center"/>
+                                                    </Grid>
+                                                </Button>
+
+                                                <Button x:Name="btnHubTeachers"
+                                                        Grid.Column="2"
+                                                        Style="{StaticResource DashboardMetroTileButton}"
+                                                        Background="#6BC3B5"
+                                                        Foreground="#0C3434">
+                                                    <Grid Margin="14,12">
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="Auto"/>
+                                                            <RowDefinition Height="*"/>
+                                                            <RowDefinition Height="Auto"/>
+                                                        </Grid.RowDefinitions>
+                                                        <TextBlock Text="&#xE77B;" FontFamily="Segoe MDL2 Assets" FontSize="38" HorizontalAlignment="Center" Margin="0,4,0,10"/>
+                                                        <TextBlock Grid.Row="1" Text="TEACHERS" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        <TextBlock Grid.Row="2" Text="FACULTY INFORMATION FILES" FontSize="11" Opacity="0.88" HorizontalAlignment="Center"/>
+                                                    </Grid>
+                                                </Button>
+
+                                                <Button x:Name="btnHubScheduling"
+                                                        Grid.Column="3"
                                                         Style="{StaticResource DashboardMetroTileButton}"
                                                         Background="#7C3C25"
                                                         Foreground="White">
@@ -463,61 +501,6 @@
                                                         <TextBlock Grid.Row="1" Text="SCHEDULING" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                         <TextBlock Grid.Row="2" Text="OPEN SCHEDULING TOOLS" FontSize="10" Opacity="0.88" HorizontalAlignment="Center"/>
                                                     </Grid>
-                                                </Button>
-
-                                                <Button x:Name="btnDashActiveStudents"
-                                                        Grid.Column="1"
-                                                        Style="{StaticResource DashboardMetroTileButton}"
-                                                        Background="#CB7A15"
-                                                        Foreground="White">
-                                                    <StackPanel VerticalAlignment="Center">
-                                                        <TextBlock Text="STUDENT" FontSize="11" FontWeight="Bold" Foreground="#FFF0D4" HorizontalAlignment="Center"/>
-                                                        <TextBlock Text="GRADES" FontSize="18" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"/>
-                                                    </StackPanel>
-                                                </Button>
-
-                                                <Button x:Name="btnDashEnrolledLearners"
-                                                        Grid.Column="2"
-                                                        Style="{StaticResource DashboardMetroTileButton}"
-                                                        Background="#E2A317"
-                                                        Foreground="#4A2E00">
-                                                    <StackPanel VerticalAlignment="Center">
-                                                        <TextBlock Text="ENROLLED" FontSize="11" FontWeight="Bold" Foreground="#FFF7D4" HorizontalAlignment="Center"/>
-                                                        <TextBlock Text="LEARNERS" FontSize="18" FontWeight="Bold" Foreground="#4A2E00" HorizontalAlignment="Center"/>
-                                                    </StackPanel>
-                                                </Button>
-
-                                                <Button x:Name="btnDashPendingReviews"
-                                                        Grid.Column="3"
-                                                        Style="{StaticResource DashboardMetroTileButton}"
-                                                        Background="#F1C64E"
-                                                        Foreground="#5B3B00">
-                                                    <StackPanel VerticalAlignment="Center">
-                                                        <TextBlock Text="PENDING" FontSize="11" FontWeight="Bold" Foreground="#7A5200" HorizontalAlignment="Center"/>
-                                                        <TextBlock Text="REVIEWS" FontSize="18" FontWeight="Bold" Foreground="#5B3B00" HorizontalAlignment="Center"/>
-                                                    </StackPanel>
-                                                </Button>
-
-                                                <Button x:Name="btnDashOpenSections"
-                                                        Grid.Column="4"
-                                                        Style="{StaticResource DashboardMetroTileButton}"
-                                                        Background="#E8B920"
-                                                        Foreground="#583900">
-                                                    <StackPanel VerticalAlignment="Center">
-                                                        <TextBlock Text="OPEN" FontSize="11" FontWeight="Bold" Foreground="#7C5100" HorizontalAlignment="Center"/>
-                                                        <TextBlock Text="SECTIONS" FontSize="18" FontWeight="Bold" Foreground="#583900" HorizontalAlignment="Center"/>
-                                                    </StackPanel>
-                                                </Button>
-
-                                                <Button x:Name="btnDashArchivedRecords"
-                                                        Grid.Column="5"
-                                                        Style="{StaticResource DashboardMetroTileButton}"
-                                                        Background="#D68112"
-                                                        Foreground="White">
-                                                    <StackPanel VerticalAlignment="Center">
-                                                        <TextBlock Text="ARCHIVED" FontSize="11" FontWeight="Bold" Foreground="#FFF1D3" HorizontalAlignment="Center"/>
-                                                        <TextBlock Text="RECORDS" FontSize="18" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"/>
-                                                    </StackPanel>
                                                 </Button>
                                             </Grid>
 
@@ -1648,6 +1631,746 @@
                                     </Grid>
                                 </Border>
                             </Grid>
+                        </Grid>
+                        </ScrollViewer>
+                    </TabItem>
+
+                    <!-- Student Details (navigated from modal) -->
+                    <TabItem Header="Student Details">
+                        <TabItem.Resources>
+                            <ResourceDictionary>
+                                <ResourceDictionary.MergedDictionaries>
+                                    <ResourceDictionary Source="/Themes/LegacyAdminTheme.xaml"/>
+                                </ResourceDictionary.MergedDictionaries>
+                            </ResourceDictionary>
+                        </TabItem.Resources>
+                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      CanContentScroll="False">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- Header -->
+                            <DockPanel Grid.Row="0" Margin="0,0,0,10">
+                                <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                                    <Button x:Name="btnStudentDetailEdit" Content="Edit" Width="90" Style="{StaticResource SecondaryActionButton}" Margin="0,0,8,0"/>
+                                    <Button x:Name="btnStudentDetailDelete" Content="Delete" Width="90" Style="{StaticResource DangerGhostButton}"/>
+                                </StackPanel>
+                                <controls:SectionHeader x:Name="sectionStudentDetailHeader"
+                                                        Title="Student Details"
+                                                        Subtitle="View and manage student information"/>
+                            </DockPanel>
+
+                            <!-- Edit Mode Banner -->
+                            <Border x:Name="studentDetailEditBanner"
+                                    Grid.Row="1"
+                                    Style="{StaticResource InfoBanner}"
+                                    Visibility="Collapsed"
+                                    Margin="0,0,0,10">
+                                <DockPanel>
+                                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                                        <Button x:Name="btnStudentDetailSave" Content="Save Changes" Width="120" Margin="0,0,8,0"/>
+                                        <Button x:Name="btnStudentDetailCancelEdit" Content="Cancel" Width="90" Style="{StaticResource GhostButton}"/>
+                                    </StackPanel>
+                                    <TextBlock Text="You are in edit mode. Modify fields below and save when ready."
+                                               VerticalAlignment="Center"
+                                               Style="{StaticResource Text.Caption}"/>
+                                </DockPanel>
+                            </Border>
+
+                            <!-- Validation Banner -->
+                            <Border x:Name="studentDetailValidationBanner"
+                                    Grid.Row="1"
+                                    Style="{StaticResource ErrorBanner}"
+                                    Visibility="Collapsed"
+                                    Margin="0,0,0,10">
+                                <TextBlock x:Name="txtStudentDetailValidation"
+                                           Foreground="{StaticResource Brush.Danger}"
+                                           TextWrapping="Wrap"/>
+                            </Border>
+
+                            <!-- Personal Information -->
+                            <Border Grid.Row="2" Style="{StaticResource CardPanel}" Margin="0,0,0,10">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <controls:SectionHeader Grid.Row="0"
+                                                            Title="Personal Information"
+                                                            Subtitle="Identity, contact, guardian, and academic preferences"
+                                                            Margin="0,0,0,10"/>
+
+                                    <Grid Grid.Row="1">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <Label Grid.Row="0" Grid.Column="0" Content="Student Number"/>
+                                        <Label Grid.Row="0" Grid.Column="1" Content="LRN"/>
+                                        <Label Grid.Row="0" Grid.Column="2" Content="Status"/>
+                                        <TextBox Grid.Row="1" Grid.Column="0" x:Name="txtSDStudentNumber" IsReadOnly="True" Margin="0,0,6,8"/>
+                                        <TextBox Grid.Row="1" Grid.Column="1" x:Name="txtSDLrn" IsReadOnly="True" Margin="6,0,6,8"/>
+                                        <ComboBox Grid.Row="1" Grid.Column="2" x:Name="cboSDStatus" IsEnabled="False" Margin="6,0,0,8"/>
+
+                                        <Label Grid.Row="2" Grid.Column="0" Content="First Name"/>
+                                        <Label Grid.Row="2" Grid.Column="1" Content="Last Name"/>
+                                        <Label Grid.Row="2" Grid.Column="2" Content="Middle Name"/>
+                                        <TextBox Grid.Row="3" Grid.Column="0" x:Name="txtSDFirstName" IsReadOnly="True" Margin="0,0,6,8"/>
+                                        <TextBox Grid.Row="3" Grid.Column="1" x:Name="txtSDLastName" IsReadOnly="True" Margin="6,0,6,8"/>
+                                        <TextBox Grid.Row="3" Grid.Column="2" x:Name="txtSDMiddleName" IsReadOnly="True" Margin="6,0,0,8"/>
+
+                                        <Label Grid.Row="4" Grid.Column="0" Content="Birthdate"/>
+                                        <Label Grid.Row="4" Grid.Column="1" Content="Age"/>
+                                        <Label Grid.Row="4" Grid.Column="2" Content="Sex"/>
+                                        <DatePicker Grid.Row="5" Grid.Column="0" x:Name="dpSDBirthdate" IsEnabled="False" Margin="0,0,6,8"/>
+                                        <TextBox Grid.Row="5" Grid.Column="1" x:Name="txtSDAge" IsReadOnly="True" Margin="6,0,6,8"/>
+                                        <ComboBox Grid.Row="5" Grid.Column="2" x:Name="cboSDSex" IsEnabled="False" Margin="6,0,0,8"/>
+
+                                        <Label Grid.Row="6" Grid.Column="0" Content="Address"/>
+                                        <Label Grid.Row="6" Grid.Column="1" Content="Contact Number"/>
+                                        <Label Grid.Row="6" Grid.Column="2" Content="Previous School"/>
+                                        <TextBox Grid.Row="7" Grid.Column="0" x:Name="txtSDAddress" IsReadOnly="True" Margin="0,0,6,8"/>
+                                        <TextBox Grid.Row="7" Grid.Column="1" x:Name="txtSDContactNo" IsReadOnly="True" Margin="6,0,6,8"/>
+                                        <TextBox Grid.Row="7" Grid.Column="2" x:Name="txtSDPreviousSchool" IsReadOnly="True" Margin="6,0,0,8"/>
+
+                                        <Label Grid.Row="8" Grid.Column="0" Content="Guardian Name"/>
+                                        <Label Grid.Row="8" Grid.Column="1" Content="Guardian Contact"/>
+                                        <TextBox Grid.Row="9" Grid.Column="0" x:Name="txtSDGuardianName" IsReadOnly="True" Margin="0,0,6,8"/>
+                                        <TextBox Grid.Row="9" Grid.Column="1" x:Name="txtSDGuardianContact" IsReadOnly="True" Margin="6,0,6,8"/>
+
+                                        <Label Grid.Row="10" Grid.Column="0" Content="Preferred Grade Level"/>
+                                        <Label Grid.Row="10" Grid.Column="1" Content="Preferred Curriculum"/>
+                                        <ComboBox Grid.Row="11" Grid.Column="0" x:Name="cboSDPreferredGrade" IsEnabled="False" Margin="0,0,6,0"/>
+                                        <ComboBox Grid.Row="11" Grid.Column="1" x:Name="cboSDPreferredCurriculum" IsEnabled="False" Margin="6,0,6,0"/>
+                                    </Grid>
+                                </Grid>
+                            </Border>
+
+                            <!-- Requirements -->
+                            <Border Grid.Row="3" Style="{StaticResource CardPanel}" Margin="0,0,0,10">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+
+                                    <DockPanel Grid.Row="0" Margin="0,0,0,10">
+                                        <Button x:Name="btnSDManageRequirements"
+                                                Content="Manage"
+                                                Width="90"
+                                                Style="{StaticResource GhostButton}"
+                                                DockPanel.Dock="Right"/>
+                                        <controls:SectionHeader Title="Requirements"
+                                                                Subtitle="Document submission checklist and verification status"/>
+                                    </DockPanel>
+
+                                    <DataGrid Grid.Row="1"
+                                              x:Name="gridSDRequirements"
+                                              AutoGenerateColumns="False"
+                                              CanUserAddRows="False"
+                                              IsReadOnly="True"
+                                              MaxHeight="180"
+                                              HeadersVisibility="Column">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="Requirement" Binding="{Binding Name}" Width="*"/>
+                                            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="110"/>
+                                            <DataGridTextColumn Header="Submitted" Binding="{Binding SubmittedDate}" Width="120"/>
+                                            <DataGridTextColumn Header="Notes" Binding="{Binding Notes}" Width="180"/>
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                </Grid>
+                            </Border>
+
+                            <!-- Grades -->
+                            <Border Grid.Row="4" Style="{StaticResource CardPanel}" Margin="0,0,0,10">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+
+                                    <controls:SectionHeader Grid.Row="0"
+                                                            Title="Grades"
+                                                            Subtitle="Academic performance by class offering and grading period"
+                                                            Margin="0,0,0,10"/>
+
+                                    <DataGrid Grid.Row="1"
+                                              x:Name="gridSDGrades"
+                                              AutoGenerateColumns="False"
+                                              CanUserAddRows="False"
+                                              IsReadOnly="True"
+                                              MaxHeight="180"
+                                              HeadersVisibility="Column">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="Subject" Binding="{Binding Subject}" Width="*"/>
+                                            <DataGridTextColumn Header="Period" Binding="{Binding Period}" Width="110"/>
+                                            <DataGridTextColumn Header="Written Works" Binding="{Binding WrittenWorks}" Width="100"/>
+                                            <DataGridTextColumn Header="Performance" Binding="{Binding PerformanceTasks}" Width="100"/>
+                                            <DataGridTextColumn Header="Quarterly" Binding="{Binding QuarterlyAssessment}" Width="100"/>
+                                            <DataGridTextColumn Header="Grade" Binding="{Binding QuarterGrade}" Width="80"/>
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                </Grid>
+                            </Border>
+
+                            <!-- Enrolled Subjects -->
+                            <Border Grid.Row="5" Style="{StaticResource CardPanel}" Margin="0,0,0,10">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+
+                                    <controls:SectionHeader Grid.Row="0"
+                                                            Title="Enrolled Subjects"
+                                                            Subtitle="Class assignments and enrollment status"
+                                                            Margin="0,0,0,10"/>
+
+                                    <DataGrid Grid.Row="1"
+                                              x:Name="gridSDSubjects"
+                                              AutoGenerateColumns="False"
+                                              CanUserAddRows="False"
+                                              IsReadOnly="True"
+                                              MaxHeight="180"
+                                              HeadersVisibility="Column">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="Class Offering" Binding="{Binding ClassName}" Width="*"/>
+                                            <DataGridTextColumn Header="Subject" Binding="{Binding SubjectName}" Width="160"/>
+                                            <DataGridTextColumn Header="Teacher" Binding="{Binding TeacherName}" Width="160"/>
+                                            <DataGridTextColumn Header="Status" Binding="{Binding EnrollmentStatus}" Width="110"/>
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                        </ScrollViewer>
+                    </TabItem>
+
+                    <!-- Student Grades (inline) -->
+                    <TabItem Header="Student Grades">
+                        <TabItem.Resources>
+                            <ResourceDictionary>
+                                <ResourceDictionary.MergedDictionaries>
+                                    <ResourceDictionary Source="/Themes/LegacyAdminTheme.xaml"/>
+                                </ResourceDictionary.MergedDictionaries>
+                            </ResourceDictionary>
+                        </TabItem.Resources>
+                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      CanContentScroll="False">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- Header -->
+                            <DockPanel Grid.Row="0" Margin="0,0,0,10">
+                                <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" VerticalAlignment="Bottom">
+                                    <Button x:Name="btnSGRefresh" Content="Refresh" Width="90" Style="{StaticResource GhostButton}" Margin="0,0,8,0"/>
+                                    <Button x:Name="btnSGSave" Content="Save Grades" Width="108"/>
+                                </StackPanel>
+                                <controls:SectionHeader Title="Student Grades"
+                                                        Subtitle="Review class rosters, enter quarterly scores, and save grade updates"/>
+                            </DockPanel>
+
+                            <!-- Filters -->
+                            <Border Grid.Row="1" Style="{StaticResource CardPanel}" Margin="0,0,0,10">
+                                <StackPanel>
+                                    <TextBlock Text="Filters" Style="{StaticResource Text.SectionTitle}" Margin="0,0,0,10"/>
+
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="180"/>
+                                            <ColumnDefinition Width="150"/>
+                                            <ColumnDefinition Width="180"/>
+                                            <ColumnDefinition Width="270"/>
+                                            <ColumnDefinition Width="180"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                                            <TextBlock Text="School Year" Style="{StaticResource Text.Caption}" Margin="0,0,0,4"/>
+                                            <ComboBox x:Name="cboSGSchoolYear" DisplayMemberPath="Name" SelectedValuePath="Id"/>
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="1" Margin="0,0,8,0">
+                                            <TextBlock Text="Grade Level" Style="{StaticResource Text.Caption}" Margin="0,0,0,4"/>
+                                            <ComboBox x:Name="cboSGGradeLevel" DisplayMemberPath="Name" SelectedValuePath="Id"/>
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="2" Margin="0,0,8,0">
+                                            <TextBlock Text="Section" Style="{StaticResource Text.Caption}" Margin="0,0,0,4"/>
+                                            <ComboBox x:Name="cboSGSection" DisplayMemberPath="Name" SelectedValuePath="Id"/>
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="3" Margin="0,0,8,0">
+                                            <TextBlock Text="Class Offering" Style="{StaticResource Text.Caption}" Margin="0,0,0,4"/>
+                                            <ComboBox x:Name="cboSGOffering" DisplayMemberPath="Label" SelectedValuePath="Id"/>
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="4" Margin="0,0,8,0">
+                                            <TextBlock Text="Grading Period" Style="{StaticResource Text.Caption}" Margin="0,0,0,4"/>
+                                            <ComboBox x:Name="cboSGGradingPeriod" DisplayMemberPath="Name" SelectedValuePath="Id"/>
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="5" Margin="0,0,0,0">
+                                            <TextBlock Text="Search Student" Style="{StaticResource Text.Caption}" Margin="0,0,0,4"/>
+                                            <TextBox x:Name="txtSGSearch" ToolTip="Search by student number, LRN, or student name"/>
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <Border Style="{StaticResource InfoBanner}" Margin="0,12,0,0">
+                                        <TextBlock x:Name="txtSGWeightsHint"
+                                                   Text="Quarter grade uses active grade component weights."
+                                                   TextWrapping="Wrap"/>
+                                    </Border>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Roster + Snapshot -->
+                            <Grid Grid.Row="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1.8*"/>
+                                    <ColumnDefinition Width="1*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Border Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,10,0">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                        </Grid.RowDefinitions>
+
+                                        <DockPanel Margin="0,0,0,10">
+                                            <TextBlock x:Name="txtSGSummary" DockPanel.Dock="Right" VerticalAlignment="Center" Foreground="{StaticResource BrushMuted}"/>
+                                            <StackPanel>
+                                                <TextBlock Text="Grade Roster" Style="{StaticResource Text.SectionTitle}"/>
+                                                <TextBlock Text="Editable rows are available only for open grading periods and unlocked student grades."
+                                                           Style="{StaticResource Text.Caption}" Margin="0,4,0,0"/>
+                                            </StackPanel>
+                                        </DockPanel>
+
+                                        <DataGrid Grid.Row="1"
+                                                  x:Name="gridSGGrades"
+                                                  AutoGenerateColumns="False"
+                                                  CanUserAddRows="False"
+                                                  EnableRowVirtualization="True"
+                                                  EnableColumnVirtualization="True"
+                                                  ScrollViewer.CanContentScroll="True">
+                                            <DataGrid.Columns>
+                                                <DataGridTextColumn Header="Student No" Binding="{Binding StudentNumber}" Width="120" IsReadOnly="True"/>
+                                                <DataGridTextColumn Header="LRN" Binding="{Binding Lrn}" Width="140" IsReadOnly="True"/>
+                                                <DataGridTextColumn Header="Student" Binding="{Binding StudentName}" Width="220" IsReadOnly="True"/>
+                                                <DataGridTextColumn Header="Written Works" Binding="{Binding WrittenWorksText, UpdateSourceTrigger=PropertyChanged}" Width="110"/>
+                                                <DataGridTextColumn Header="Performance Tasks" Binding="{Binding PerformanceTasksText, UpdateSourceTrigger=PropertyChanged}" Width="120"/>
+                                                <DataGridTextColumn Header="Quarterly Assessment" Binding="{Binding QuarterlyAssessmentText, UpdateSourceTrigger=PropertyChanged}" Width="126"/>
+                                                <DataGridTextColumn Header="Quarter Grade" Binding="{Binding QuarterGradeText}" Width="96" IsReadOnly="True"/>
+                                                <DataGridTextColumn Header="Submitted" Binding="{Binding SubmittedAtText}" Width="126" IsReadOnly="True"/>
+                                                <DataGridTextColumn Header="Locked" Binding="{Binding LockedState}" Width="86" IsReadOnly="True"/>
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+                                    </Grid>
+                                </Border>
+
+                                <Border Grid.Column="1" Style="{StaticResource CardPanel}">
+                                    <StackPanel>
+                                        <controls:SectionHeader Title="Selected Grade"
+                                                                Subtitle="Current roster context, selected student, and grading state"
+                                                                Margin="0,0,0,8"/>
+                                        <Border Style="{StaticResource InfoBanner}" Margin="0,0,0,12">
+                                            <TextBlock x:Name="txtSGRosterHint"
+                                                       Text="Select a school year, class offering, and grading period to load the roster."
+                                                       TextWrapping="Wrap"/>
+                                        </Border>
+
+                                        <UniformGrid Columns="2">
+                                            <StackPanel Margin="0,0,8,10">
+                                                <TextBlock Text="Offering" Style="{StaticResource Text.Caption}"/>
+                                                <TextBlock x:Name="txtSGOfferingValue" Style="{StaticResource Text.Body}" Text="-"/>
+                                            </StackPanel>
+                                            <StackPanel Margin="8,0,0,10">
+                                                <TextBlock Text="Grading Period" Style="{StaticResource Text.Caption}"/>
+                                                <TextBlock x:Name="txtSGPeriodValue" Style="{StaticResource Text.Body}" Text="-"/>
+                                            </StackPanel>
+                                            <StackPanel Margin="0,0,8,10">
+                                                <TextBlock Text="Student" Style="{StaticResource Text.Caption}"/>
+                                                <TextBlock x:Name="txtSGStudentValue" Style="{StaticResource Text.Body}" Text="-"/>
+                                            </StackPanel>
+                                            <StackPanel Margin="8,0,0,10">
+                                                <TextBlock Text="Status" Style="{StaticResource Text.Caption}"/>
+                                                <TextBlock x:Name="txtSGLockStateValue" Style="{StaticResource Text.Body}" Text="-"/>
+                                            </StackPanel>
+                                            <StackPanel Margin="0,0,8,10">
+                                                <TextBlock Text="Written Works" Style="{StaticResource Text.Caption}"/>
+                                                <TextBlock x:Name="txtSGWrittenWorksValue" Style="{StaticResource Text.Body}" Text="-"/>
+                                            </StackPanel>
+                                            <StackPanel Margin="8,0,0,10">
+                                                <TextBlock Text="Performance Tasks" Style="{StaticResource Text.Caption}"/>
+                                                <TextBlock x:Name="txtSGPerformanceTasksValue" Style="{StaticResource Text.Body}" Text="-"/>
+                                            </StackPanel>
+                                            <StackPanel Margin="0,0,8,10">
+                                                <TextBlock Text="Quarterly Assessment" Style="{StaticResource Text.Caption}"/>
+                                                <TextBlock x:Name="txtSGQuarterlyAssessmentValue" Style="{StaticResource Text.Body}" Text="-"/>
+                                            </StackPanel>
+                                            <StackPanel Margin="8,0,0,10">
+                                                <TextBlock Text="Quarter Grade" Style="{StaticResource Text.Caption}"/>
+                                                <TextBlock x:Name="txtSGQuarterGradeValue" Style="{StaticResource Text.Body}" Text="-"/>
+                                            </StackPanel>
+                                        </UniformGrid>
+
+                                        <TextBlock Text="Submitted / Locked" Style="{StaticResource Text.Caption}" Margin="0,4,0,4"/>
+                                        <TextBlock x:Name="txtSGTimestampsValue" Style="{StaticResource Text.Body}" Text="-" TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </Grid>
+                        </ScrollViewer>
+                    </TabItem>
+
+                    <!-- Teacher Details (navigated from modal) -->
+                    <TabItem Header="Teacher Details">
+                        <TabItem.Resources>
+                            <ResourceDictionary>
+                                <ResourceDictionary.MergedDictionaries>
+                                    <ResourceDictionary Source="/Themes/LegacyAdminTheme.xaml"/>
+                                </ResourceDictionary.MergedDictionaries>
+                            </ResourceDictionary>
+                        </TabItem.Resources>
+                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      CanContentScroll="False">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- Header -->
+                            <DockPanel Grid.Row="0" Margin="0,0,0,10">
+                                <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                                    <Button x:Name="btnTDEdit" Content="Edit" Width="90" Style="{StaticResource SecondaryActionButton}" Margin="0,0,8,0"/>
+                                    <Button x:Name="btnTDDelete" Content="Delete" Width="90" Style="{StaticResource DangerGhostButton}"/>
+                                </StackPanel>
+                                <controls:SectionHeader x:Name="sectionTDHeader"
+                                                        Title="Teacher Details"
+                                                        Subtitle="View and manage teacher information"/>
+                            </DockPanel>
+
+                            <!-- Edit Mode Banner -->
+                            <Border x:Name="tdEditBanner"
+                                    Grid.Row="1"
+                                    Style="{StaticResource InfoBanner}"
+                                    Visibility="Collapsed"
+                                    Margin="0,0,0,10">
+                                <DockPanel>
+                                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                                        <Button x:Name="btnTDSave" Content="Save Changes" Width="120" Margin="0,0,8,0"/>
+                                        <Button x:Name="btnTDCancelEdit" Content="Cancel" Width="90" Style="{StaticResource GhostButton}"/>
+                                    </StackPanel>
+                                    <TextBlock Text="You are in edit mode. Modify fields below and save when ready."
+                                               VerticalAlignment="Center" Style="{StaticResource Text.Caption}"/>
+                                </DockPanel>
+                            </Border>
+
+                            <!-- Validation Banner -->
+                            <Border x:Name="tdValidationBanner"
+                                    Grid.Row="1"
+                                    Style="{StaticResource ErrorBanner}"
+                                    Visibility="Collapsed"
+                                    Margin="0,0,0,10">
+                                <TextBlock x:Name="txtTDValidation"
+                                           Foreground="{StaticResource Brush.Danger}"
+                                           TextWrapping="Wrap"/>
+                            </Border>
+
+                            <!-- Personal Information -->
+                            <Border Grid.Row="2" Style="{StaticResource CardPanel}" Margin="0,0,0,10">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <controls:SectionHeader Grid.Row="0"
+                                                            Title="Personal Information"
+                                                            Subtitle="Identity, contact, and employment details"
+                                                            Margin="0,0,0,10"/>
+
+                                    <Grid Grid.Row="1">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <Label Grid.Row="0" Grid.Column="0" Content="Employee No"/>
+                                        <Label Grid.Row="0" Grid.Column="1" Content="Specialization"/>
+                                        <Label Grid.Row="0" Grid.Column="2" Content="Status"/>
+                                        <TextBox Grid.Row="1" Grid.Column="0" x:Name="txtTDEmployeeNo" IsReadOnly="True" Margin="0,0,6,8"/>
+                                        <TextBox Grid.Row="1" Grid.Column="1" x:Name="txtTDSpecialization" IsReadOnly="True" Margin="6,0,6,8"/>
+                                        <ComboBox Grid.Row="1" Grid.Column="2" x:Name="cboTDStatus" IsEnabled="False" Margin="6,0,0,8"/>
+
+                                        <Label Grid.Row="2" Grid.Column="0" Content="First Name"/>
+                                        <Label Grid.Row="2" Grid.Column="1" Content="Last Name"/>
+                                        <Label Grid.Row="2" Grid.Column="2" Content="Middle Name"/>
+                                        <TextBox Grid.Row="3" Grid.Column="0" x:Name="txtTDFirstName" IsReadOnly="True" Margin="0,0,6,8"/>
+                                        <TextBox Grid.Row="3" Grid.Column="1" x:Name="txtTDLastName" IsReadOnly="True" Margin="6,0,6,8"/>
+                                        <TextBox Grid.Row="3" Grid.Column="2" x:Name="txtTDMiddleName" IsReadOnly="True" Margin="6,0,0,8"/>
+
+                                        <Label Grid.Row="4" Grid.Column="0" Content="Email"/>
+                                        <Label Grid.Row="4" Grid.Column="1" Content="Contact No"/>
+                                        <Label Grid.Row="4" Grid.Column="2" Content="Employment Status"/>
+                                        <TextBox Grid.Row="5" Grid.Column="0" x:Name="txtTDEmail" IsReadOnly="True" Margin="0,0,6,8"/>
+                                        <TextBox Grid.Row="5" Grid.Column="1" x:Name="txtTDContactNo" IsReadOnly="True" Margin="6,0,6,8"/>
+                                        <ComboBox Grid.Row="5" Grid.Column="2" x:Name="cboTDEmploymentStatus" IsEnabled="False" Margin="6,0,0,8"/>
+
+                                        <Label Grid.Row="6" Grid.Column="0" Content="Hire Date"/>
+                                        <Label Grid.Row="6" Grid.Column="1" Content="Advisory Status"/>
+                                        <DatePicker Grid.Row="7" Grid.Column="0" x:Name="dpTDHireDate" IsEnabled="False" Margin="0,0,6,0"/>
+                                        <ComboBox Grid.Row="7" Grid.Column="1" x:Name="cboTDAdvisoryStatus" IsEnabled="False" Margin="6,0,6,0"/>
+                                    </Grid>
+                                </Grid>
+                            </Border>
+
+                            <!-- Handled Subjects -->
+                            <Border Grid.Row="3" Style="{StaticResource CardPanel}" Margin="0,0,0,10">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+
+                                    <controls:SectionHeader Grid.Row="0"
+                                                            Title="Handled Subjects"
+                                                            Subtitle="Class offerings assigned to this teacher"
+                                                            Margin="0,0,0,10"/>
+
+                                    <DataGrid Grid.Row="1"
+                                              x:Name="gridTDSubjects"
+                                              AutoGenerateColumns="False"
+                                              CanUserAddRows="False"
+                                              IsReadOnly="True"
+                                              MaxHeight="200"
+                                              HeadersVisibility="Column">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="Subject" Binding="{Binding SubjectName}" Width="*"/>
+                                            <DataGridTextColumn Header="Section" Binding="{Binding SectionName}" Width="150"/>
+                                            <DataGridTextColumn Header="Grade Level" Binding="{Binding GradeLevel}" Width="120"/>
+                                            <DataGridTextColumn Header="School Year" Binding="{Binding SchoolYear}" Width="120"/>
+                                            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="100"/>
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                </Grid>
+                            </Border>
+
+                            <!-- Handled Sections -->
+                            <Border Grid.Row="4" Style="{StaticResource CardPanel}" Margin="0,0,0,10">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+
+                                    <controls:SectionHeader Grid.Row="0"
+                                                            Title="Handled Sections"
+                                                            Subtitle="Sections where this teacher has class offerings. Double-click to view students."
+                                                            Margin="0,0,0,10"/>
+
+                                    <DataGrid Grid.Row="1"
+                                              x:Name="gridTDSections"
+                                              AutoGenerateColumns="False"
+                                              CanUserAddRows="False"
+                                              IsReadOnly="True"
+                                              MaxHeight="200"
+                                              HeadersVisibility="Column">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="Section" Binding="{Binding SectionName}" Width="*"/>
+                                            <DataGridTextColumn Header="Grade Level" Binding="{Binding GradeLevel}" Width="120"/>
+                                            <DataGridTextColumn Header="School Year" Binding="{Binding SchoolYear}" Width="120"/>
+                                            <DataGridTextColumn Header="Students" Binding="{Binding StudentCount}" Width="80"/>
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                        </ScrollViewer>
+                    </TabItem>
+
+                    <!-- Enrollment Details (navigated from modal) -->
+                    <TabItem Header="Enrollment Details">
+                        <TabItem.Resources>
+                            <ResourceDictionary>
+                                <ResourceDictionary.MergedDictionaries>
+                                    <ResourceDictionary Source="/Themes/LegacyAdminTheme.xaml"/>
+                                </ResourceDictionary.MergedDictionaries>
+                            </ResourceDictionary>
+                        </TabItem.Resources>
+                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      CanContentScroll="False">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- Header -->
+                            <DockPanel Grid.Row="0" Margin="0,0,0,10">
+                                <controls:SectionHeader x:Name="sectionEDHeader"
+                                                        Title="Enrollment Details"
+                                                        Subtitle="Student enrollment summary and class assignments"/>
+                            </DockPanel>
+
+                            <!-- Enrollment Info -->
+                            <Border Grid.Row="1" Style="{StaticResource CardPanel}" Margin="0,0,0,10">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <controls:SectionHeader Grid.Row="0"
+                                                            Title="Enrollment Summary"
+                                                            Subtitle="School year, grade level, section, curriculum, and status"
+                                                            Margin="0,0,0,10"/>
+
+                                    <UniformGrid Grid.Row="1" Columns="4">
+                                        <StackPanel Margin="0,0,8,8">
+                                            <TextBlock Text="School Year" Style="{StaticResource Text.Caption}"/>
+                                            <TextBlock x:Name="txtEDSchoolYear" Style="{StaticResource Text.Body}" Text="-"/>
+                                        </StackPanel>
+                                        <StackPanel Margin="0,0,8,8">
+                                            <TextBlock Text="Grade Level" Style="{StaticResource Text.Caption}"/>
+                                            <TextBlock x:Name="txtEDGradeLevel" Style="{StaticResource Text.Body}" Text="-"/>
+                                        </StackPanel>
+                                        <StackPanel Margin="0,0,8,8">
+                                            <TextBlock Text="Section" Style="{StaticResource Text.Caption}"/>
+                                            <TextBlock x:Name="txtEDSection" Style="{StaticResource Text.Body}" Text="-"/>
+                                        </StackPanel>
+                                        <StackPanel Margin="0,0,0,8">
+                                            <TextBlock Text="Curriculum" Style="{StaticResource Text.Caption}"/>
+                                            <TextBlock x:Name="txtEDCurriculum" Style="{StaticResource Text.Body}" Text="-"/>
+                                        </StackPanel>
+                                        <StackPanel Margin="0,0,8,0">
+                                            <TextBlock Text="Status" Style="{StaticResource Text.Caption}"/>
+                                            <TextBlock x:Name="txtEDStatus" Style="{StaticResource Text.Body}" Text="-"/>
+                                        </StackPanel>
+                                        <StackPanel Margin="0,0,8,0">
+                                            <TextBlock Text="Enrolled At" Style="{StaticResource Text.Caption}"/>
+                                            <TextBlock x:Name="txtEDEnrolledAt" Style="{StaticResource Text.Body}" Text="-"/>
+                                        </StackPanel>
+                                        <StackPanel Margin="0,0,8,0">
+                                            <TextBlock Text="Student" Style="{StaticResource Text.Caption}"/>
+                                            <TextBlock x:Name="txtEDStudentName" Style="{StaticResource Text.Body}" Text="-"/>
+                                        </StackPanel>
+                                        <StackPanel Margin="0,0,0,0">
+                                            <TextBlock Text="LRN" Style="{StaticResource Text.Caption}"/>
+                                            <TextBlock x:Name="txtEDStudentLrn" Style="{StaticResource Text.Body}" Text="-"/>
+                                        </StackPanel>
+                                    </UniformGrid>
+                                </Grid>
+                            </Border>
+
+                            <!-- Requirements -->
+                            <Border Grid.Row="2" Style="{StaticResource CardPanel}" Margin="0,0,0,10">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+
+                                    <controls:SectionHeader Grid.Row="0"
+                                                            Title="Student Requirements"
+                                                            Subtitle="Document submission checklist for this student"
+                                                            Margin="0,0,0,10"/>
+
+                                    <DataGrid Grid.Row="1"
+                                              x:Name="gridEDRequirements"
+                                              AutoGenerateColumns="False"
+                                              CanUserAddRows="False"
+                                              IsReadOnly="True"
+                                              MaxHeight="180"
+                                              HeadersVisibility="Column">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="Requirement" Binding="{Binding Name}" Width="*"/>
+                                            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="110"/>
+                                            <DataGridTextColumn Header="Submitted" Binding="{Binding SubmittedDate}" Width="120"/>
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                </Grid>
+                            </Border>
+
+                            <!-- Subjects -->
+                            <Border Grid.Row="3" Style="{StaticResource CardPanel}" Margin="0,0,0,10">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+
+                                    <controls:SectionHeader Grid.Row="0"
+                                                            Title="Enrolled Subjects"
+                                                            Subtitle="Class offerings assigned to this student in the enrolled section"
+                                                            Margin="0,0,0,10"/>
+
+                                    <DataGrid Grid.Row="1"
+                                              x:Name="gridEDSubjects"
+                                              AutoGenerateColumns="False"
+                                              CanUserAddRows="False"
+                                              IsReadOnly="True"
+                                              MaxHeight="180"
+                                              HeadersVisibility="Column">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="Subject" Binding="{Binding SubjectName}" Width="*"/>
+                                            <DataGridTextColumn Header="Teacher" Binding="{Binding TeacherName}" Width="160"/>
+                                            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="100"/>
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                </Grid>
+                            </Border>
                         </Grid>
                         </ScrollViewer>
                     </TabItem>

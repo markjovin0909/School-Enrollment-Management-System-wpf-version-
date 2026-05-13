@@ -54,7 +54,6 @@ namespace School_Management_System
         private readonly Dictionary<OperationsSection, TextBlock> _opsPlaceholders = new();
         private readonly Dictionary<OperationsSection, TextBlock> _opsWorkspaceInfo = new();
         private readonly Dictionary<OperationsSection, Action> _opsDefaultLoaders = new();
-        private StudentGradesWindow? _studentGradesWindow;
 
         private DataTable _studentsTable = new();
         private DataTable _teachersTable = new();
@@ -123,6 +122,10 @@ namespace School_Management_System
             InitializeTeachersTab();
             InitializeEnrollmentTab();
             InitializeReportsTab();
+            InitializeStudentDetailsTab();
+            InitializeStudentGradesTab();
+            InitializeTeacherDetailsTab();
+            InitializeEnrollmentDetailsTab();
 
             LoadDashboard();
         }
@@ -130,18 +133,14 @@ namespace School_Management_System
         private void WireNavigation()
         {
             btnTopDashboard.Click += (_, _) => NavigateMainTab(0);
-            btnHubStudents.Click += (_, _) => NavigateMainTab(1);
-            btnHubTeachers.Click += (_, _) => NavigateMainTab(2);
-            btnHubEnrollment.Click += (_, _) => NavigateMainTab(3);
+            btnHubStudents.Click += (_, _) => OpenStudentSearchModal();
+            btnHubTeachers.Click += (_, _) => OpenTeacherSearchModal();
+            btnHubEnrollment.Click += (_, _) => OpenEnrollmentModal();
             btnHubReports.Click += (_, _) => NavigateMainTab(4);
             btnHubMasterData.Click += (_, _) => NavigateMainTab(5);
             btnHubScheduling.Click += (_, _) => NavigateMainTab(6);
-            btnHubAccountsCompliance.Click += (_, _) => NavigateMainTab(7);
             btnHubMaintenance.Click += (_, _) => NavigateMainTab(8);
             btnDashActiveStudents.Click += (_, _) => OpenStudentGradesWindow();
-            btnDashEnrolledLearners.Click += (_, _) => NavigateMainTab(3);
-            btnDashPendingReviews.Click += (_, _) => NavigateMainTab(3);
-            btnDashOpenSections.Click += (_, _) => OpenMasterDataSections();
             btnDashArchivedRecords.Click += (_, _) => OpenArchiveCenter();
 
             tabsMain.SelectionChanged += (_, _) => UpdateNavigationState();
@@ -489,28 +488,25 @@ namespace School_Management_System
             info.Text = $"{sectionLabel} active module: {label}. Use the launch list to switch context without leaving the page.";
         }
 
+        private void OpenStudentSearchModal()
+        {
+            try
+            {
+                var modal = new StudentSearchModal { Owner = this };
+                if (modal.ShowDialog() == true && modal.SelectedStudentId.HasValue)
+                {
+                    NavigateToStudentDetails(modal.SelectedStudentId.Value);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to open student search: {ex.Message}", "Students", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         private void OpenStudentGradesWindow()
         {
-            if (_studentGradesWindow != null)
-            {
-                if (_studentGradesWindow.IsVisible)
-                {
-                    _studentGradesWindow.Activate();
-                    return;
-                }
-
-                _studentGradesWindow = null;
-            }
-
-            _studentGradesWindow = new StudentGradesWindow
-            {
-                Owner = this,
-                WindowStartupLocation = WindowStartupLocation.CenterOwner
-            };
-
-            _studentGradesWindow.Closed += (_, _) => _studentGradesWindow = null;
-            _studentGradesWindow.Show();
-            _studentGradesWindow.Activate();
+            NavigateToStudentGrades();
         }
 
         private void OpenMasterDataSections()

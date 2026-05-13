@@ -205,6 +205,14 @@ namespace School_Management_System.Views
         {
             if (!_selectedRequirementId.HasValue)
             {
+                // No existing record — create it instead (for MISSING requirements selected from checklist)
+                var requirementName = cboRequirement.Text.Trim();
+                if (!string.IsNullOrWhiteSpace(requirementName) && cboStudent.SelectedValue is long studentId)
+                {
+                    AddRequirement();
+                    return;
+                }
+
                 MessageBox.Show("Select a requirement first.", "Requirements", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
