@@ -52,9 +52,9 @@ INSERT INTO grade_levels (code, name, created_at, updated_at) VALUES
 ('G10', 'Grade 10', UTC_TIMESTAMP(6), UTC_TIMESTAMP(6));
 
 INSERT INTO school_years (name, start_date, end_date, status, created_at, updated_at) VALUES
-('2026-2027', '2026-06-01', '2027-03-31', 'PLANNING', UTC_TIMESTAMP(6), UTC_TIMESTAMP(6)),
-('2025-2026', '2025-06-01', '2026-03-31', 'ACTIVE', UTC_TIMESTAMP(6), UTC_TIMESTAMP(6)),
-('2024-2025', '2024-06-01', '2025-03-31', 'CLOSED', UTC_TIMESTAMP(6), UTC_TIMESTAMP(6));
+('2027-2028', '2027-06-01', '2028-03-31', 'PLANNING', UTC_TIMESTAMP(6), UTC_TIMESTAMP(6)),
+('2026-2027', '2026-06-01', '2027-03-31', 'ACTIVE', UTC_TIMESTAMP(6), UTC_TIMESTAMP(6)),
+('2025-2026', '2025-06-01', '2026-03-31', 'CLOSED', UTC_TIMESTAMP(6), UTC_TIMESTAMP(6));
 
 INSERT INTO school_settings (
     school_name, school_code, school_address, principal_name, grading_setup,
@@ -64,7 +64,7 @@ INSERT INTO school_settings (
 )
 VALUES (
     'School Management System', 'SMS-001', 'Main Campus, City', 'Dr. Elena Ramos', 'K-12 quarter system (WW 30%, PT 50%, QA 20%)',
-    'Approval Required', '2025-04-01', '2025-06-30',
+    'Approval Required', '2026-04-01', '2026-08-31',
     'School Management System', 'Enrollment Services Office', 'STU', 1001,
     45, NULL, UTC_TIMESTAMP(6), UTC_TIMESTAMP(6)
 );
@@ -189,7 +189,7 @@ INSERT INTO curriculum_subjects (curriculum_id, grade_level_id, subject_id, seme
 SELECT @cur, s.grade_level_id, s.Id, 1, 1, ROW_NUMBER() OVER (PARTITION BY s.grade_level_id ORDER BY s.code), UTC_TIMESTAMP(6), UTC_TIMESTAMP(6)
 FROM subjects s;
 
-SET @sy_active := (SELECT Id FROM school_years WHERE name = '2025-2026' LIMIT 1);
+SET @sy_active := (SELECT Id FROM school_years WHERE name = '2026-2027' LIMIT 1);
 
 SET @t1 := (SELECT Id FROM teachers WHERE employee_no = 'T-1001' LIMIT 1);
 SET @t2 := (SELECT Id FROM teachers WHERE employee_no = 'T-1002' LIMIT 1);
@@ -365,10 +365,10 @@ SET
 WHERE e.school_year_id = @sy_active;
 
 INSERT INTO grading_periods (school_year_id, name, start_date, end_date, status, created_at, updated_at) VALUES
-(@sy_active, 'Q1', '2025-06-10', '2025-08-15', 'POSTED', UTC_TIMESTAMP(6), UTC_TIMESTAMP(6)),
-(@sy_active, 'Q2', '2025-08-20', '2025-10-15', 'OPEN',   UTC_TIMESTAMP(6), UTC_TIMESTAMP(6)),
-(@sy_active, 'Q3', '2025-10-20', '2025-12-15', 'CLOSED', UTC_TIMESTAMP(6), UTC_TIMESTAMP(6)),
-(@sy_active, 'Q4', '2026-01-05', '2026-03-15', 'CLOSED', UTC_TIMESTAMP(6), UTC_TIMESTAMP(6));
+(@sy_active, 'Q1', '2026-06-10', '2026-08-15', 'OPEN',     UTC_TIMESTAMP(6), UTC_TIMESTAMP(6)),
+(@sy_active, 'Q2', '2026-08-20', '2026-10-15', 'UPCOMING', UTC_TIMESTAMP(6), UTC_TIMESTAMP(6)),
+(@sy_active, 'Q3', '2026-10-20', '2026-12-15', 'UPCOMING', UTC_TIMESTAMP(6), UTC_TIMESTAMP(6)),
+(@sy_active, 'Q4', '2027-01-05', '2027-03-15', 'UPCOMING', UTC_TIMESTAMP(6), UTC_TIMESTAMP(6));
 
 SET @q1 := (SELECT Id FROM grading_periods WHERE school_year_id = @sy_active AND name = 'Q1' LIMIT 1);
 SET @q2 := (SELECT Id FROM grading_periods WHERE school_year_id = @sy_active AND name = 'Q2' LIMIT 1);
@@ -391,7 +391,7 @@ SELECT
         WHEN 'PERFORMANCE_TASKS' THEN 100.00
         ELSE 60.00
     END AS max_score,
-    DATE_ADD('2025-07-01', INTERVAL (seq.rn - 1) DAY),
+    DATE_ADD('2026-07-01', INTERVAL (seq.rn - 1) DAY),
     UTC_TIMESTAMP(6),
     UTC_TIMESTAMP(6)
 FROM (
@@ -417,7 +417,7 @@ SELECT
         WHEN 'PERFORMANCE_TASKS' THEN 100.00
         ELSE 60.00
     END AS max_score,
-    DATE_ADD('2025-09-01', INTERVAL (seq.rn - 1) DAY),
+    DATE_ADD('2026-09-01', INTERVAL (seq.rn - 1) DAY),
     UTC_TIMESTAMP(6),
     UTC_TIMESTAMP(6)
 FROM (
@@ -575,7 +575,7 @@ INSERT INTO audit_logs (user_id, action, entity, entity_id, payload, created_at)
 VALUES
 (@admin_uid, 'SEED', 'database', NULL, '{"message":"Workflow-aligned seed executed"}', UTC_TIMESTAMP(6)),
 (@admin_uid, 'CREATE', 'school_settings', (SELECT Id FROM school_settings ORDER BY Id DESC LIMIT 1), '{"school":"School Management System"}', UTC_TIMESTAMP(6)),
-(@admin_uid, 'CREATE', 'school_years', @sy_active, '{"name":"2025-2026"}', UTC_TIMESTAMP(6)),
+(@admin_uid, 'CREATE', 'school_years', @sy_active, '{"name":"2026-2027"}', UTC_TIMESTAMP(6)),
 (@admin_uid, 'CREATE', 'enrollments', NULL, '{"note":"bulk enroll seed"}', UTC_TIMESTAMP(6)),
 (@teacher1_uid, 'UPDATE', 'student_grades', NULL, '{"note":"seed teacher grade update"}', UTC_TIMESTAMP(6));
 
@@ -672,6 +672,62 @@ INSERT INTO exception_queue_items (
 VALUES
 ('DEPENDENCY_BLOCK',  'Archive.Restore',          'archive_records', (SELECT Id FROM archive_records ORDER BY Id DESC LIMIT 1), 'WARNING', 'OPEN',     'Seeded archive dependency block sample.',  'Review dependencies before restore.', @seed_corr_restore, 'UNASSIGNED', NULL, NULL, NULL, NULL, NULL, 1, DATE_SUB(UTC_TIMESTAMP(6), INTERVAL 12 HOUR), @admin_uid, DATE_SUB(UTC_TIMESTAMP(6), INTERVAL 12 HOUR), DATE_SUB(UTC_TIMESTAMP(6), INTERVAL 12 HOUR)),
 ('CONCURRENCY_CONFLICT','Enrollment.ReviewWorkbench','enrollments',   @seed_enr_0010,                                        'WARNING', 'RESOLVED', 'Seeded stale enrollment concurrency sample.','Resolved during review refresh.',       @seed_corr_drop,    'RESOLVED',  @admin_uid, @admin_uid, DATE_SUB(UTC_TIMESTAMP(6), INTERVAL 8 HOUR), @admin_uid, DATE_SUB(UTC_TIMESTAMP(6), INTERVAL 6 HOUR), 2, DATE_SUB(UTC_TIMESTAMP(6), INTERVAL 6 HOUR), @admin_uid, DATE_SUB(UTC_TIMESTAMP(6), INTERVAL 8 HOUR), DATE_SUB(UTC_TIMESTAMP(6), INTERVAL 6 HOUR));
+
+-- ------------------------------------------------------------
+-- 7) Unenrolled students with pre-submitted requirements
+--    student41..45 have user accounts and requirements but no enrollment record.
+--    These are used to test the "pending enrollment" workflow.
+-- ------------------------------------------------------------
+
+INSERT INTO users (username, password_hash, role, can_login, status, created_at, updated_at) VALUES
+('student41', 'PBKDF2$100000$IRvX5mR9j9olgVaU93KO2w==$a7LptMcDUL71RMOpFVv4vU1bWu0vt6Pj3/HaYl/egMo=', 'STUDENT', 0, 'ACTIVE', UTC_TIMESTAMP(6), UTC_TIMESTAMP(6)),
+('student42', 'PBKDF2$100000$IRvX5mR9j9olgVaU93KO2w==$a7LptMcDUL71RMOpFVv4vU1bWu0vt6Pj3/HaYl/egMo=', 'STUDENT', 0, 'ACTIVE', UTC_TIMESTAMP(6), UTC_TIMESTAMP(6)),
+('student43', 'PBKDF2$100000$IRvX5mR9j9olgVaU93KO2w==$a7LptMcDUL71RMOpFVv4vU1bWu0vt6Pj3/HaYl/egMo=', 'STUDENT', 0, 'ACTIVE', UTC_TIMESTAMP(6), UTC_TIMESTAMP(6)),
+('student44', 'PBKDF2$100000$IRvX5mR9j9olgVaU93KO2w==$a7LptMcDUL71RMOpFVv4vU1bWu0vt6Pj3/HaYl/egMo=', 'STUDENT', 0, 'ACTIVE', UTC_TIMESTAMP(6), UTC_TIMESTAMP(6)),
+('student45', 'PBKDF2$100000$IRvX5mR9j9olgVaU93KO2w==$a7LptMcDUL71RMOpFVv4vU1bWu0vt6Pj3/HaYl/egMo=', 'STUDENT', 0, 'ACTIVE', UTC_TIMESTAMP(6), UTC_TIMESTAMP(6));
+
+INSERT INTO students (user_id, lrn, student_number, first_name, last_name, middle_name, birthdate, age, sex, address, contact_no, guardian_name, guardian_contact, previous_school, status, created_at, updated_at)
+VALUES
+((SELECT Id FROM users WHERE username = 'student41'), 'LRN-0041', 'STU-1041', 'Student41', 'Learner41', NULL, '2012-06-10', 13, 'M', 'Purok 41', '09180000041', 'Guardian 41', '09990000041', 'Previous School 41', 'ACTIVE', UTC_TIMESTAMP(6), UTC_TIMESTAMP(6)),
+((SELECT Id FROM users WHERE username = 'student42'), 'LRN-0042', 'STU-1042', 'Student42', 'Learner42', NULL, '2012-06-12', 13, 'F', 'Purok 42', '09180000042', 'Guardian 42', '09990000042', NULL,                   'ACTIVE', UTC_TIMESTAMP(6), UTC_TIMESTAMP(6)),
+((SELECT Id FROM users WHERE username = 'student43'), 'LRN-0043', 'STU-1043', 'Student43', 'Learner43', NULL, '2012-06-14', 13, 'M', 'Purok 43', '09180000043', 'Guardian 43', '09990000043', 'Previous School 43', 'ACTIVE', UTC_TIMESTAMP(6), UTC_TIMESTAMP(6)),
+((SELECT Id FROM users WHERE username = 'student44'), 'LRN-0044', 'STU-1044', 'Student44', 'Learner44', NULL, '2012-06-16', 13, 'F', 'Purok 44', '09180000044', 'Guardian 44', '09990000044', NULL,                   'ACTIVE', UTC_TIMESTAMP(6), UTC_TIMESTAMP(6)),
+((SELECT Id FROM users WHERE username = 'student45'), 'LRN-0045', 'STU-1045', 'Student45', 'Learner45', NULL, '2012-06-18', 13, 'M', 'Purok 45', '09180000045', 'Guardian 45', '09990000045', 'Previous School 45', 'ACTIVE', UTC_TIMESTAMP(6), UTC_TIMESTAMP(6));
+
+-- Requirements for unenrolled students.
+-- student41: all 3 requirements submitted (fully ready to enroll)
+-- student42: Birth Certificate + Good Moral submitted, Form 137 pending
+-- student43: Birth Certificate submitted only
+-- student44: all 3 submitted (fully ready, different previous school profile)
+-- student45: Birth Certificate submitted, others pending
+INSERT INTO student_requirements (student_id, requirement_name, is_submitted, submitted_at, notes, verified_by_user_id, created_at, updated_at)
+SELECT
+    s.Id,
+    req.requirement_name,
+    req.is_submitted,
+    CASE WHEN req.is_submitted = 1 THEN DATE_SUB(UTC_TIMESTAMP(6), INTERVAL req.days_ago DAY) ELSE NULL END,
+    CASE WHEN req.is_submitted = 1 THEN 'Submitted prior to enrollment' ELSE 'Pending submission' END,
+    @admin_uid,
+    UTC_TIMESTAMP(6),
+    UTC_TIMESTAMP(6)
+FROM students s
+JOIN (
+    SELECT 'LRN-0041' AS lrn, 'Birth Certificate'      AS requirement_name, 1 AS is_submitted, 5 AS days_ago UNION ALL
+    SELECT 'LRN-0041',        'Good Moral Certificate',                       1,                 4             UNION ALL
+    SELECT 'LRN-0041',        'Form 137',                                     1,                 3             UNION ALL
+    SELECT 'LRN-0042',        'Birth Certificate',                            1,                 6             UNION ALL
+    SELECT 'LRN-0042',        'Good Moral Certificate',                       1,                 5             UNION ALL
+    SELECT 'LRN-0042',        'Form 137',                                     0,                 NULL          UNION ALL
+    SELECT 'LRN-0043',        'Birth Certificate',                            1,                 7             UNION ALL
+    SELECT 'LRN-0043',        'Good Moral Certificate',                       0,                 NULL          UNION ALL
+    SELECT 'LRN-0043',        'Form 137',                                     0,                 NULL          UNION ALL
+    SELECT 'LRN-0044',        'Birth Certificate',                            1,                 4             UNION ALL
+    SELECT 'LRN-0044',        'Good Moral Certificate',                       1,                 3             UNION ALL
+    SELECT 'LRN-0044',        'Form 137',                                     1,                 2             UNION ALL
+    SELECT 'LRN-0045',        'Birth Certificate',                            1,                 8             UNION ALL
+    SELECT 'LRN-0045',        'Good Moral Certificate',                       0,                 NULL          UNION ALL
+    SELECT 'LRN-0045',        'Form 137',                                     0,                 NULL
+) AS req ON req.lrn = s.lrn;
 
 SELECT 'Seed complete (workflow + structural governance aligned)' AS status;
 

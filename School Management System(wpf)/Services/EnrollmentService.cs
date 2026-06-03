@@ -115,7 +115,7 @@ namespace School_Management_System.Services
             }
 
             summary.EnrollmentType = NormalizeEnrollmentType(draft.EnrollmentType, db, draft.StudentId);
-            summary.SuggestedStatus = summary.SectionHasCapacity ? EnrollmentStatus.PENDING : EnrollmentStatus.RESERVED;
+            summary.SuggestedStatus = summary.SectionHasCapacity ? EnrollmentStatus.ENROLLED : EnrollmentStatus.RESERVED;
             summary.Messages.Add($"Suggested initial status: {summary.SuggestedStatus}");
 
             return OperationResult<EnrollmentValidationSummary>.Ok(summary);
@@ -232,7 +232,9 @@ namespace School_Management_System.Services
             enrollment.EnrollmentType = summary.EnrollmentType;
             var previousStatus = existingEnrollmentId.HasValue ? enrollment.Status : (EnrollmentStatus?)null;
             var previousApprovalStatus = existingEnrollmentId.HasValue ? enrollment.ApprovalStatus : (EnrollmentApprovalStatus?)null;
-            var nextApprovalStatus = EnrollmentApprovalStatus.PENDING;
+            var nextApprovalStatus = summary.SuggestedStatus == EnrollmentStatus.ENROLLED
+                ? EnrollmentApprovalStatus.APPROVED
+                : EnrollmentApprovalStatus.PENDING;
             var transitionValidation = _stateMachine.ValidateTransition(previousStatus, summary.SuggestedStatus);
             if (!transitionValidation.Success)
             {
@@ -251,8 +253,8 @@ namespace School_Management_System.Services
             enrollment.Status = summary.SuggestedStatus;
             enrollment.ApprovalStatus = nextApprovalStatus;
             enrollment.WaitlistPosition = summary.SuggestedStatus == EnrollmentStatus.RESERVED ? summary.WaitlistPosition : null;
-            enrollment.ApprovedByUserId = null;
-            enrollment.ApprovedAt = null;
+            enrollment.ApprovedByUserId = summary.SuggestedStatus == EnrollmentStatus.ENROLLED ? SessionContext.CurrentUser?.Id : null;
+            enrollment.ApprovedAt = summary.SuggestedStatus == EnrollmentStatus.ENROLLED ? now : null;
             enrollment.Notes = string.IsNullOrWhiteSpace(draft.Notes) ? null : draft.Notes.Trim();
             enrollment.UpdatedAt = now;
             if (enrollment.CreatedAt == default)
@@ -277,7 +279,9 @@ namespace School_Management_System.Services
                 reasonCode: existingEnrollmentId.HasValue ? "TRANSFER_UPDATE" : "SUBMIT_REQUEST",
                 reasonText: existingEnrollmentId.HasValue
                     ? "Enrollment transfer/update request submitted."
-                    : "Enrollment request submitted.");
+                    : enrollment.Status == EnrollmentStatus.ENROLLED
+                        ? "Enrollment submitted and auto-approved."
+                        : "Enrollment request submitted.");
             if (!transitionResult.Success)
             {
                 _operationLogService.Log(
@@ -296,8 +300,8 @@ namespace School_Management_System.Services
             if (enrollment.Status == EnrollmentStatus.RESERVED)
             {
                 ResequenceWaitlist(db, enrollment.SchoolYearId, enrollment.SectionId);
-                db.SaveChanges();
             }
+            db.SaveChanges();
 
             _operationLogService.Log(
                 policyKey,
@@ -305,10 +309,15 @@ namespace School_Management_System.Services
                 "enrollments",
                 enrollment.Id,
                 GovernedOperationStatus.SUCCEEDED,
-                $"Enrollment submitted with status {enrollment.Status}.",
+                enrollment.Status == EnrollmentStatus.ENROLLED
+                    ? $"Enrollment submitted and auto-approved. Student is now ENROLLED."
+                    : $"Enrollment submitted with status {enrollment.Status}.",
                 payload: new { enrollment.Status, enrollment.ApprovalStatus, enrollment.WaitlistPosition },
                 correlationId: correlationId);
-            return OperationResult<Enrollment>.Ok(enrollment, $"Enrollment submitted with status {enrollment.Status}.");
+            return OperationResult<Enrollment>.Ok(enrollment,
+                enrollment.Status == EnrollmentStatus.ENROLLED
+                    ? "Student enrolled successfully."
+                    : $"Enrollment submitted with status {enrollment.Status}.");
         }
 
         public OperationResult<Enrollment> ApproveEnrollment(long enrollmentId)
@@ -967,13 +976,34 @@ namespace School_Management_System.Services
                 return OperationResult.Fail($"Enrollment is closed for {schoolYear.Name} because its status is {schoolYear.Status}.");
             }
 
+            // Only query SchoolSettings when the school year itself has no enrollment dates configured
+            if (schoolYear.EnrollmentOpenDate.HasValue && schoolYear.EnrollmentCloseDate.HasValue)
+            {
+                var today = DateTime.Today;
+                var open = schoolYear.EnrollmentOpenDate.Value.Date;
+                var close = schoolYear.EnrollmentCloseDate.Value.Date;
+                if (open > close)
+                {
+                    return OperationResult.Fail("Enrollment period configuration is invalid: open date is later than close date.");
+                }
+                if (today < open)
+                {
+                    return OperationResult.Fail($"Enrollment opens on {open:yyyy-MM-dd}.");
+                }
+                if (today > close)
+                {
+                    return OperationResult.Fail($"Enrollment closed on {close:yyyy-MM-dd}.");
+                }
+                return OperationResult.Ok();
+            }
+
             var settings = db.SchoolSettings.OrderByDescending(x => x.Id).FirstOrDefault();
             if (settings == null && !schoolYear.EnrollmentOpenDate.HasValue && !schoolYear.EnrollmentCloseDate.HasValue)
             {
                 return OperationResult.Ok();
             }
 
-            var today = DateTime.Today;
+            var todayDate = DateTime.Today;
             var openDate = schoolYear.EnrollmentOpenDate?.Date ?? settings?.EnrollmentOpenDate?.Date;
             var closeDate = schoolYear.EnrollmentCloseDate?.Date ?? settings?.EnrollmentCloseDate?.Date;
 
@@ -982,11 +1012,11 @@ namespace School_Management_System.Services
                 return OperationResult.Fail("Enrollment period configuration is invalid: open date is later than close date.");
             }
 
-            if (openDate.HasValue && today < openDate.Value)
+            if (openDate.HasValue && todayDate < openDate.Value)
             {
                 return OperationResult.Fail($"Enrollment opens on {openDate.Value:yyyy-MM-dd}.");
             }
-            if (closeDate.HasValue && today > closeDate.Value)
+            if (closeDate.HasValue && todayDate > closeDate.Value)
             {
                 return OperationResult.Fail($"Enrollment closed on {closeDate.Value:yyyy-MM-dd}.");
             }
