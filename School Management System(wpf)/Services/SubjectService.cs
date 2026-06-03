@@ -89,12 +89,11 @@ namespace School_Management_System.Services
                 throw new DomainValidationException("Subject title is required.");
             }
 
-            var normalizedCode = entity.Code.Trim();
+            var normalizedCode = entity.Code.Trim().ToLower();
             var duplicateCode = db.Subjects
-                .AsEnumerable()
                 .Any(x =>
                     (!excludeId.HasValue || x.Id != excludeId.Value) &&
-                    string.Equals(x.Code?.Trim(), normalizedCode, System.StringComparison.OrdinalIgnoreCase));
+                    x.Code != null && x.Code.ToLower() == normalizedCode);
             if (duplicateCode)
             {
                 throw new DomainValidationException("Subject code already exists.");

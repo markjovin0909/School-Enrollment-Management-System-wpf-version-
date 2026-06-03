@@ -27,7 +27,10 @@ namespace School_Management_System.Services
 
             using var db = new AppDbContext();
             StructuralSchemaService.EnsureApplied(db);
-            var transitions = db.EnrollmentStateTransitions.ToList();
+            // Only load transitions within the relevant 14-day window instead of the entire table
+            var transitions = db.EnrollmentStateTransitions
+                .Where(x => x.CreatedAt >= startPrevious)
+                .ToList();
 
             var queueAgingWindowCurrent = transitions.Count(x =>
                 x.CreatedAt >= startCurrent &&

@@ -129,6 +129,8 @@ namespace School_Management_System
             _sections = _sectionService.GetAll().Where(x => !x.IsArchived).ToList();
             _curricula = _curriculumService.GetAll().ToList();
             _students = _studentService.GetAll().ToList();
+            // Refresh the shared enrollment cache so GetSelectedEnrollment and LoadEnrollmentClassView use fresh data
+            _cachedEnrollments = _enrollmentService.GetAll().ToList();
 
             _suppressEnrollmentEvents = true;
             cboEnrollFilterSchoolYear.ItemsSource = _schoolYears;
@@ -200,6 +202,8 @@ namespace School_Management_System
             var search = (txtEnrollSearch.Text ?? string.Empty).Trim();
             var statusFilter = (cboEnrollStatusFilter.SelectedItem as string ?? "All Statuses").Trim();
             var enrollments = _enrollmentService.GetAll().ToList();
+            // Keep the shared cache in sync so GetSelectedEnrollment and LoadEnrollmentClassView stay consistent
+            _cachedEnrollments = enrollments;
             _enrollmentQueueSlaPolicy = _enrollmentQueueSlaService.LoadPolicy();
             var enrollmentByStudent = schoolYear == null
                 ? new Dictionary<long, Enrollment>()
@@ -209,6 +213,11 @@ namespace School_Management_System
                     .ToDictionary(g => g.Key, g => g.OrderByDescending(x => x.EnrolledAt).ThenByDescending(x => x.Id).First());
             _enrollmentSnapshotUpdatedAtByStudentId.Clear();
             _enrollmentQueueSeverityByStudentId.Clear();
+
+            // Load ALL student requirements once and group by student — avoids N+1 DB calls inside the loop
+            var requirementsByStudentId = _studentRequirementService.GetAll()
+                .GroupBy(x => x.StudentId)
+                .ToDictionary(g => g.Key, g => g.ToList());
 
             _enrollmentTable = new DataTable();
             _enrollmentTable.Columns.Add("Id", typeof(long));
@@ -237,7 +246,7 @@ namespace School_Management_System
                 var slaEvaluation = _enrollmentQueueSlaService.Evaluate(enrollment, referenceUtc, _enrollmentQueueSlaPolicy);
                 var requirementSnapshot = _requirementChecklistService.BuildForStudent(
                     student.Id,
-                    _studentRequirementService.GetAll().Where(x => x.StudentId == student.Id).ToList());
+                    requirementsByStudentId.TryGetValue(student.Id, out var reqs) ? reqs : new System.Collections.Generic.List<StudentRequirement>());
                 var gradeLabel = _gradeLevels.FirstOrDefault(x => x.Id == student.PreferredGradeLevelId)?.Code
                     ?? _gradeLevels.FirstOrDefault(x => x.Id == student.PreferredGradeLevelId)?.Name
                     ?? "(Not set)";
@@ -491,7 +500,8 @@ namespace School_Management_System
                     .ToList();
                 var schedules = _classScheduleService.GetAll().ToList();
                 var section = _sections.FirstOrDefault(x => x.Id == sectionId.Value);
-                var enrolledCount = _enrollmentService.GetAll()
+                // Use the cached enrollment list — avoids a redundant GetAll() just for a count
+                var enrolledCount = _cachedEnrollments
                     .Count(x => x.SchoolYearId == schoolYearId.Value && x.SectionId == sectionId.Value && x.Status == EnrollmentStatus.ENROLLED);
 
                 foreach (var offering in offerings)
@@ -524,7 +534,8 @@ namespace School_Management_System
                 return null;
             }
 
-            return _enrollmentService.GetAll()
+            // Use the cached enrollment list — avoids a GetAll() DB call on every selection/filter change
+            return _cachedEnrollments
                 .FirstOrDefault(x => x.SchoolYearId == schoolYear.Id && x.StudentId == _selectedEnrollmentStudentId.Value);
         }
 
@@ -610,7 +621,10 @@ namespace School_Management_System
 
         private RequirementChecklistSnapshot UpdateEnrollmentRequirementChecklist(long studentId)
         {
-            var requirements = _studentRequirementService.GetAll().Where(x => x.StudentId == studentId).ToList();
+            // Use the pre-loaded requirements dictionary when available, otherwise fall back to a targeted query
+            var requirements = _studentRequirementService.GetAll()
+                .Where(x => x.StudentId == studentId)
+                .ToList();
             var snapshot = _requirementChecklistService.BuildForStudent(studentId, requirements);
             enrollRequirementChecklistPanel.Items = snapshot.Items;
             enrollRequirementChecklistPanel.SummaryText = snapshot.SummaryText;

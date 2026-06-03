@@ -382,7 +382,8 @@ namespace School_Management_System
             if (_studentDetailRecord == null) return;
 
             var dependents = new List<string>();
-            var enrollmentCount = _enrollmentService.GetAll().Count(e => e.StudentId == _studentDetailId!.Value);
+            // Use the shared enrollment cache instead of a full GetAll() scan
+            var enrollmentCount = _cachedEnrollments.Count(e => e.StudentId == _studentDetailId!.Value);
             var gradeService = new StudentGradeService();
             var classStudentService = new ClassStudentService();
             var requirementService = new StudentRequirementService();

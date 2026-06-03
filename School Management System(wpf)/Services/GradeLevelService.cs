@@ -96,24 +96,22 @@ namespace School_Management_System.Services
                 throw new DomainValidationException("Grade level name is required.");
             }
 
-            var code = entity.Code.Trim();
-            var name = entity.Name.Trim();
+            var code = entity.Code.Trim().ToLower();
+            var name = entity.Name.Trim().ToLower();
 
             var duplicateCode = db.GradeLevels
-                .AsEnumerable()
                 .Any(x =>
                     (!excludeId.HasValue || x.Id != excludeId.Value) &&
-                    string.Equals(x.Code?.Trim(), code, System.StringComparison.OrdinalIgnoreCase));
+                    x.Code != null && x.Code.ToLower() == code);
             if (duplicateCode)
             {
                 throw new DomainValidationException("Grade level code already exists.");
             }
 
             var duplicateName = db.GradeLevels
-                .AsEnumerable()
                 .Any(x =>
                     (!excludeId.HasValue || x.Id != excludeId.Value) &&
-                    string.Equals(x.Name?.Trim(), name, System.StringComparison.OrdinalIgnoreCase));
+                    x.Name != null && x.Name.ToLower() == name);
             if (duplicateName)
             {
                 throw new DomainValidationException("Grade level name already exists.");

@@ -76,12 +76,11 @@ namespace School_Management_System.Services
                 throw new DomainValidationException("Curriculum name is required.");
             }
 
-            var normalizedName = entity.Name.Trim();
+            var normalizedName = entity.Name.Trim().ToLower();
             var duplicateName = db.Curricula
-                .AsEnumerable()
                 .Any(x =>
                     (!excludeId.HasValue || x.Id != excludeId.Value) &&
-                    string.Equals((x.Name ?? string.Empty).Trim(), normalizedName, System.StringComparison.OrdinalIgnoreCase));
+                    x.Name != null && x.Name.ToLower() == normalizedName);
             if (duplicateName)
             {
                 throw new DomainValidationException("Curriculum name already exists.");

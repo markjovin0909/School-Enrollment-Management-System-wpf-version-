@@ -96,12 +96,11 @@ namespace School_Management_System.Services
                 throw new DomainValidationException("Teacher first name and last name are required.");
             }
 
-            var normalizedEmployeeNo = entity.EmployeeNo.Trim();
+            var normalizedEmployeeNo = entity.EmployeeNo.Trim().ToLower();
             var duplicateEmployeeNo = db.Teachers
-                .AsEnumerable()
                 .Any(x =>
                     (!excludeId.HasValue || x.Id != excludeId.Value) &&
-                    string.Equals((x.EmployeeNo ?? string.Empty).Trim(), normalizedEmployeeNo, System.StringComparison.OrdinalIgnoreCase));
+                    x.EmployeeNo != null && x.EmployeeNo.ToLower() == normalizedEmployeeNo);
             if (duplicateEmployeeNo)
             {
                 throw new DomainValidationException("Employee number already exists.");

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Windows;
+using School_Management_System.Data;
 using School_Management_System.Models;
 using School_Management_System.Services;
 
@@ -209,7 +210,7 @@ namespace School_Management_System.Views
 
             if (runMutation && chkCreateSnapshot.IsChecked == true)
             {
-                CreateSnapshot(sourceYearId, sourceYear.Name);
+                CreateSnapshot(sourceYearId, sourceYear.Name, enrollments);
             }
 
             foreach (var enrollment in sourceEnrollments)
@@ -370,13 +371,14 @@ namespace School_Management_System.Views
             return gradeByCode.TryGetValue(nextCode, out var next) ? next : null;
         }
 
-        private void CreateSnapshot(long sourceYearId, string sourceYearName)
+        private void CreateSnapshot(long sourceYearId, string sourceYearName, List<Enrollment> allEnrollments)
         {
             var snapshot = new
             {
                 SchoolYearId = sourceYearId,
                 SchoolYear = sourceYearName,
-                Enrollments = _enrollmentService.GetAll().Where(e => e.SchoolYearId == sourceYearId).ToList(),
+                // Use the already-loaded enrollment list — avoids a redundant GetAll() call
+                Enrollments = allEnrollments.Where(e => e.SchoolYearId == sourceYearId).ToList(),
                 Sections = _sectionService.GetAll().Where(s => s.SchoolYearId == sourceYearId).ToList(),
                 Offerings = _offeringService.GetAll().Where(o => o.SchoolYearId == sourceYearId).ToList(),
                 CapturedAt = DateTime.UtcNow
@@ -412,6 +414,17 @@ namespace School_Management_System.Views
             return false;
         }
 
+        /// <summary>
+        /// Runs a server-side COUNT for enrolled students in a school year — avoids loading the full enrollment table.
+        /// </summary>
+        private static int CountEnrolledForYear(long schoolYearId)
+        {
+            using var db = new Data.AppDbContext();
+            return db.Enrollments.Count(x =>
+                x.SchoolYearId == schoolYearId &&
+                x.Status == EnrollmentStatus.ENROLLED);
+        }
+
         private void OnRolloverInputsChanged()
         {
             _previewCompleted = false;
@@ -425,7 +438,7 @@ namespace School_Management_System.Views
             var sourceYear = hasSource ? _schoolYearService.GetById(sourceYearId) : null;
             var targetYear = hasTarget ? _schoolYearService.GetById(targetYearId) : null;
             var sourceCandidates = hasSource
-                ? _enrollmentService.GetAll().Count(x => x.SchoolYearId == sourceYearId && x.Status == EnrollmentStatus.ENROLLED)
+                ? CountEnrolledForYear(sourceYearId)
                 : 0;
             var targetSections = hasTarget
                 ? _sectionService.GetAll().Count(x => x.SchoolYearId == targetYearId && !x.IsArchived)

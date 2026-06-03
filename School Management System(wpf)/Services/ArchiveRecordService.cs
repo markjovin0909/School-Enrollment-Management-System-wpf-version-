@@ -349,60 +349,73 @@ namespace School_Management_System.Services
 
         private static int CountLinkedRows(AppDbContext db, Type dependentType, PropertyInfo foreignKeyProperty, long originalEntityId)
         {
-            var count = 0;
-            var dbSet = typeof(AppDbContext)
+            // Use EF's generic DbSet to run a server-side COUNT instead of loading all rows into memory
+            var dbSetProperty = typeof(AppDbContext)
                 .GetProperties(BindingFlags.Public | BindingFlags.Instance)
                 .FirstOrDefault(p =>
                     p.PropertyType.IsGenericType &&
                     p.PropertyType.GetGenericTypeDefinition() == typeof(DbSet<>) &&
-                    p.PropertyType.GenericTypeArguments[0] == dependentType)
-                ?.GetValue(db) as System.Collections.IEnumerable;
-            if (dbSet == null)
+                    p.PropertyType.GenericTypeArguments[0] == dependentType);
+
+            if (dbSetProperty == null)
             {
                 return 0;
             }
 
-            foreach (var entity in dbSet)
+            // Build a LINQ expression: dbSet.Count(e => (long)e.ForeignKeyProp == originalEntityId)
+            try
             {
-                var value = foreignKeyProperty.GetValue(entity);
-                if (!TryConvertToLong(value, out var numericValue))
+                var dbSet = dbSetProperty.GetValue(db);
+                if (dbSet == null)
                 {
-                    continue;
+                    return 0;
                 }
 
-                if (numericValue == originalEntityId)
+                // entity parameter
+                var param = System.Linq.Expressions.Expression.Parameter(dependentType, "e");
+                var propAccess = System.Linq.Expressions.Expression.Property(param, foreignKeyProperty);
+
+                // Handle nullable FK (long?) by unwrapping
+                System.Linq.Expressions.Expression comparison;
+                if (foreignKeyProperty.PropertyType == typeof(long?))
                 {
-                    count++;
+                    var hasValue = System.Linq.Expressions.Expression.Property(propAccess, "HasValue");
+                    var value = System.Linq.Expressions.Expression.Property(propAccess, "Value");
+                    var equals = System.Linq.Expressions.Expression.Equal(value,
+                        System.Linq.Expressions.Expression.Constant(originalEntityId, typeof(long)));
+                    comparison = System.Linq.Expressions.Expression.AndAlso(hasValue, equals);
                 }
+                else if (foreignKeyProperty.PropertyType == typeof(long))
+                {
+                    comparison = System.Linq.Expressions.Expression.Equal(propAccess,
+                        System.Linq.Expressions.Expression.Constant(originalEntityId, typeof(long)));
+                }
+                else
+                {
+                    // Unsupported FK type — fall back to 0
+                    return 0;
+                }
+
+                var lambda = System.Linq.Expressions.Expression.Lambda(comparison, param);
+
+                // Call Queryable.Count(IQueryable<T>, Expression<Func<T, bool>>)
+                var queryableType = typeof(System.Linq.Queryable);
+                var countMethod = queryableType
+                    .GetMethods()
+                    .First(m => m.Name == "Count" && m.GetParameters().Length == 2)
+                    .MakeGenericMethod(dependentType);
+
+                var queryable = typeof(System.Linq.Queryable)
+                    .GetMethods()
+                    .First(m => m.Name == "AsQueryable" && m.GetParameters().Length == 1)
+                    .MakeGenericMethod(dependentType)
+                    .Invoke(null, new[] { dbSet });
+
+                return (int)(countMethod.Invoke(null, new[] { queryable, lambda }) ?? 0);
             }
-
-            return count;
-        }
-
-        private static bool TryConvertToLong(object? value, out long numericValue)
-        {
-            numericValue = 0;
-            if (value == null)
+            catch
             {
-                return false;
-            }
-
-            switch (value)
-            {
-                case long longValue:
-                    numericValue = longValue;
-                    return true;
-                case int intValue:
-                    numericValue = intValue;
-                    return true;
-                case short shortValue:
-                    numericValue = shortValue;
-                    return true;
-                case byte byteValue:
-                    numericValue = byteValue;
-                    return true;
-                default:
-                    return false;
+                return 0;
             }
         }
 
@@ -417,11 +430,11 @@ namespace School_Management_System.Services
                     {
                         reasons.Add("Linked user account for student no longer exists.");
                     }
-                    if (payloadMode && db.Students.AsEnumerable().Any(x => string.Equals(Normalize(x.StudentNumber), Normalize(student.StudentNumber), StringComparison.OrdinalIgnoreCase)))
+                    if (payloadMode && db.Students.Any(x => x.StudentNumber != null && x.StudentNumber.ToLower() == Normalize(student.StudentNumber).ToLower()))
                     {
                         reasons.Add($"Student number conflict: '{student.StudentNumber}'.");
                     }
-                    if (payloadMode && db.Students.AsEnumerable().Any(x => string.Equals(Normalize(x.Lrn), Normalize(student.Lrn), StringComparison.OrdinalIgnoreCase)))
+                    if (payloadMode && db.Students.Any(x => x.Lrn != null && x.Lrn.ToLower() == Normalize(student.Lrn).ToLower()))
                     {
                         reasons.Add($"LRN conflict: '{student.Lrn}'.");
                     }
@@ -434,14 +447,14 @@ namespace School_Management_System.Services
                     }
                     if (payloadMode &&
                         !string.IsNullOrWhiteSpace(teacher.EmployeeNo) &&
-                        db.Teachers.AsEnumerable().Any(x => string.Equals(Normalize(x.EmployeeNo), Normalize(teacher.EmployeeNo), StringComparison.OrdinalIgnoreCase)))
+                        db.Teachers.Any(x => x.EmployeeNo != null && x.EmployeeNo.ToLower() == Normalize(teacher.EmployeeNo).ToLower()))
                     {
                         reasons.Add($"Employee number conflict: '{teacher.EmployeeNo}'.");
                     }
                     break;
 
                 case User user:
-                    if (payloadMode && db.Users.AsEnumerable().Any(x => string.Equals(Normalize(x.Username), Normalize(user.Username), StringComparison.OrdinalIgnoreCase)))
+                    if (payloadMode && db.Users.Any(x => x.Username != null && x.Username.ToLower() == Normalize(user.Username).ToLower()))
                     {
                         reasons.Add($"Username conflict: '{user.Username}'.");
                     }
@@ -463,13 +476,17 @@ namespace School_Management_System.Services
                         reasons.Add($"Section grade level reference is missing (GradeLevelId: {section.GradeLevelId}).");
                     }
 
-                    if (payloadMode && db.Sections.AsEnumerable().Any(x =>
-                        !x.IsArchived &&
-                        x.SchoolYearId == section.SchoolYearId &&
-                        x.GradeLevelId == section.GradeLevelId &&
-                        string.Equals(Normalize(x.Name), Normalize(section.Name), StringComparison.OrdinalIgnoreCase)))
+                    if (payloadMode)
                     {
-                        reasons.Add($"Section name conflict in target school year/grade: '{section.Name}'.");
+                        var normalizedSectionName = Normalize(section.Name).ToLower();
+                        if (db.Sections.Any(x =>
+                            !x.IsArchived &&
+                            x.SchoolYearId == section.SchoolYearId &&
+                            x.GradeLevelId == section.GradeLevelId &&
+                            x.Name != null && x.Name.ToLower() == normalizedSectionName))
+                        {
+                            reasons.Add($"Section name conflict in target school year/grade: '{section.Name}'.");
+                        }
                     }
                     break;
 

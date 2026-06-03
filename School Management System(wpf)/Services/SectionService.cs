@@ -14,7 +14,7 @@ namespace School_Management_System.Services
             using var db = new AppDbContext();
             return db.Sections
                 .OrderBy(x => x.IsArchived)
-                .OrderBy(x => x.Name)
+                .ThenBy(x => x.Name)
                 .ThenBy(x => x.Id)
                 .ToList();
         }
@@ -170,15 +170,14 @@ namespace School_Management_System.Services
                 throw new DomainValidationException("Selected grade level does not exist.");
             }
 
-            var normalizedName = entity.Name.Trim();
+            var normalizedName = entity.Name.Trim().ToLower();
             var duplicateName = db.Sections
-                .AsEnumerable()
                 .Any(x =>
                     (!excludeId.HasValue || x.Id != excludeId.Value) &&
                     !x.IsArchived &&
                     x.SchoolYearId == entity.SchoolYearId &&
                     x.GradeLevelId == entity.GradeLevelId &&
-                    string.Equals(x.Name?.Trim(), normalizedName, System.StringComparison.OrdinalIgnoreCase));
+                    x.Name.ToLower() == normalizedName);
             if (duplicateName)
             {
                 throw new DomainValidationException("Section name already exists for the selected school year and grade level.");

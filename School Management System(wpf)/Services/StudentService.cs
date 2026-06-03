@@ -106,41 +106,39 @@ namespace School_Management_System.Services
                 throw new DomainValidationException("Student first name and last name are required.");
             }
 
-            var normalizedStudentNumber = entity.StudentNumber.Trim();
+            var normalizedStudentNumber = entity.StudentNumber.Trim().ToLower();
             var duplicateStudentNumber = db.Students
-                .AsEnumerable()
                 .Any(x =>
                     (!excludeId.HasValue || x.Id != excludeId.Value) &&
-                    string.Equals((x.StudentNumber ?? string.Empty).Trim(), normalizedStudentNumber, System.StringComparison.OrdinalIgnoreCase));
+                    x.StudentNumber.ToLower() == normalizedStudentNumber);
             if (duplicateStudentNumber)
             {
                 throw new DomainValidationException("Student number already exists.");
             }
 
-            var normalizedLrn = entity.Lrn.Trim();
+            var normalizedLrn = entity.Lrn.Trim().ToLower();
             var duplicateLrn = db.Students
-                .AsEnumerable()
                 .Any(x =>
                     (!excludeId.HasValue || x.Id != excludeId.Value) &&
-                    string.Equals((x.Lrn ?? string.Empty).Trim(), normalizedLrn, System.StringComparison.OrdinalIgnoreCase));
+                    x.Lrn.ToLower() == normalizedLrn);
             if (duplicateLrn)
             {
                 throw new DomainValidationException("LRN already exists.");
             }
 
-            var normalizedFirstName = entity.FirstName.Trim();
-            var normalizedLastName = entity.LastName.Trim();
-            var normalizedMiddleName = (entity.MiddleName ?? string.Empty).Trim();
+            var normalizedFirstName = entity.FirstName.Trim().ToLower();
+            var normalizedLastName = entity.LastName.Trim().ToLower();
+            var normalizedMiddleName = (entity.MiddleName ?? string.Empty).Trim().ToLower();
             if (entity.Birthdate.HasValue)
             {
+                var birthdateValue = entity.Birthdate.Value.Date;
                 var duplicateIdentity = db.Students
-                    .AsEnumerable()
                     .Any(x =>
                         (!excludeId.HasValue || x.Id != excludeId.Value) &&
-                        Nullable.Equals(x.Birthdate?.Date, entity.Birthdate.Value.Date) &&
-                        string.Equals((x.FirstName ?? string.Empty).Trim(), normalizedFirstName, System.StringComparison.OrdinalIgnoreCase) &&
-                        string.Equals((x.LastName ?? string.Empty).Trim(), normalizedLastName, System.StringComparison.OrdinalIgnoreCase) &&
-                        string.Equals((x.MiddleName ?? string.Empty).Trim(), normalizedMiddleName, System.StringComparison.OrdinalIgnoreCase));
+                        x.Birthdate != null && x.Birthdate.Value == birthdateValue &&
+                        x.FirstName.ToLower() == normalizedFirstName &&
+                        x.LastName.ToLower() == normalizedLastName &&
+                        (x.MiddleName == null ? "" : x.MiddleName.ToLower()) == normalizedMiddleName);
                 if (duplicateIdentity)
                 {
                     throw new DomainValidationException("A student with the same full name and birthdate already exists.");

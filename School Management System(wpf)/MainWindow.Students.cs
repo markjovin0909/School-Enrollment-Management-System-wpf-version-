@@ -137,11 +137,16 @@ namespace School_Management_System
             {
                 _students = _studentService.GetAll().ToList();
                 var usersById = _userService.GetAll().ToDictionary(u => u.Id, u => u);
-                var enrollmentsByStudentId = _enrollmentService.GetAll()
+                // Cache enrollments for reuse in selection-changed handler — avoids a second GetAll() per row click
+                _cachedEnrollments = _enrollmentService.GetAll().ToList();
+                var enrollmentsByStudentId = _cachedEnrollments
                     .GroupBy(x => x.StudentId)
                     .ToDictionary(
                         x => x.Key,
                         x => x.OrderByDescending(e => e.UpdatedAt).ThenByDescending(e => e.CreatedAt).First());
+                // Build curriculum lookup once — avoids a DB round-trip per student row
+                var curriculumById = _curriculumService.GetAll()
+                    .ToDictionary(c => c.Id, c => c.Name);
 
                 _studentsTable = new DataTable();
                 _studentsTable.Columns.Add("Id", typeof(long));
@@ -169,7 +174,9 @@ namespace School_Management_System
                     var gradeLabel = _gradeLevels.FirstOrDefault(g => g.Id == s.PreferredGradeLevelId)?.Code
                         ?? _gradeLevels.FirstOrDefault(g => g.Id == s.PreferredGradeLevelId)?.Name
                         ?? "(Not set)";
-                    var curriculumLabel = _curriculumService.GetAll().FirstOrDefault(c => c.Id == s.PreferredCurriculumId)?.Name ?? "(Not set)";
+                    var curriculumLabel = (s.PreferredCurriculumId.HasValue && curriculumById.TryGetValue(s.PreferredCurriculumId.Value, out var cName))
+                        ? cName
+                        : "(Not set)";
                     var enrollmentStatus = enrollmentsByStudentId.TryGetValue(s.Id, out var enrollment)
                         ? enrollment.Status.ToString()
                         : "Not Enrolled";
@@ -320,7 +327,8 @@ namespace School_Management_System
             }
 
             var user = _userService.GetById(student.UserId);
-            var latestEnrollment = _enrollmentService.GetAll()
+            // Use the cached enrollment list populated during LoadStudents — no extra DB round-trip
+            var latestEnrollment = _cachedEnrollments
                 .Where(x => x.StudentId == student.Id)
                 .OrderByDescending(x => x.UpdatedAt)
                 .ThenByDescending(x => x.CreatedAt)
@@ -382,7 +390,8 @@ namespace School_Management_System
                     validationErrors.Add("LRN, first name, and last name are required.");
                 }
 
-                var duplicateLrn = _studentService.GetAll().Any(s => s.Id != student.Id && string.Equals(s.Lrn, newLrn, StringComparison.OrdinalIgnoreCase));
+                // Use the already-loaded _students list instead of a new GetAll() DB call
+                var duplicateLrn = _students.Any(s => s.Id != student.Id && string.Equals(s.Lrn, newLrn, StringComparison.OrdinalIgnoreCase));
                 if (duplicateLrn)
                 {
                     validationErrors.Add("LRN already exists.");

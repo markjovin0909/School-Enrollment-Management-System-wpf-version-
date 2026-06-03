@@ -75,6 +75,7 @@ namespace School_Management_System
         private List<Curriculum> _curricula = new();
         private List<Student> _students = new();
         private List<Teacher> _teachers = new();
+        private List<Enrollment> _cachedEnrollments = new();
         private readonly Dictionary<long, EnrollmentQueueSlaSeverity> _enrollmentQueueSeverityByStudentId = new();
         private EnrollmentQueueSlaPolicy _enrollmentQueueSlaPolicy = EnrollmentQueueSlaPolicy.Default;
 

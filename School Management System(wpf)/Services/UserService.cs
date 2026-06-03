@@ -78,12 +78,11 @@ namespace School_Management_System.Services
                 throw new DomainValidationException("Account ID is required.");
             }
 
-            var normalizedUsername = entity.Username.Trim();
+            var normalizedUsername = entity.Username.Trim().ToLower();
             var duplicateUsername = db.Users
-                .AsEnumerable()
                 .Any(x =>
                     (!excludeId.HasValue || x.Id != excludeId.Value) &&
-                    string.Equals((x.Username ?? string.Empty).Trim(), normalizedUsername, System.StringComparison.OrdinalIgnoreCase));
+                    x.Username.ToLower() == normalizedUsername);
             if (duplicateUsername)
             {
                 throw new DomainValidationException("Account ID already exists.");
