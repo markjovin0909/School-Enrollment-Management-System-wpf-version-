@@ -488,7 +488,7 @@ namespace School_Management_System.Services
             var startedAt = DateTime.UtcNow;
             string? optionFilePath = null;
             string? extractedTempDir = null;
-            string sourcePath = request.RestoreFilePath ?? string.Empty;
+            string sourcePath = request?.RestoreFilePath ?? string.Empty;
 
             try
             {

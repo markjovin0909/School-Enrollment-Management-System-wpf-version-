@@ -143,9 +143,16 @@ namespace School_Management_System
 
         private void NavigateToStudentGrades()
         {
-            SGLoadLookups();
-            SGLoadRoster();
-            NavigateMainTab(StudentGradesTabIndex);
+            try
+            {
+                SGLoadLookups();
+                SGLoadRoster();
+                NavigateMainTab(StudentGradesTabIndex);
+            }
+            catch (Exception ex)
+            {
+                AppFeedbackService.ShowError($"Unable to open Student Grades: {ex.Message}", "Student Grades", this);
+            }
         }
 
         private void SGFiltersChanged(object? sender, SelectionChangedEventArgs e)
@@ -170,38 +177,43 @@ namespace School_Management_System
 
         private void SGLoadLookups()
         {
-            _sgSchoolYears = _schoolYearService.GetAll().Where(x => !x.IsArchived).OrderByDescending(x => x.StartDate ?? DateTime.MinValue).ThenByDescending(x => x.Id).ToList();
-            _sgGradeLevels = _gradeLevelService.GetAll().OrderBy(x => x.Code).ThenBy(x => x.Name).ToList();
-            _sgSections = _sectionService.GetAll().Where(x => !x.IsArchived).ToList();
-            _sgOfferings = _classOfferingService.GetAll().Where(x => x.Status != ClassOfferingStatus.ARCHIVED).ToList();
-            _sgStudents = _studentService.GetAll().ToList();
-            _sgSubjects = _subjectService.GetAll().ToList();
-            _sgTeachers = _teacherService.GetAll().ToList();
-            _sgGradingPeriods = _sgGradingPeriodService.GetAll().ToList();
-            _sgClassStudents = _sgClassStudentService.GetAll().Where(x => x.Status == ClassStudentStatus.ACTIVE).ToList();
-            _sgStudentGrades = _sgGradeService.GetAll().ToList();
-            _sgGradeComponents = _sgGradeComponentService.GetAll().Where(x => x.IsActive).ToList();
+            try
+            {
+                _sgSchoolYears = _schoolYearService.GetAll().Where(x => !x.IsArchived).OrderByDescending(x => x.StartDate ?? DateTime.MinValue).ThenByDescending(x => x.Id).ToList();
+                _sgGradeLevels = _gradeLevelService.GetAll().OrderBy(x => x.Code).ThenBy(x => x.Name).ToList();
+                _sgSections = _sectionService.GetAll().Where(x => !x.IsArchived).ToList();
+                _sgOfferings = _classOfferingService.GetAll().Where(x => x.Status != ClassOfferingStatus.ARCHIVED).ToList();
+                _sgStudents = _studentService.GetAll().ToList();
+                _sgSubjects = _subjectService.GetAll().ToList();
+                _sgTeachers = _teacherService.GetAll().ToList();
+                _sgGradingPeriods = _sgGradingPeriodService.GetAll().ToList();
+                _sgClassStudents = _sgClassStudentService.GetAll().Where(x => x.Status == ClassStudentStatus.ACTIVE).ToList();
+                _sgStudentGrades = _sgGradeService.GetAll().ToList();
+                _sgGradeComponents = _sgGradeComponentService.GetAll().Where(x => x.IsActive).ToList();
 
-            var preferredSchoolYearId = _sgSchoolYears.FirstOrDefault(x => x.Status == SchoolYearStatus.ACTIVE)?.Id ?? _sgSchoolYears.FirstOrDefault()?.Id ?? 0L;
+                var preferredSchoolYearId = _sgSchoolYears.FirstOrDefault(x => x.Status == SchoolYearStatus.ACTIVE)?.Id ?? _sgSchoolYears.FirstOrDefault()?.Id ?? 0L;
 
-            _sgSuppressEvents = true;
+                _sgSuppressEvents = true;
 
-            cboSGSchoolYear.ItemsSource = _sgSchoolYears.Select(x => new SGLookupItem(x.Id, x.Name)).ToList();
-            cboSGSchoolYear.DisplayMemberPath = nameof(SGLookupItem.Name);
-            cboSGSchoolYear.SelectedValuePath = nameof(SGLookupItem.Id);
-            cboSGSchoolYear.SelectedValue = preferredSchoolYearId;
+                cboSGSchoolYear.ItemsSource = _sgSchoolYears.Select(x => new SGLookupItem(x.Id, x.Name)).ToList();
+                cboSGSchoolYear.DisplayMemberPath = nameof(SGLookupItem.Name);
+                cboSGSchoolYear.SelectedValuePath = nameof(SGLookupItem.Id);
+                cboSGSchoolYear.SelectedValue = preferredSchoolYearId;
 
-            cboSGGradeLevel.ItemsSource = _sgGradeLevels.Select(x => new SGLookupItem(x.Id, string.IsNullOrWhiteSpace(x.Code) ? x.Name : x.Code)).ToList();
-            cboSGGradeLevel.DisplayMemberPath = nameof(SGLookupItem.Name);
-            cboSGGradeLevel.SelectedValuePath = nameof(SGLookupItem.Id);
-            cboSGGradeLevel.SelectedIndex = _sgGradeLevels.Count > 0 ? 0 : -1;
+                cboSGGradeLevel.ItemsSource = _sgGradeLevels.Select(x => new SGLookupItem(x.Id, string.IsNullOrWhiteSpace(x.Code) ? x.Name : x.Code)).ToList();
+                cboSGGradeLevel.DisplayMemberPath = nameof(SGLookupItem.Name);
+                cboSGGradeLevel.SelectedValuePath = nameof(SGLookupItem.Id);
+                cboSGGradeLevel.SelectedIndex = _sgGradeLevels.Count > 0 ? 0 : -1;
 
-            SGLoadSectionsCombo();
-            SGLoadOfferingCombo();
-            SGLoadGradingPeriodCombo();
-
-            _sgSuppressEvents = false;
-            SGUpdateWeightsHint();
+                SGLoadSectionsCombo();
+                SGLoadOfferingCombo();
+                SGLoadGradingPeriodCombo();
+            }
+            finally
+            {
+                _sgSuppressEvents = false;
+                SGUpdateWeightsHint();
+            }
         }
 
         private void SGLoadSectionsCombo()
@@ -279,60 +291,74 @@ namespace School_Management_System
 
         private void SGLoadRoster()
         {
-            SGUpdateWeightsHint();
+            try
+            {
+                SGUpdateWeightsHint();
 
-            if (cboSGOffering.SelectedValue is not long offeringId || offeringId <= 0 ||
-                cboSGGradingPeriod.SelectedValue is not long gradingPeriodId || gradingPeriodId <= 0)
+                if (cboSGOffering.SelectedValue is not long offeringId || offeringId <= 0 ||
+                    cboSGGradingPeriod.SelectedValue is not long gradingPeriodId || gradingPeriodId <= 0)
+                {
+                    _sgAllRows = new List<SGGradeRow>();
+                    gridSGGrades.ItemsSource = _sgAllRows;
+                    txtSGSummary.Text = "Select an offering and grading period to load grades.";
+                    txtSGRosterHint.Text = "Select a school year, class offering, and grading period to load the roster.";
+                    txtSGOfferingValue.Text = "-";
+                    txtSGPeriodValue.Text = "-";
+                    SGClearSelectedRowDetails();
+                    return;
+                }
+
+                var selectedOffering = _sgOfferings.FirstOrDefault(x => x.Id == offeringId);
+                var selectedPeriod = _sgGradingPeriods.FirstOrDefault(x => x.Id == gradingPeriodId);
+                var roster = _sgClassStudents.Where(x => x.ClassOfferingId == offeringId).OrderBy(x => SGResolveStudentName(x.StudentId)).ToList();
+
+                var wwWeight = SGResolveWeight(GradeComponentName.WRITTEN_WORKS);
+                var ptWeight = SGResolveWeight(GradeComponentName.PERFORMANCE_TASKS);
+                var qaWeight = SGResolveWeight(GradeComponentName.QUARTERLY_ASSESSMENT);
+
+                _sgAllRows = roster.Select(cs =>
+                {
+                    var student = _sgStudents.FirstOrDefault(x => x.Id == cs.StudentId);
+                    var existingGrade = _sgStudentGrades.FirstOrDefault(x => x.ClassOfferingId == offeringId && x.GradingPeriodId == gradingPeriodId && x.StudentId == cs.StudentId);
+
+                    var row = new SGGradeRow
+                    {
+                        GradeId = existingGrade?.Id,
+                        StudentId = cs.StudentId,
+                        StudentNumber = student?.StudentNumber ?? string.Empty,
+                        Lrn = student?.Lrn ?? string.Empty,
+                        StudentName = SGResolveStudentName(cs.StudentId),
+                        IsLocked = existingGrade?.LockedAt.HasValue == true || selectedPeriod?.Status is GradingPeriodStatus.LOCKED or GradingPeriodStatus.POSTED,
+                        SubmittedAt = existingGrade?.SubmittedAt,
+                        LockedAt = existingGrade?.LockedAt,
+                        WeightWrittenWorks = wwWeight,
+                        WeightPerformanceTasks = ptWeight,
+                        WeightQuarterlyAssessment = qaWeight
+                    };
+                    row.InitializeGradeValues(existingGrade?.WrittenWorks, existingGrade?.PerformanceTasks, existingGrade?.QuarterlyAssessment, existingGrade?.QuarterGrade);
+                    row.RecalculateQuarterGrade();
+                    return row;
+                }).ToList();
+
+                txtSGOfferingValue.Text = SGBuildOfferingLabel(selectedOffering);
+                txtSGPeriodValue.Text = selectedPeriod == null ? "-" : $"{selectedPeriod.Name} ({selectedPeriod.Status})";
+                txtSGRosterHint.Text = _sgAllRows.Count == 0
+                    ? "No active class roster was found for the selected offering."
+                    : "Edit unlocked roster rows, then save to persist student grades.";
+
+                SGApplyRosterFilter();
+            }
+            catch (Exception ex)
             {
                 _sgAllRows = new List<SGGradeRow>();
                 gridSGGrades.ItemsSource = _sgAllRows;
-                txtSGSummary.Text = "Select an offering and grading period to load grades.";
-                txtSGRosterHint.Text = "Select a school year, class offering, and grading period to load the roster.";
+                txtSGSummary.Text = "Student Grades failed to load.";
+                txtSGRosterHint.Text = $"Load failed: {ex.Message}";
                 txtSGOfferingValue.Text = "-";
                 txtSGPeriodValue.Text = "-";
                 SGClearSelectedRowDetails();
-                return;
+                throw;
             }
-
-            var selectedOffering = _sgOfferings.FirstOrDefault(x => x.Id == offeringId);
-            var selectedPeriod = _sgGradingPeriods.FirstOrDefault(x => x.Id == gradingPeriodId);
-            var roster = _sgClassStudents.Where(x => x.ClassOfferingId == offeringId).OrderBy(x => SGResolveStudentName(x.StudentId)).ToList();
-
-            var wwWeight = SGResolveWeight(GradeComponentName.WRITTEN_WORKS);
-            var ptWeight = SGResolveWeight(GradeComponentName.PERFORMANCE_TASKS);
-            var qaWeight = SGResolveWeight(GradeComponentName.QUARTERLY_ASSESSMENT);
-
-            _sgAllRows = roster.Select(cs =>
-            {
-                var student = _sgStudents.FirstOrDefault(x => x.Id == cs.StudentId);
-                var existingGrade = _sgStudentGrades.FirstOrDefault(x => x.ClassOfferingId == offeringId && x.GradingPeriodId == gradingPeriodId && x.StudentId == cs.StudentId);
-
-                var row = new SGGradeRow
-                {
-                    GradeId = existingGrade?.Id,
-                    StudentId = cs.StudentId,
-                    StudentNumber = student?.StudentNumber ?? string.Empty,
-                    Lrn = student?.Lrn ?? string.Empty,
-                    StudentName = SGResolveStudentName(cs.StudentId),
-                    IsLocked = existingGrade?.LockedAt.HasValue == true || selectedPeriod?.Status is GradingPeriodStatus.LOCKED or GradingPeriodStatus.POSTED,
-                    SubmittedAt = existingGrade?.SubmittedAt,
-                    LockedAt = existingGrade?.LockedAt,
-                    WeightWrittenWorks = wwWeight,
-                    WeightPerformanceTasks = ptWeight,
-                    WeightQuarterlyAssessment = qaWeight
-                };
-                row.InitializeGradeValues(existingGrade?.WrittenWorks, existingGrade?.PerformanceTasks, existingGrade?.QuarterlyAssessment, existingGrade?.QuarterGrade);
-                row.RecalculateQuarterGrade();
-                return row;
-            }).ToList();
-
-            txtSGOfferingValue.Text = SGBuildOfferingLabel(selectedOffering);
-            txtSGPeriodValue.Text = selectedPeriod == null ? "-" : $"{selectedPeriod.Name} ({selectedPeriod.Status})";
-            txtSGRosterHint.Text = _sgAllRows.Count == 0
-                ? "No active class roster was found for the selected offering."
-                : "Edit unlocked roster rows, then save to persist student grades.";
-
-            SGApplyRosterFilter();
         }
 
         private void SGApplyRosterFilter()

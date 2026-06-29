@@ -29,11 +29,12 @@ namespace School_Management_System
             btnTeachersNew.Click += (_, _) => OpenCreateTeacherDialog();
             btnTeachersRefresh.Click += (_, _) => LoadTeachers();
             btnTeacherAdd.Click += (_, _) => OpenCreateTeacherDialog();
-            btnTeacherSave.Click += (_, _) => SaveTeacher();
+            btnTeacherSave.Click += (_, _) => OpenEditTeacherDialog();
             btnTeacherArchiveRestore.Click += (_, _) => ArchiveOrRestoreTeacher();
             btnTeacherResetPassword.Click += (_, _) => ResetTeacherPassword();
             btnTeacherHistory.Click += (_, _) => OpenTeacherHistory();
             btnTeacherClear.Click += (_, _) => ClearTeacherEditor();
+            btnTeacherSave.Content = "Edit Selected";
 
             txtTeacherSearch.TextChanged += (_, _) =>
             {
@@ -56,6 +57,7 @@ namespace School_Management_System
             gridTeachers.SelectionChanged += GridTeachers_SelectionChanged;
             WireGridSortPersistence(gridTeachers, "teachers");
 
+            SetTeacherViewerMode();
             ClearTeacherEditor();
             LoadTeachers();
         }
@@ -63,9 +65,31 @@ namespace School_Management_System
         private void OpenCreateTeacherDialog()
         {
             var dialog = new TeacherCreateWindow { Owner = this };
-            if (dialog.ShowDialog() == true && dialog.CreatedTeacherId.HasValue)
+            if (dialog.ShowDialog() == true && dialog.SavedTeacherId.HasValue)
             {
-                LoadTeachers(dialog.CreatedTeacherId.Value);
+                LoadTeachers(dialog.SavedTeacherId.Value);
+            }
+        }
+
+        private void OpenEditTeacherDialog()
+        {
+            if (!_selectedTeacherId.HasValue)
+            {
+                MessageBox.Show("Select a teacher first.", "Edit Teacher", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                var dialog = new TeacherCreateWindow(_selectedTeacherId.Value) { Owner = this };
+                if (dialog.ShowDialog() == true && dialog.SavedTeacherId.HasValue)
+                {
+                    LoadTeachers(dialog.SavedTeacherId.Value);
+                }
+            }
+            catch (Exception ex)
+            {
+                AppFeedbackService.ShowError("Open edit teacher dialog failed.", ex, "Edit Teacher", this);
             }
         }
 
@@ -283,124 +307,6 @@ namespace School_Management_System
             UpdateTeachersWorkspaceInfo();
         }
 
-        private void SaveTeacher()
-        {
-            ResetTeacherValidationState();
-            if (!_selectedTeacherId.HasValue)
-            {
-                MessageBox.Show("Select a teacher first.", "Update Teacher", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            try
-            {
-                var teacher = _teacherService.GetById(_selectedTeacherId.Value);
-                if (teacher == null)
-                {
-                    return;
-                }
-
-                var employeeNo = txtTeacherEmployeeNo.Text.Trim();
-                var username = txtTeacherUsername.Text.Trim();
-                var firstName = txtTeacherFirst.Text.Trim();
-                var lastName = txtTeacherLast.Text.Trim();
-                var validationErrors = new List<string>();
-
-                SetInputValidationState(txtTeacherEmployeeNo, string.IsNullOrWhiteSpace(employeeNo));
-                SetInputValidationState(txtTeacherUsername, string.IsNullOrWhiteSpace(username));
-                SetInputValidationState(txtTeacherFirst, string.IsNullOrWhiteSpace(firstName));
-                SetInputValidationState(txtTeacherLast, string.IsNullOrWhiteSpace(lastName));
-
-                if (string.IsNullOrWhiteSpace(employeeNo) || string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName))
-                {
-                    validationErrors.Add("Employee no, first name, and last name are required.");
-                }
-
-                if (string.IsNullOrWhiteSpace(username))
-                {
-                    validationErrors.Add("Account ID is required.");
-                }
-
-                var duplicateEmployee = _teacherService.GetAll().Any(t => t.Id != teacher.Id && string.Equals(t.EmployeeNo ?? string.Empty, employeeNo, StringComparison.OrdinalIgnoreCase));
-                if (duplicateEmployee)
-                {
-                    validationErrors.Add("Employee number already exists.");
-                    SetInputValidationState(txtTeacherEmployeeNo, true);
-                }
-
-                var user = _userService.GetById(teacher.UserId);
-                if (user != null)
-                {
-                    var duplicateUsername = _userService.GetAll().Any(u => u.Id != user.Id && string.Equals(u.Username, username, StringComparison.OrdinalIgnoreCase));
-                    if (duplicateUsername)
-                    {
-                        validationErrors.Add("Account ID already exists.");
-                        SetInputValidationState(txtTeacherUsername, true);
-                    }
-                }
-
-                if (validationErrors.Count > 0)
-                {
-                    ShowValidationSummary(teacherValidationSummaryHost, txtTeacherValidationSummary, validationErrors);
-                    return;
-                }
-
-                var oldData = new
-                {
-                    teacher.EmployeeNo,
-                    teacher.FirstName,
-                    teacher.LastName,
-                    teacher.MiddleName,
-                    teacher.Email,
-                    teacher.ContactNo,
-                    teacher.Specialization,
-                    teacher.AdvisoryAssignmentStatus,
-                    teacher.EmploymentStatus,
-                    teacher.HireDate,
-                    teacher.Status
-                };
-
-                teacher.EmployeeNo = employeeNo;
-                teacher.ProfileImageUrl = NullIfWhite(txtTeacherProfileImage.Text);
-                teacher.FirstName = txtTeacherFirst.Text.Trim();
-                teacher.LastName = txtTeacherLast.Text.Trim();
-                teacher.MiddleName = NullIfWhite(txtTeacherMiddle.Text);
-                teacher.Email = NullIfWhite(txtTeacherEmail.Text);
-                teacher.ContactNo = NullIfWhite(txtTeacherContact.Text);
-                teacher.Specialization = string.IsNullOrWhiteSpace(txtTeacherSpecialization.Text) ? "General" : txtTeacherSpecialization.Text.Trim();
-                teacher.AdvisoryAssignmentStatus = string.IsNullOrWhiteSpace(cboTeacherAdvisoryStatus.Text) ? AdvisoryStatuses[0] : cboTeacherAdvisoryStatus.Text.Trim();
-                teacher.EmploymentStatus = string.IsNullOrWhiteSpace(cboTeacherEmploymentStatus.Text) ? EmploymentStatuses[0] : cboTeacherEmploymentStatus.Text.Trim();
-                teacher.HireDate = dpTeacherHireDate.SelectedDate?.Date;
-                teacher.Status = cboTeacherStatus.SelectedItem is UserStatus selectedStatus ? selectedStatus : teacher.Status;
-                teacher.UpdatedAt = DateTime.UtcNow;
-
-                _teacherService.Update(teacher);
-                AuditTrailService.Log("UPDATE", "teachers", teacher.Id, oldData, teacher);
-
-                if (user != null)
-                {
-                    var oldUser = new { user.Username, user.Status };
-                    user.Username = username;
-                    user.Role = UserRole.TEACHER;
-                    user.CanLogin = false;
-                    user.Status = teacher.Status;
-                    _userService.Update(user);
-                    AuditTrailService.Log("UPDATE", "users", user.Id, oldUser, new { user.Username, user.Status, user.Role, user.CanLogin });
-                }
-
-                HideValidationSummary(teacherValidationSummaryHost, txtTeacherValidationSummary);
-                LoadTeachers(teacher.Id);
-            }
-            catch (DomainValidationException ex)
-            {
-                ShowValidationSummary(teacherValidationSummaryHost, txtTeacherValidationSummary, new[] { ex.Message });
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Update teacher failed: {ex.Message}", "Update Teacher", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
         private void ArchiveOrRestoreTeacher()
         {
             if (!_selectedTeacherId.HasValue)
@@ -420,8 +326,7 @@ namespace School_Management_System
             {
                 if (teacher.Status == UserStatus.INACTIVE)
                 {
-                    var confirmRestore = MessageBox.Show("Restore selected teacher record?", "Confirm Restore", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                    if (confirmRestore != MessageBoxResult.Yes)
+                    if (!AppFeedbackService.Confirm("Restore selected teacher record?", "Confirm Restore", this))
                     {
                         return;
                     }
@@ -443,12 +348,15 @@ namespace School_Management_System
                     }
 
                     AuditTrailService.Log("RESTORE", "teachers", teacher.Id, oldData, new { teacher.Status });
+                    AppFeedbackService.ShowSuccess(
+                        $"Teacher restored successfully: {teacher.LastName}, {teacher.FirstName} ({teacher.EmployeeNo}).",
+                        "Restore Teacher",
+                        this);
                     LoadTeachers(teacher.Id);
                     return;
                 }
 
-                var confirm = MessageBox.Show("Archive selected teacher record?", "Confirm Archive", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                if (confirm != MessageBoxResult.Yes)
+                if (!AppFeedbackService.Confirm("Archive selected teacher record?", "Confirm Archive", this))
                 {
                     return;
                 }
@@ -463,12 +371,16 @@ namespace School_Management_System
                     _userService.Delete(user.Id);
                 }
 
+                AppFeedbackService.ShowSuccess(
+                    $"Teacher archived successfully: {teacher.LastName}, {teacher.FirstName} ({teacher.EmployeeNo}).",
+                    "Archive Teacher",
+                    this);
                 LoadTeachers();
                 ClearTeacherEditor();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Teacher operation failed: {ex.Message}", "Teacher", MessageBoxButton.OK, MessageBoxImage.Error);
+                AppFeedbackService.ShowError("Teacher operation failed.", ex, "Teacher", this);
             }
         }
 
@@ -555,13 +467,31 @@ namespace School_Management_System
             SetInputValidationState(txtTeacherInitialPassword, false);
         }
 
+        private void SetTeacherViewerMode()
+        {
+            txtTeacherEmployeeNo.IsReadOnly = true;
+            txtTeacherUsername.IsReadOnly = true;
+            txtTeacherProfileImage.IsReadOnly = true;
+            txtTeacherFirst.IsReadOnly = true;
+            txtTeacherLast.IsReadOnly = true;
+            txtTeacherMiddle.IsReadOnly = true;
+            txtTeacherEmail.IsReadOnly = true;
+            txtTeacherContact.IsReadOnly = true;
+            txtTeacherSpecialization.IsReadOnly = true;
+            cboTeacherAdvisoryStatus.IsEnabled = false;
+            cboTeacherEmploymentStatus.IsEnabled = false;
+            dpTeacherHireDate.IsEnabled = false;
+            cboTeacherStatus.IsEnabled = false;
+            txtTeacherInitialPassword.IsEnabled = false;
+        }
+
         private void UpdateTeachersWorkspaceInfo()
         {
             var total = _teachers.Count;
             var visible = _teachersTable?.Rows?.Count ?? 0;
             if (!_selectedTeacherId.HasValue)
             {
-                txtTeachersWorkspaceInfo.Text = $"Showing {visible} of {total} teacher records. Use specialization and employment filters to narrow the browse table, then select a row to edit details.";
+                txtTeachersWorkspaceInfo.Text = $"Showing {visible} of {total} teacher records. Use specialization and employment filters to narrow the browse table, then select a row to review details or launch the edit modal.";
                 return;
             }
 

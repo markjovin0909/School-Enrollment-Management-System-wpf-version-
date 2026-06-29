@@ -799,7 +799,7 @@ namespace School_Management_System
             var summaryResult = _enrollmentService.BuildValidationSummary(draft, existingEnrollmentId);
             if (!summaryResult.Success || summaryResult.Data == null)
             {
-                MessageBox.Show(BuildDetailedError(summaryResult.Message, summaryResult.Errors), title, MessageBoxButton.OK, MessageBoxImage.Warning);
+                AppFeedbackService.ShowDetailedWarning(summaryResult.Message, summaryResult.Errors, title, this);
                 return false;
             }
 
@@ -831,12 +831,12 @@ namespace School_Management_System
             var result = _enrollmentService.SubmitEnrollmentRequest(draft);
             if (!result.Success || result.Data == null)
             {
-                MessageBox.Show(BuildDetailedError(result.Message, result.Errors), "Enrollment", MessageBoxButton.OK, MessageBoxImage.Warning);
+                AppFeedbackService.ShowDetailedWarning(result.Message, result.Errors, "Enrollment", this);
                 return;
             }
 
             AuditTrailService.Log("CREATE", "enrollments", result.Data.Id, null, result.Data);
-            MessageBox.Show(result.Message, "Enrollment", MessageBoxButton.OK, MessageBoxImage.Information);
+            AppFeedbackService.ShowSuccess(result.Message, "Enrollment", this);
             LoadEnrollmentStudents(_selectedEnrollmentStudentId);
         }
 
@@ -870,12 +870,12 @@ namespace School_Management_System
             var result = _enrollmentService.SubmitEnrollmentRequest(draft, existing.Id);
             if (!result.Success || result.Data == null)
             {
-                MessageBox.Show(BuildDetailedError(result.Message, result.Errors), "Transfer / Update", MessageBoxButton.OK, MessageBoxImage.Warning);
+                AppFeedbackService.ShowDetailedWarning(result.Message, result.Errors, "Transfer / Update", this);
                 return;
             }
 
             AuditTrailService.Log("UPDATE", "enrollments", result.Data.Id, null, result.Data);
-            MessageBox.Show(result.Message, "Transfer / Update", MessageBoxButton.OK, MessageBoxImage.Information);
+            AppFeedbackService.ShowSuccess(result.Message, "Transfer / Update", this);
             LoadEnrollmentStudents(_selectedEnrollmentStudentId);
         }
 
@@ -928,7 +928,7 @@ namespace School_Management_System
             var result = _enrollmentService.ApproveEnrollment(existing.Id);
             if (!result.Success || result.Data == null)
             {
-                MessageBox.Show(BuildDetailedError(result.Message, result.Errors), "Approval", MessageBoxButton.OK, MessageBoxImage.Warning);
+                AppFeedbackService.ShowDetailedWarning(result.Message, result.Errors, "Approval", this);
                 return;
             }
 
@@ -944,7 +944,7 @@ namespace School_Management_System
                 reason.ReasonCode,
                 reason.ReasonText
             });
-            MessageBox.Show(result.Message, "Approval", MessageBoxButton.OK, MessageBoxImage.Information);
+            AppFeedbackService.ShowSuccess(result.Message, "Approval", this);
             LoadEnrollmentStudents(_selectedEnrollmentStudentId);
             SelectNextEnrollmentForReview();
         }
@@ -983,7 +983,7 @@ namespace School_Management_System
             var result = _enrollmentService.ReturnForCorrection(existing.Id);
             if (!result.Success || result.Data == null)
             {
-                MessageBox.Show(BuildDetailedError(result.Message, result.Errors), "Return for Correction", MessageBoxButton.OK, MessageBoxImage.Warning);
+                AppFeedbackService.ShowDetailedWarning(result.Message, result.Errors, "Return for Correction", this);
                 return;
             }
 
@@ -999,7 +999,7 @@ namespace School_Management_System
                 reason.ReasonCode,
                 reason.ReasonText
             });
-            MessageBox.Show(result.Message, "Return for Correction", MessageBoxButton.OK, MessageBoxImage.Information);
+            AppFeedbackService.ShowSuccess(result.Message, "Return for Correction", this);
             LoadEnrollmentStudents(_selectedEnrollmentStudentId);
             SelectNextEnrollmentForReview();
         }
@@ -1019,8 +1019,7 @@ namespace School_Management_System
                 return;
             }
 
-            var confirm = MessageBox.Show("Cancel this enrollment request?", "Cancel Enrollment", MessageBoxButton.YesNo, MessageBoxImage.Question);
-            if (confirm != MessageBoxResult.Yes)
+            if (!AppFeedbackService.Confirm("Cancel this enrollment request?", "Cancel Enrollment", this))
             {
                 return;
             }
@@ -1044,7 +1043,7 @@ namespace School_Management_System
             var result = _enrollmentService.SetStatus(existing.Id, EnrollmentStatus.CANCELLED);
             if (!result.Success || result.Data == null)
             {
-                MessageBox.Show(BuildDetailedError(result.Message, result.Errors), "Cancel Enrollment", MessageBoxButton.OK, MessageBoxImage.Warning);
+                AppFeedbackService.ShowDetailedWarning(result.Message, result.Errors, "Cancel Enrollment", this);
                 return;
             }
 
@@ -1060,7 +1059,7 @@ namespace School_Management_System
                 reason.ReasonCode,
                 reason.ReasonText
             });
-            MessageBox.Show(result.Message, "Cancel Enrollment", MessageBoxButton.OK, MessageBoxImage.Information);
+            AppFeedbackService.ShowSuccess(result.Message, "Cancel Enrollment", this);
             LoadEnrollmentStudents(_selectedEnrollmentStudentId);
             SelectNextEnrollmentForReview();
         }
@@ -1084,12 +1083,7 @@ namespace School_Management_System
                 ? EnrollmentStatus.CANCELLED
                 : EnrollmentStatus.DROPPED;
 
-            var confirm = MessageBox.Show(
-                $"Set enrollment status to {targetStatus}?",
-                "Drop",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Question);
-            if (confirm != MessageBoxResult.Yes)
+            if (!AppFeedbackService.Confirm($"Set enrollment status to {targetStatus}?", "Drop", this))
             {
                 return;
             }
@@ -1113,7 +1107,7 @@ namespace School_Management_System
             var result = _enrollmentService.SetStatus(existing.Id, targetStatus);
             if (!result.Success || result.Data == null)
             {
-                MessageBox.Show(BuildDetailedError(result.Message, result.Errors), "Drop", MessageBoxButton.OK, MessageBoxImage.Warning);
+                AppFeedbackService.ShowDetailedWarning(result.Message, result.Errors, "Drop", this);
                 return;
             }
 
@@ -1129,7 +1123,7 @@ namespace School_Management_System
                 reason.ReasonCode,
                 reason.ReasonText
             });
-            MessageBox.Show(result.Message, "Drop", MessageBoxButton.OK, MessageBoxImage.Information);
+            AppFeedbackService.ShowSuccess(result.Message, "Drop", this);
             LoadEnrollmentStudents(_selectedEnrollmentStudentId);
             SelectNextEnrollmentForReview();
         }
@@ -1154,7 +1148,7 @@ namespace School_Management_System
             var result = _enrollmentService.PromoteWaitlist(schoolYear.Id, section.Id);
             if (!result.Success)
             {
-                MessageBox.Show(BuildDetailedError(result.Message, result.Errors), "Waitlist", MessageBoxButton.OK, MessageBoxImage.Warning);
+                AppFeedbackService.ShowDetailedWarning(result.Message, result.Errors, "Waitlist", this);
                 return;
             }
 
@@ -1166,7 +1160,7 @@ namespace School_Management_System
                 reason.ReasonCode,
                 reason.ReasonText
             });
-            MessageBox.Show(result.Message, "Waitlist", MessageBoxButton.OK, MessageBoxImage.Information);
+            AppFeedbackService.ShowSuccess(result.Message, "Waitlist", this);
             LoadEnrollmentStudents(_selectedEnrollmentStudentId);
         }
 
@@ -1216,7 +1210,7 @@ namespace School_Management_System
             var result = _enrollmentService.SetStatus(existing.Id, status);
             if (!result.Success || result.Data == null)
             {
-                MessageBox.Show(BuildDetailedError(result.Message, result.Errors), "Status Update", MessageBoxButton.OK, MessageBoxImage.Warning);
+                AppFeedbackService.ShowDetailedWarning(result.Message, result.Errors, "Status Update", this);
                 return;
             }
 
@@ -1232,7 +1226,7 @@ namespace School_Management_System
                 reason.ReasonCode,
                 reason.ReasonText
             });
-            MessageBox.Show(result.Message, "Status Update", MessageBoxButton.OK, MessageBoxImage.Information);
+            AppFeedbackService.ShowSuccess(result.Message, "Status Update", this);
             LoadEnrollmentStudents(_selectedEnrollmentStudentId);
             SelectNextEnrollmentForReview();
         }
@@ -1268,5 +1262,3 @@ namespace School_Management_System
         }
     }
 }
-
-

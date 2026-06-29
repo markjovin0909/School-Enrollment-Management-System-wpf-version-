@@ -13,15 +13,39 @@ namespace School_Management_System.Views
     {
         private readonly SubjectService _subjectService = new();
         private readonly GradeLevelService _gradeLevelService = new();
-        private readonly bool _createOnly;
+        private readonly EditorMode _mode;
+        private long? _editId;
 
         private List<GradeLevel> _gradeLevels = new();
         private DataTable _table = new();
         private long? _selectedId;
 
-        public SubjectsWindow(bool createOnly = false)
+        private enum EditorMode
         {
-            _createOnly = createOnly;
+            ListEmbedded,
+            Create,
+            Edit
+        }
+
+        public SubjectsWindow()
+            : this(EditorMode.ListEmbedded, null)
+        {
+        }
+
+        public SubjectsWindow(bool createOnly)
+            : this(createOnly ? EditorMode.Create : EditorMode.ListEmbedded, null)
+        {
+        }
+
+        public SubjectsWindow(long editId)
+            : this(EditorMode.Edit, editId)
+        {
+        }
+
+        private SubjectsWindow(EditorMode mode, long? editId)
+        {
+            _mode = mode;
+            _editId = editId;
             InitializeComponent();
 
             txtSearch.TextChanged += (_, _) => ApplyFilter();
@@ -33,12 +57,20 @@ namespace School_Management_System.Views
                 }
             };
             gridSubjects.SelectionChanged += GridSubjects_SelectionChanged;
+            gridSubjects.MouseDoubleClick += (_, _) => OpenEditWindow();
+            btnNew.Click += (_, _) => OpenCreateWindow();
+            btnListEdit.Click += (_, _) => OpenEditWindow();
+            btnListDelete.Click += (_, _) => ArchiveSubject();
             btnRefresh.Click += (_, _) => LoadData();
             btnAdd.Click += (_, _) =>
             {
-                if (_createOnly)
+                if (_mode == EditorMode.Create)
                 {
                     AddSubject();
+                }
+                else if (_mode == EditorMode.Edit)
+                {
+                    SaveSubject();
                 }
                 else
                 {
@@ -49,7 +81,7 @@ namespace School_Management_System.Views
             btnDelete.Click += (_, _) => ArchiveSubject();
             btnClear.Click += (_, _) =>
             {
-                if (_createOnly)
+                if (_mode != EditorMode.ListEmbedded)
                 {
                     Close();
                 }
@@ -61,23 +93,55 @@ namespace School_Management_System.Views
 
             LoadLookups();
             chkActive.IsChecked = true;
-            if (_createOnly)
+            if (_mode == EditorMode.Create)
             {
                 ConfigureCreateMode();
             }
+            else if (_mode == EditorMode.Edit)
+            {
+                ConfigureEditMode();
+            }
             else
             {
+                ConfigureListMode();
                 LoadData();
             }
         }
 
+        private void ConfigureListMode()
+        {
+            editorPanel.Visibility = Visibility.Collapsed;
+            Grid.SetColumnSpan(listPanel, 2);
+            listPanel.Margin = new Thickness(0);
+        }
+
         private void OpenCreateWindow()
         {
-            var window = new SubjectsWindow(true) { Owner = this };
-            if (window.ShowDialog() == true)
+            var window = new SubjectsWindow(true);
+            if (AppFeedbackService.ShowOwnedDialog(window, this, editorPanel, listPanel, searchPanel) == true)
             {
                 LoadLookups();
                 LoadData();
+            }
+        }
+
+        private void OpenEditWindow()
+        {
+            if (_mode != EditorMode.ListEmbedded || !_selectedId.HasValue)
+            {
+                if (_mode == EditorMode.ListEmbedded)
+                {
+                    MessageBox.Show("Select a subject first.", "Subject", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+                return;
+            }
+
+            var editId = _selectedId.Value;
+            var window = new SubjectsWindow(editId);
+            if (AppFeedbackService.ShowOwnedDialog(window, this, editorPanel, listPanel, searchPanel) == true)
+            {
+                LoadLookups();
+                LoadData(editId);
             }
         }
 
@@ -99,6 +163,53 @@ namespace School_Management_System.Views
             MinWidth = 700;
             MinHeight = 520;
             ClearEditor();
+        }
+
+        private void ConfigureEditMode()
+        {
+            Title = "Edit Subject";
+            searchPanel.Visibility = Visibility.Collapsed;
+            listPanel.Visibility = Visibility.Collapsed;
+            Grid.SetColumn(editorPanel, 0);
+            Grid.SetColumnSpan(editorPanel, 2);
+            editorPanel.Margin = new Thickness(4);
+            btnAdd.Content = "Save";
+            btnSave.Visibility = Visibility.Collapsed;
+            btnDelete.Visibility = Visibility.Collapsed;
+            btnRefresh.Visibility = Visibility.Collapsed;
+            btnClear.Content = "Cancel";
+            Width = 700;
+            Height = 520;
+            MinWidth = 700;
+            MinHeight = 520;
+            LoadEditorFromEntity();
+        }
+
+        private void LoadEditorFromEntity()
+        {
+            if (!_editId.HasValue)
+            {
+                return;
+            }
+
+            var subject = _subjectService.GetById(_editId.Value);
+            if (subject == null)
+            {
+                MessageBox.Show("Subject not found.", "Subject", MessageBoxButton.OK, MessageBoxImage.Warning);
+                Close();
+                return;
+            }
+
+            _selectedId = subject.Id;
+            txtCode.Text = subject.Code;
+            txtTitle.Text = subject.Title;
+            txtDescription.Text = subject.Description ?? string.Empty;
+            cboGradeLevel.SelectedValue = subject.GradeLevelId ?? 0L;
+            if (subject.GradeLevelId == null)
+            {
+                cboGradeLevel.SelectedIndex = -1;
+            }
+            chkActive.IsChecked = subject.IsActive;
         }
 
         private void LoadLookups()
@@ -215,7 +326,7 @@ namespace School_Management_System.Views
             {
                 _subjectService.Create(entity);
                 AuditTrailService.Log("CREATE", "subjects", entity.Id, null, entity);
-                if (_createOnly)
+                if (_mode == EditorMode.Create)
                 {
                     DialogResult = true;
                     Close();
@@ -274,6 +385,13 @@ namespace School_Management_System.Views
             {
                 _subjectService.Update(subject);
                 AuditTrailService.Log("UPDATE", "subjects", subject.Id, oldData, subject);
+                if (_mode == EditorMode.Edit)
+                {
+                    DialogResult = true;
+                    Close();
+                    return;
+                }
+
                 LoadData(subject.Id);
             }
             catch (DomainValidationException ex)
@@ -294,8 +412,7 @@ namespace School_Management_System.Views
                 return;
             }
 
-            var confirm = MessageBox.Show("Archive selected subject?", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No);
-            if (confirm != MessageBoxResult.Yes)
+            if (!AppFeedbackService.Confirm("Archive selected subject?", "Confirm", this))
             {
                 return;
             }

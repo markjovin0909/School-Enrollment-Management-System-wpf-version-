@@ -22,8 +22,11 @@
 
   <ItemGroup>
     <Compile Remove="Tools\GovernanceSmoke\**\*.cs" />
+    <Compile Remove="Tests\**\*.cs" />
     <EmbeddedResource Remove="Tools\GovernanceSmoke\**\*" />
+    <EmbeddedResource Remove="Tests\**\*" />
     <None Remove="Tools\GovernanceSmoke\**\*" />
+    <None Remove="Tests\**\*" />
   </ItemGroup>
 
   <ItemGroup>

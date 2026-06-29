@@ -28,13 +28,21 @@ namespace School_Management_System.Data
         public DbSet<Curriculum> Curricula { get; set; }
         public DbSet<CurriculumSubject> CurriculumSubjects { get; set; }
         public DbSet<Enrollment> Enrollments { get; set; }
+        public DbSet<Announcement> Announcements { get; set; }
         public DbSet<ClassOffering> ClassOfferings { get; set; }
         public DbSet<ClassSchedule> ClassSchedules { get; set; }
         public DbSet<ClassStudent> ClassStudents { get; set; }
+        public DbSet<Assessment> Assessments { get; set; }
+        public DbSet<AssessmentScore> AssessmentScores { get; set; }
+        public DbSet<AttendanceSession> AttendanceSessions { get; set; }
+        public DbSet<AttendanceRecord> AttendanceRecords { get; set; }
         public DbSet<Room> Rooms { get; set; }
         public DbSet<TimeSlot> TimeSlots { get; set; }
         public DbSet<AuditLog> AuditLogs { get; set; }
+        public DbSet<GradeComponent> GradeComponents { get; set; }
+        public DbSet<GradingPeriod> GradingPeriods { get; set; }
         public DbSet<SchoolSetting> SchoolSettings { get; set; }
+        public DbSet<StudentGrade> StudentGrades { get; set; }
         public DbSet<StudentRequirement> StudentRequirements { get; set; }
         public DbSet<ArchiveRecord> ArchiveRecords { get; set; }
         public DbSet<EnrollmentStateTransition> EnrollmentStateTransitions { get; set; }
@@ -51,6 +59,8 @@ namespace School_Management_System.Data
             modelBuilder.Entity<Student>().Property(e => e.Sex).HasConversion<string>();
 
             modelBuilder.Entity<SchoolYear>().Property(e => e.Status).HasConversion<string>();
+            modelBuilder.Entity<Announcement>().Property(e => e.AudienceType).HasConversion<string>();
+            modelBuilder.Entity<AttendanceRecord>().Property(e => e.Status).HasConversion<string>();
             modelBuilder.Entity<GradeComponent>().Property(e => e.Name).HasConversion<string>();
             modelBuilder.Entity<GradingPeriod>().Property(e => e.Status).HasConversion<string>();
             modelBuilder.Entity<ClassOffering>().Property(e => e.Status).HasConversion<string>();

@@ -22,12 +22,36 @@ namespace School_Management_System.Views
         private List<GradeLevel> _gradeLevels = new();
         private List<Teacher> _teachers = new();
         private List<TeacherOption> _teacherOptions = new();
-        private readonly bool _createOnly;
+        private readonly EditorMode _mode;
+        private long? _editId;
         private bool _suppressEvents;
 
-        public SectionsWindow(bool createOnly = false)
+        private enum EditorMode
         {
-            _createOnly = createOnly;
+            ListEmbedded,
+            Create,
+            Edit
+        }
+
+        public SectionsWindow()
+            : this(EditorMode.ListEmbedded, null)
+        {
+        }
+
+        public SectionsWindow(bool createOnly)
+            : this(createOnly ? EditorMode.Create : EditorMode.ListEmbedded, null)
+        {
+        }
+
+        public SectionsWindow(long editId)
+            : this(EditorMode.Edit, editId)
+        {
+        }
+
+        private SectionsWindow(EditorMode mode, long? editId)
+        {
+            _mode = mode;
+            _editId = editId;
             InitializeComponent();
 
             txtSearch.TextChanged += (_, _) => { if (!_suppressEvents) LoadData(); };
@@ -45,14 +69,21 @@ namespace School_Management_System.Views
                 }
             };
             gridSections.SelectionChanged += GridSections_SelectionChanged;
+            gridSections.MouseDoubleClick += (_, _) => OpenEditWindow();
 
             btnNew.Click += (_, _) => OpenCreateWindow();
+            btnListEdit.Click += (_, _) => OpenEditWindow();
+            btnListDelete.Click += (_, _) => ArchiveOrRestoreSection();
             btnRefresh.Click += (_, _) => LoadData();
             btnAdd.Click += (_, _) =>
             {
-                if (_createOnly)
+                if (_mode == EditorMode.Create)
                 {
                     AddSection();
+                }
+                else if (_mode == EditorMode.Edit)
+                {
+                    SaveSection();
                 }
                 else
                 {
@@ -63,7 +94,7 @@ namespace School_Management_System.Views
             btnArchiveRestore.Click += (_, _) => ArchiveOrRestoreSection();
             btnClear.Click += (_, _) =>
             {
-                if (_createOnly)
+                if (_mode != EditorMode.ListEmbedded)
                 {
                     Close();
                 }
@@ -74,20 +105,101 @@ namespace School_Management_System.Views
             };
 
             LoadLookups();
-            if (_createOnly)
+            if (_mode == EditorMode.Create)
             {
                 ConfigureCreateMode();
             }
+            else if (_mode == EditorMode.Edit)
+            {
+                ConfigureEditMode();
+            }
             else
             {
+                ConfigureListMode();
                 LoadData();
             }
         }
 
+        private void ConfigureListMode()
+        {
+            editorPanel.Visibility = Visibility.Collapsed;
+            Grid.SetColumn(searchPanel, 0);
+            Grid.SetColumnSpan(searchPanel, 2);
+            searchPanel.Margin = new Thickness(0, 0, 0, 8);
+            Grid.SetColumnSpan(listPanel, 2);
+            listPanel.Margin = new Thickness(0);
+        }
+
+        private void OpenEditWindow()
+        {
+            if (_mode != EditorMode.ListEmbedded || !_selectedId.HasValue)
+            {
+                if (_mode == EditorMode.ListEmbedded)
+                {
+                    MessageBox.Show("Select a section first.", "Section", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+                return;
+            }
+
+            var editId = _selectedId.Value;
+            var window = new SectionsWindow(editId);
+            if (AppFeedbackService.ShowOwnedDialog(window, this, editorPanel, listPanel, searchPanel) == true)
+            {
+                LoadData(editId);
+            }
+        }
+
+        private void ConfigureModalEditorChrome()
+        {
+            searchPanel.Visibility = Visibility.Collapsed;
+            gridSections.Visibility = Visibility.Collapsed;
+            Grid.SetColumn(editorPanel, 0);
+            Grid.SetColumnSpan(editorPanel, 2);
+            editorPanel.Margin = new Thickness(0);
+            Width = 640;
+            Height = 560;
+            MinWidth = 640;
+            MinHeight = 560;
+        }
+
+        private void ConfigureEditMode()
+        {
+            Title = "Edit Section";
+            ConfigureModalEditorChrome();
+            btnAdd.Content = "Save";
+            btnSave.Visibility = Visibility.Collapsed;
+            btnArchiveRestore.Visibility = Visibility.Collapsed;
+            btnClear.Content = "Cancel";
+            LoadEditorFromEntity();
+        }
+
+        private void LoadEditorFromEntity()
+        {
+            if (!_editId.HasValue)
+            {
+                return;
+            }
+
+            var section = _sectionService.GetById(_editId.Value);
+            if (section == null)
+            {
+                MessageBox.Show("Section not found.", "Section", MessageBoxButton.OK, MessageBoxImage.Warning);
+                Close();
+                return;
+            }
+
+            _selectedId = section.Id;
+            txtName.Text = section.Name;
+            txtCapacity.Text = section.Capacity?.ToString() ?? string.Empty;
+            cboSchoolYear.SelectedValue = section.SchoolYearId;
+            cboGradeLevel.SelectedValue = section.GradeLevelId;
+            cboAdviser.SelectedValue = section.AdviserTeacherId ?? 0L;
+        }
+
         private void OpenCreateWindow()
         {
-            var window = new SectionsWindow(true) { Owner = this };
-            if (window.ShowDialog() == true)
+            var window = new SectionsWindow(true);
+            if (AppFeedbackService.ShowOwnedDialog(window, this, editorPanel, listPanel, searchPanel) == true)
             {
                 LoadLookups();
                 LoadData();
@@ -97,19 +209,11 @@ namespace School_Management_System.Views
         private void ConfigureCreateMode()
         {
             Title = "Create Section";
-            searchPanel.Visibility = Visibility.Collapsed;
-            gridSections.Visibility = Visibility.Collapsed;
-            Grid.SetColumn(editorPanel, 0);
-            Grid.SetColumnSpan(editorPanel, 2);
-            editorPanel.Margin = new Thickness(0);
+            ConfigureModalEditorChrome();
             btnAdd.Content = "Create";
             btnSave.Visibility = Visibility.Collapsed;
             btnArchiveRestore.Visibility = Visibility.Collapsed;
             btnClear.Content = "Cancel";
-            Width = 640;
-            Height = 560;
-            MinWidth = 640;
-            MinHeight = 560;
             ClearEditor();
         }
 
@@ -282,7 +386,7 @@ namespace School_Management_System.Views
             {
                 _sectionService.Create(section);
                 AuditTrailService.Log("CREATE", "sections", section.Id, null, section);
-                if (_createOnly)
+                if (_mode == EditorMode.Create)
                 {
                     DialogResult = true;
                     Close();
@@ -372,15 +476,10 @@ namespace School_Management_System.Views
                 return;
             }
 
-            var confirm = MessageBox.Show(
-                section.IsArchived
-                    ? "Restore selected section?"
-                    : "Archive selected section? It will be hidden from enrollment and class offering assignment.",
-                "Confirm",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Question,
-                MessageBoxResult.No);
-            if (confirm != MessageBoxResult.Yes)
+            var confirmMessage = section.IsArchived
+                ? "Restore selected section?"
+                : "Archive selected section? It will be hidden from enrollment and class offering assignment.";
+            if (!AppFeedbackService.Confirm(confirmMessage, "Confirm", this))
             {
                 return;
             }

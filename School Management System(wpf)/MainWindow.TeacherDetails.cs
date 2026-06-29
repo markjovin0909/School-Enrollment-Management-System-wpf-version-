@@ -1,8 +1,6 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using School_Management_System.Models;
 using School_Management_System.Services;
@@ -19,7 +17,6 @@ namespace School_Management_System
 
         private long? _teacherDetailId;
         private Teacher? _teacherDetailRecord;
-        private bool _teacherDetailEditMode;
 
         private void InitializeTeacherDetailsTab()
         {
@@ -27,11 +24,13 @@ namespace School_Management_System
             cboTDAdvisoryStatus.ItemsSource = TDAdvisoryStatuses;
             cboTDEmploymentStatus.ItemsSource = TDEmploymentStatuses;
 
-            btnTDEdit.Click += (_, _) => EnterTeacherDetailEditMode();
+            btnTDEdit.Click += (_, _) => OpenTeacherDetailEditDialog();
             btnTDDelete.Click += (_, _) => DeleteTeacherDetail();
-            btnTDSave.Click += (_, _) => SaveTeacherDetail();
-            btnTDCancelEdit.Click += (_, _) => ExitTeacherDetailEditMode();
             gridTDSections.MouseDoubleClick += GridTDSections_MouseDoubleClick;
+
+            SetTeacherDetailFieldsEditable(false);
+            tdEditBanner.Visibility = Visibility.Collapsed;
+            tdValidationBanner.Visibility = Visibility.Collapsed;
         }
 
         private void OpenTeacherSearchModal()
@@ -73,6 +72,9 @@ namespace School_Management_System
             sectionTDHeader.Title = fullName;
             sectionTDHeader.Subtitle = $"Employee No: {_teacherDetailRecord.EmployeeNo ?? "N/A"}  |  {_teacherDetailRecord.Specialization ?? "No specialization"}";
 
+            SetTeacherDetailFieldsEditable(false);
+            tdEditBanner.Visibility = Visibility.Collapsed;
+            tdValidationBanner.Visibility = Visibility.Collapsed;
             PopulateTeacherDetailFields();
             LoadTeacherDetailSubjects();
             LoadTeacherDetailSections();
@@ -192,26 +194,6 @@ namespace School_Management_System
             }
         }
 
-        private void EnterTeacherDetailEditMode()
-        {
-            _teacherDetailEditMode = true;
-            SetTeacherDetailFieldsEditable(true);
-            tdEditBanner.Visibility = Visibility.Visible;
-            btnTDEdit.Visibility = Visibility.Collapsed;
-            btnTDDelete.Visibility = Visibility.Collapsed;
-        }
-
-        private void ExitTeacherDetailEditMode()
-        {
-            _teacherDetailEditMode = false;
-            SetTeacherDetailFieldsEditable(false);
-            tdEditBanner.Visibility = Visibility.Collapsed;
-            tdValidationBanner.Visibility = Visibility.Collapsed;
-            btnTDEdit.Visibility = Visibility.Visible;
-            btnTDDelete.Visibility = Visibility.Visible;
-            PopulateTeacherDetailFields();
-        }
-
         private void SetTeacherDetailFieldsEditable(bool editable)
         {
             txtTDEmployeeNo.IsReadOnly = !editable;
@@ -227,68 +209,25 @@ namespace School_Management_System
             cboTDEmploymentStatus.IsEnabled = editable;
         }
 
-        private void SaveTeacherDetail()
+        private void OpenTeacherDetailEditDialog()
         {
-            if (_teacherDetailRecord == null) return;
-
-            var errors = new List<string>();
-            var firstName = txtTDFirstName.Text.Trim();
-            var lastName = txtTDLastName.Text.Trim();
-
-            if (string.IsNullOrWhiteSpace(firstName)) errors.Add("First name is required.");
-            if (string.IsNullOrWhiteSpace(lastName)) errors.Add("Last name is required.");
-
-            if (errors.Count > 0)
+            if (!_teacherDetailId.HasValue)
             {
-                txtTDValidation.Text = string.Join("\n", errors.Select(e => $"• {e}"));
-                tdValidationBanner.Visibility = Visibility.Visible;
                 return;
             }
 
             try
             {
-                var oldData = new
+                var dialog = new TeacherCreateWindow(_teacherDetailId.Value) { Owner = this };
+                if (dialog.ShowDialog() == true && dialog.SavedTeacherId.HasValue)
                 {
-                    _teacherDetailRecord.EmployeeNo,
-                    _teacherDetailRecord.FirstName,
-                    _teacherDetailRecord.LastName,
-                    _teacherDetailRecord.MiddleName,
-                    _teacherDetailRecord.Email,
-                    _teacherDetailRecord.ContactNo,
-                    _teacherDetailRecord.Specialization,
-                    _teacherDetailRecord.AdvisoryAssignmentStatus,
-                    _teacherDetailRecord.EmploymentStatus,
-                    _teacherDetailRecord.HireDate,
-                    _teacherDetailRecord.Status
-                };
-
-                _teacherDetailRecord.EmployeeNo = string.IsNullOrWhiteSpace(txtTDEmployeeNo.Text) ? null : txtTDEmployeeNo.Text.Trim();
-                _teacherDetailRecord.FirstName = firstName;
-                _teacherDetailRecord.LastName = lastName;
-                _teacherDetailRecord.MiddleName = string.IsNullOrWhiteSpace(txtTDMiddleName.Text) ? null : txtTDMiddleName.Text.Trim();
-                _teacherDetailRecord.Email = string.IsNullOrWhiteSpace(txtTDEmail.Text) ? null : txtTDEmail.Text.Trim();
-                _teacherDetailRecord.ContactNo = string.IsNullOrWhiteSpace(txtTDContactNo.Text) ? null : txtTDContactNo.Text.Trim();
-                _teacherDetailRecord.Specialization = string.IsNullOrWhiteSpace(txtTDSpecialization.Text) ? null : txtTDSpecialization.Text.Trim();
-                _teacherDetailRecord.AdvisoryAssignmentStatus = cboTDAdvisoryStatus.SelectedItem as string;
-                _teacherDetailRecord.EmploymentStatus = cboTDEmploymentStatus.SelectedItem as string;
-                _teacherDetailRecord.HireDate = dpTDHireDate.SelectedDate?.Date;
-                _teacherDetailRecord.Status = cboTDStatus.SelectedItem is UserStatus status ? status : _teacherDetailRecord.Status;
-                _teacherDetailRecord.UpdatedAt = DateTime.UtcNow;
-
-                _teacherService.Update(_teacherDetailRecord);
-                AuditTrailService.Log("UPDATE", "teachers", _teacherDetailRecord.Id, oldData, _teacherDetailRecord);
-
-                ExitTeacherDetailEditMode();
-                LoadTeacherDetailData();
-            }
-            catch (DomainValidationException ex)
-            {
-                txtTDValidation.Text = $"• {ex.Message}";
-                tdValidationBanner.Visibility = Visibility.Visible;
+                    _teacherDetailId = dialog.SavedTeacherId.Value;
+                    LoadTeacherDetailData();
+                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Update failed: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                AppFeedbackService.ShowError("Open edit teacher dialog failed.", ex, "Teacher Details", this);
             }
         }
 
@@ -296,8 +235,7 @@ namespace School_Management_System
         {
             if (_teacherDetailRecord == null) return;
 
-            var confirm = MessageBox.Show("Are you sure you want to delete this teacher?", "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-            if (confirm != MessageBoxResult.Yes) return;
+            if (!AppFeedbackService.Confirm("Are you sure you want to delete this teacher?", "Confirm Delete", this)) return;
 
             try
             {

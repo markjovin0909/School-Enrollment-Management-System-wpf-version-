@@ -25,7 +25,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <controls:SectionHeader Grid.Row="0" Grid.ColumnSpan="2"
+        <controls:SectionHeader x:Name="sectionHeader" Grid.Row="0" Grid.ColumnSpan="2"
                                 Title="Student Requirements"
                                 Subtitle="Track required document submission and compliance notes"
                                 Margin="0,0,0,10"/>
@@ -39,6 +39,8 @@
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
                     <TextBlock x:Name="txtSummary" VerticalAlignment="Center" Margin="0,0,12,0" Foreground="{StaticResource BrushMuted}"/>
+                    <Button x:Name="btnListEdit" Content="Edit Selected" Width="104" Margin="0,0,8,0" Style="{StaticResource GhostButton}"/>
+                    <Button x:Name="btnListDelete" Content="Delete Selected" Width="112" Margin="0,0,8,0" Style="{StaticResource GhostButton}"/>
                     <Button x:Name="btnRefresh" Content="Refresh" Width="92" Style="{StaticResource GhostButton}"/>
                 </StackPanel>
             </DockPanel>

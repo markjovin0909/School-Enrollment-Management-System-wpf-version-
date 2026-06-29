@@ -70,21 +70,21 @@
                 <StackPanel>
                     <controls:SectionHeader Title="Offering Details" Subtitle="Teacher assignment and state transitions" Margin="0,0,0,8"/>
                     <Border Style="{StaticResource InfoBanner}" Margin="0,0,0,12">
-                        <TextBlock Text="Generate from the selected section, then assign teacher, room context, and finalization state here."
+                        <TextBlock Text="Generate from the selected section, then review the selected row here or open the dedicated edit modal for teacher, room, and status updates."
                                    TextWrapping="Wrap"/>
                     </Border>
                     <Label Content="Subject"/>
                     <TextBox x:Name="txtSubject" IsReadOnly="True"/>
                     <Label Content="Teacher" Margin="0,8,0,0"/>
-                    <ComboBox x:Name="cboTeacher" DisplayMemberPath="Name" SelectedValuePath="Id"/>
+                    <ComboBox x:Name="cboTeacher" DisplayMemberPath="Name" SelectedValuePath="Id" IsEnabled="False"/>
                     <Label Content="Status" Margin="0,8,0,0"/>
-                    <ComboBox x:Name="cboStatus"/>
+                    <ComboBox x:Name="cboStatus" IsEnabled="False"/>
                     <Label Content="Room" Margin="0,8,0,0"/>
-                    <TextBox x:Name="txtRoom"/>
+                    <TextBox x:Name="txtRoom" IsReadOnly="True"/>
 
                     <WrapPanel Margin="0,12,0,0">
                         <Button x:Name="btnGenerate" Content="Generate" Width="96"/>
-                        <Button x:Name="btnSave" Content="Save" Width="90"/>
+                        <Button x:Name="btnSave" Content="Edit Selected" Width="104"/>
                         <Button x:Name="btnFinalize" Content="Finalize" Width="90" Style="{StaticResource GhostButton}"/>
                         <Button x:Name="btnDelete" Content="Delete" Width="90" Style="{StaticResource GhostButton}"/>
                         <Button x:Name="btnClear" Content="Clear" Width="90" Style="{StaticResource GhostButton}"/>

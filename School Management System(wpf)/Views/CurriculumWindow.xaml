@@ -34,6 +34,8 @@
         <Border x:Name="searchPanel" Grid.Row="1" Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,8,8" Padding="10">
             <DockPanel>
                 <Button x:Name="btnNew" Content="New Curriculum" Width="122" DockPanel.Dock="Left" Margin="0,0,8,0"/>
+                <Button x:Name="btnListEdit" Content="Edit" Width="80" DockPanel.Dock="Left" Margin="0,0,8,0"/>
+                <Button x:Name="btnListDelete" Content="Delete" Width="80" DockPanel.Dock="Left" Margin="0,0,8,0" Style="{StaticResource GhostButton}"/>
                 <Button x:Name="btnRefresh" Content="Refresh" Width="90" DockPanel.Dock="Right" Style="{StaticResource GhostButton}"/>
                 <DockPanel Margin="0,0,8,0">
                     <TextBlock Text="{StaticResource Icon.Search}" Style="{StaticResource GlyphIcon}" Margin="0,0,8,0"/>
@@ -42,7 +44,7 @@
             </DockPanel>
         </Border>
 
-        <Border Grid.Row="2" Grid.Column="0" Grid.RowSpan="2" Style="{StaticResource CardPanel}" Margin="0,0,8,0">
+        <Border x:Name="listPanel" Grid.Row="2" Grid.Column="0" Grid.RowSpan="2" Style="{StaticResource CardPanel}" Margin="0,0,8,0">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -92,32 +94,33 @@
 
                 <controls:SectionHeader Grid.Row="0" Grid.ColumnSpan="3"
                                         Title="Subject Mapping"
-                                        Subtitle="Assign subjects to grade levels, semesters, and ordering"
+                                        Subtitle="Review the selected mapping here, then use dedicated modals for add and edit."
                                         Margin="0,0,0,10"/>
 
-                <ComboBox Grid.Row="1" Grid.Column="0" x:Name="cboMapGrade" Margin="0,0,8,8" DisplayMemberPath="Code" SelectedValuePath="Id"/>
-                <ComboBox Grid.Row="1" Grid.Column="1" x:Name="cboMapSubject" Margin="0,0,8,8" DisplayMemberPath="Label" SelectedValuePath="Id"/>
+                <ComboBox Grid.Row="1" Grid.Column="0" x:Name="cboMapGrade" Margin="0,0,8,8" DisplayMemberPath="Code" SelectedValuePath="Id" IsEnabled="False"/>
+                <ComboBox Grid.Row="1" Grid.Column="1" x:Name="cboMapSubject" Margin="0,0,8,8" DisplayMemberPath="Label" SelectedValuePath="Id" IsEnabled="False"/>
 
                 <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal" Margin="0,0,8,0">
                     <TextBlock Text="Semester" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                    <ComboBox x:Name="cboMapSemester" Width="70"/>
+                    <ComboBox x:Name="cboMapSemester" Width="70" IsEnabled="False"/>
                     <TextBlock Text="Required" VerticalAlignment="Center" Margin="12,0,8,0"/>
-                    <ComboBox x:Name="cboMapRequired" Width="74"/>
+                    <ComboBox x:Name="cboMapRequired" Width="74" IsEnabled="False"/>
                 </StackPanel>
 
                 <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" Margin="0,0,8,0">
                     <TextBlock Text="Sort" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                    <TextBox x:Name="txtMapSort" Width="70"/>
+                    <TextBox x:Name="txtMapSort" Width="70" IsReadOnly="True"/>
                 </StackPanel>
 
                 <WrapPanel Grid.Row="1" Grid.RowSpan="2" Grid.Column="2" VerticalAlignment="Top">
                     <Button x:Name="btnMapAdd" Content="Add" Width="76"/>
+                    <Button x:Name="btnMapEdit" Content="Edit" Width="76" Style="{StaticResource GhostButton}"/>
                     <Button x:Name="btnMapDelete" Content="Remove" Width="76" Style="{StaticResource GhostButton}"/>
                 </WrapPanel>
             </Grid>
         </Border>
 
-        <Border Grid.Row="3" Grid.Column="1" Style="{StaticResource CardPanel}" Margin="8,0,0,0">
+        <Border x:Name="mappedGridPanel" Grid.Row="3" Grid.Column="1" Style="{StaticResource CardPanel}" Margin="8,0,0,0">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>

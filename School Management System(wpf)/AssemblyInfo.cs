@@ -10,3 +10,4 @@ using System.Runtime.CompilerServices;
                                                 // app, or any theme specific resource dictionaries)
 )]
 [assembly: InternalsVisibleTo("SMS.GovernanceSmoke")]
+[assembly: InternalsVisibleTo("SMS.BackendTests")]

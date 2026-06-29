@@ -1,9 +1,8 @@
 using System.Linq;
-using School_Management_System.Interfaces;
 
 namespace School_Management_System.Repositories
 {
-    internal class UserRepository : BaseRepository<Models.User>, IUserRepository
+    internal class UserRepository : BaseRepository<Models.User>
     {
         public UserRepository(Data.AppDbContext context) : base(context)
         {

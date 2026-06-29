@@ -1,8 +1,6 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
-using System.Windows.Controls;
 using School_Management_System.Models;
 using School_Management_System.Services;
 using School_Management_System.Views;
@@ -15,7 +13,6 @@ namespace School_Management_System
 
         private long? _studentDetailId;
         private Student? _studentDetailRecord;
-        private bool _studentDetailEditMode;
 
         private void InitializeStudentDetailsTab()
         {
@@ -23,11 +20,13 @@ namespace School_Management_System
             cboSDSex.ItemsSource = Enum.GetValues(typeof(Sex));
             LoadStudentDetailLookups();
 
-            btnStudentDetailEdit.Click += (_, _) => EnterStudentDetailEditMode();
+            btnStudentDetailEdit.Click += (_, _) => OpenStudentDetailEditDialog();
             btnStudentDetailDelete.Click += (_, _) => DeleteStudentDetail();
-            btnStudentDetailSave.Click += (_, _) => SaveStudentDetail();
-            btnStudentDetailCancelEdit.Click += (_, _) => ExitStudentDetailEditMode();
             btnSDManageRequirements.Click += (_, _) => OpenStudentDetailRequirements();
+
+            SetStudentDetailFieldsEditable(false);
+            studentDetailEditBanner.Visibility = Visibility.Collapsed;
+            studentDetailValidationBanner.Visibility = Visibility.Collapsed;
         }
 
         private void LoadStudentDetailLookups()
@@ -79,6 +78,9 @@ namespace School_Management_System
             sectionStudentDetailHeader.Title = fullName;
             sectionStudentDetailHeader.Subtitle = $"LRN: {_studentDetailRecord.Lrn}  |  Student No: {_studentDetailRecord.StudentNumber}";
 
+            SetStudentDetailFieldsEditable(false);
+            studentDetailEditBanner.Visibility = Visibility.Collapsed;
+            studentDetailValidationBanner.Visibility = Visibility.Collapsed;
             PopulateStudentDetailFields();
             LoadStudentDetailRequirements();
             LoadStudentDetailGrades();
@@ -243,26 +245,6 @@ namespace School_Management_System
             }
         }
 
-        private void EnterStudentDetailEditMode()
-        {
-            _studentDetailEditMode = true;
-            SetStudentDetailFieldsEditable(true);
-            studentDetailEditBanner.Visibility = Visibility.Visible;
-            btnStudentDetailEdit.Visibility = Visibility.Collapsed;
-            btnStudentDetailDelete.Visibility = Visibility.Collapsed;
-        }
-
-        private void ExitStudentDetailEditMode()
-        {
-            _studentDetailEditMode = false;
-            SetStudentDetailFieldsEditable(false);
-            studentDetailEditBanner.Visibility = Visibility.Collapsed;
-            studentDetailValidationBanner.Visibility = Visibility.Collapsed;
-            btnStudentDetailEdit.Visibility = Visibility.Visible;
-            btnStudentDetailDelete.Visibility = Visibility.Visible;
-            PopulateStudentDetailFields();
-        }
-
         private void SetStudentDetailFieldsEditable(bool editable)
         {
             txtSDLrn.IsReadOnly = !editable;
@@ -279,101 +261,28 @@ namespace School_Management_System
             cboSDPreferredGrade.IsEnabled = editable;
             cboSDPreferredCurriculum.IsEnabled = editable;
             cboSDStatus.IsEnabled = editable;
-            txtSDStudentNumber.IsReadOnly = true; // always read-only
+            txtSDStudentNumber.IsReadOnly = true;
         }
 
-        private void SaveStudentDetail()
+        private void OpenStudentDetailEditDialog()
         {
-            if (_studentDetailRecord == null) return;
-
-            var errors = new List<string>();
-            var lrn = txtSDLrn.Text.Trim();
-            var firstName = txtSDFirstName.Text.Trim();
-            var lastName = txtSDLastName.Text.Trim();
-
-            if (string.IsNullOrWhiteSpace(lrn)) errors.Add("LRN is required.");
-            if (string.IsNullOrWhiteSpace(firstName)) errors.Add("First name is required.");
-            if (string.IsNullOrWhiteSpace(lastName)) errors.Add("Last name is required.");
-
-            var duplicateLrn = _studentService.GetAll()
-                .Any(s => s.Id != _studentDetailRecord.Id && string.Equals(s.Lrn?.Trim(), lrn, StringComparison.OrdinalIgnoreCase));
-            if (duplicateLrn) errors.Add("LRN already exists.");
-
-            var birthdate = dpSDBirthdate.SelectedDate?.Date;
-            if (birthdate.HasValue)
+            if (!_studentDetailId.HasValue)
             {
-                var duplicateName = _studentService.GetAll()
-                    .Any(s => s.Id != _studentDetailRecord.Id &&
-                         string.Equals(s.FirstName?.Trim(), firstName, StringComparison.OrdinalIgnoreCase) &&
-                         string.Equals(s.LastName?.Trim(), lastName, StringComparison.OrdinalIgnoreCase) &&
-                         Nullable.Equals(s.Birthdate?.Date, birthdate));
-                if (duplicateName) errors.Add("A student with the same name and birthdate already exists.");
-            }
-
-            if (errors.Count > 0)
-            {
-                txtStudentDetailValidation.Text = string.Join("\n", errors.Select(e => $"• {e}"));
-                studentDetailValidationBanner.Visibility = Visibility.Visible;
                 return;
             }
 
             try
             {
-                var oldData = new
+                var dialog = new StudentCreateWindow(_studentDetailId.Value) { Owner = this };
+                if (dialog.ShowDialog() == true && dialog.SavedStudentId.HasValue)
                 {
-                    _studentDetailRecord.Lrn,
-                    _studentDetailRecord.FirstName,
-                    _studentDetailRecord.LastName,
-                    _studentDetailRecord.MiddleName,
-                    _studentDetailRecord.Birthdate,
-                    _studentDetailRecord.Sex,
-                    _studentDetailRecord.Address,
-                    _studentDetailRecord.ContactNo,
-                    _studentDetailRecord.GuardianName,
-                    _studentDetailRecord.GuardianContact,
-                    _studentDetailRecord.PreviousSchool,
-                    _studentDetailRecord.PreferredGradeLevelId,
-                    _studentDetailRecord.PreferredCurriculumId,
-                    _studentDetailRecord.Status
-                };
-
-                _studentDetailRecord.Lrn = lrn;
-                _studentDetailRecord.FirstName = firstName;
-                _studentDetailRecord.LastName = lastName;
-                _studentDetailRecord.MiddleName = string.IsNullOrWhiteSpace(txtSDMiddleName.Text) ? null : txtSDMiddleName.Text.Trim();
-                _studentDetailRecord.Birthdate = birthdate;
-                _studentDetailRecord.Age = ComputeAge(birthdate);
-                _studentDetailRecord.Sex = cboSDSex.SelectedItem is Sex selectedSex ? selectedSex : null;
-                _studentDetailRecord.Address = string.IsNullOrWhiteSpace(txtSDAddress.Text) ? null : txtSDAddress.Text.Trim();
-                _studentDetailRecord.ContactNo = string.IsNullOrWhiteSpace(txtSDContactNo.Text) ? null : txtSDContactNo.Text.Trim();
-                _studentDetailRecord.GuardianName = string.IsNullOrWhiteSpace(txtSDGuardianName.Text) ? null : txtSDGuardianName.Text.Trim();
-                _studentDetailRecord.GuardianContact = txtSDGuardianContact.Text.Trim();
-                _studentDetailRecord.PreviousSchool = string.IsNullOrWhiteSpace(txtSDPreviousSchool.Text) ? null : txtSDPreviousSchool.Text.Trim();
-                _studentDetailRecord.PreferredGradeLevelId = cboSDPreferredGrade.SelectedValue is long gradeId && gradeId > 0 ? gradeId : null;
-                _studentDetailRecord.PreferredCurriculumId = cboSDPreferredCurriculum.SelectedValue is long currId && currId > 0 ? currId : null;
-                _studentDetailRecord.Status = cboSDStatus.SelectedItem is UserStatus status ? status : _studentDetailRecord.Status;
-                _studentDetailRecord.UpdatedAt = DateTime.UtcNow;
-
-                _studentService.Update(_studentDetailRecord);
-                AuditTrailService.Log("UPDATE", "students", _studentDetailRecord.Id, oldData, _studentDetailRecord);
-
-                var syncResult = _studentAccountService.SyncStudentAccount(_studentDetailRecord.Id);
-                if (!syncResult.Success)
-                {
-                    MessageBox.Show(syncResult.Message, "Student Account", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    _studentDetailId = dialog.SavedStudentId.Value;
+                    LoadStudentDetailData();
                 }
-
-                ExitStudentDetailEditMode();
-                LoadStudentDetailData();
-            }
-            catch (DomainValidationException ex)
-            {
-                txtStudentDetailValidation.Text = $"• {ex.Message}";
-                studentDetailValidationBanner.Visibility = Visibility.Visible;
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Update failed: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                AppFeedbackService.ShowError("Open edit student dialog failed.", ex, "Student Details", this);
             }
         }
 
@@ -381,8 +290,7 @@ namespace School_Management_System
         {
             if (_studentDetailRecord == null) return;
 
-            var dependents = new List<string>();
-            // Use the shared enrollment cache instead of a full GetAll() scan
+            var dependents = new System.Collections.Generic.List<string>();
             var enrollmentCount = _cachedEnrollments.Count(e => e.StudentId == _studentDetailId!.Value);
             var gradeService = new StudentGradeService();
             var classStudentService = new ClassStudentService();
@@ -399,11 +307,10 @@ namespace School_Management_System
             var message = "Are you sure you want to delete this student?";
             if (dependents.Count > 0)
             {
-                message += $"\n\nWARNING: This student has the following dependent records that will also be removed:\n• {string.Join("\n• ", dependents)}";
+                message += $"\n\nWARNING: This student has the following dependent records that will also be removed:\n- {string.Join("\n- ", dependents)}";
             }
 
-            var confirm = MessageBox.Show(message, "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-            if (confirm != MessageBoxResult.Yes) return;
+            if (!AppFeedbackService.Confirm(message, "Confirm Delete", this)) return;
 
             try
             {
@@ -419,7 +326,7 @@ namespace School_Management_System
 
                 _studentDetailId = null;
                 _studentDetailRecord = null;
-                NavigateMainTab(0); // Go back to dashboard
+                NavigateMainTab(0);
             }
             catch (Exception ex)
             {

@@ -5,6 +5,8 @@ VisualStudioVersion = 17.14.36301.6
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "School Management System(wpf)", "School Management System(wpf)\School Management System(wpf).csproj", "{38E612E5-419F-4D62-B6DF-B402776A1E1B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SMS.BackendTests", "School Management System(wpf)\Tests\SMS.BackendTests\SMS.BackendTests.csproj", "{8A0B4BEF-AD3E-4A1D-8F5D-5C277430A4B6}"
+EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "SMS Setup", "SMS Setup\SMS Setup.vdproj", "{0F6A61E2-FEF4-BC14-E668-0CFC4A1547B4}"
 EndProject
 Global
@@ -17,6 +19,10 @@ Global
 		{38E612E5-419F-4D62-B6DF-B402776A1E1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{38E612E5-419F-4D62-B6DF-B402776A1E1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{38E612E5-419F-4D62-B6DF-B402776A1E1B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A0B4BEF-AD3E-4A1D-8F5D-5C277430A4B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A0B4BEF-AD3E-4A1D-8F5D-5C277430A4B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A0B4BEF-AD3E-4A1D-8F5D-5C277430A4B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A0B4BEF-AD3E-4A1D-8F5D-5C277430A4B6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0F6A61E2-FEF4-BC14-E668-0CFC4A1547B4}.Debug|Any CPU.ActiveCfg = Debug
 		{0F6A61E2-FEF4-BC14-E668-0CFC4A1547B4}.Release|Any CPU.ActiveCfg = Release
 	EndGlobalSection

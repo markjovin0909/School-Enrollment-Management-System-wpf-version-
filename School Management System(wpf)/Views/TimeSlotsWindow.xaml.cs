@@ -11,13 +11,37 @@ namespace School_Management_System.Views
     public partial class TimeSlotsWindow : Window
     {
         private readonly TimeSlotService _service = new();
-        private readonly bool _createOnly;
+        private readonly EditorMode _mode;
         private DataTable _table = CreateTableSchema();
         private long? _selectedId;
+        private long? _editId;
 
-        public TimeSlotsWindow(bool createOnly = false)
+        private enum EditorMode
         {
-            _createOnly = createOnly;
+            ListEmbedded,
+            Create,
+            Edit
+        }
+
+        public TimeSlotsWindow()
+            : this(EditorMode.ListEmbedded, null)
+        {
+        }
+
+        public TimeSlotsWindow(bool createOnly)
+            : this(createOnly ? EditorMode.Create : EditorMode.ListEmbedded, null)
+        {
+        }
+
+        public TimeSlotsWindow(long editId)
+            : this(EditorMode.Edit, editId)
+        {
+        }
+
+        private TimeSlotsWindow(EditorMode mode, long? editId)
+        {
+            _mode = mode;
+            _editId = editId;
             InitializeComponent();
 
             txtSearch.TextChanged += (_, _) => ApplyFilter();
@@ -29,13 +53,20 @@ namespace School_Management_System.Views
                 }
             };
             gridTimeSlots.SelectionChanged += GridTimeSlots_SelectionChanged;
+            gridTimeSlots.MouseDoubleClick += (_, _) => OpenEditWindow();
             btnNew.Click += (_, _) => OpenCreateWindow();
+            btnListEdit.Click += (_, _) => OpenEditWindow();
+            btnListDelete.Click += (_, _) => DeleteTimeSlot();
             btnRefresh.Click += (_, _) => LoadData();
             btnAdd.Click += (_, _) =>
             {
-                if (_createOnly)
+                if (_mode == EditorMode.Create)
                 {
                     AddTimeSlot();
+                }
+                else if (_mode == EditorMode.Edit)
+                {
+                    SaveTimeSlot();
                 }
                 else
                 {
@@ -46,7 +77,7 @@ namespace School_Management_System.Views
             btnDelete.Click += (_, _) => DeleteTimeSlot();
             btnClear.Click += (_, _) =>
             {
-                if (_createOnly)
+                if (_mode != EditorMode.ListEmbedded)
                 {
                     Close();
                 }
@@ -58,43 +89,117 @@ namespace School_Management_System.Views
             btnExport.Click += (_, _) => CsvExportService.SaveDataTable(_table, "time_slots.csv");
 
             ClearEditor();
-            if (_createOnly)
+            if (_mode == EditorMode.Create)
             {
                 ConfigureCreateMode();
             }
+            else if (_mode == EditorMode.Edit)
+            {
+                ConfigureEditMode();
+            }
             else
             {
+                ConfigureListMode();
                 LoadData();
             }
+        }
+
+        private void ConfigureListMode()
+        {
+            editorPanel.Visibility = Visibility.Collapsed;
+            Grid.SetColumn(searchPanel, 0);
+            Grid.SetColumnSpan(searchPanel, 2);
+            searchPanel.Margin = new Thickness(0, 0, 0, 8);
+            Grid.SetColumnSpan(listPanel, 2);
+            listPanel.Margin = new Thickness(0);
         }
 
         private void OpenCreateWindow()
         {
-            var window = new TimeSlotsWindow(true) { Owner = this };
-            if (window.ShowDialog() == true)
+            var window = new TimeSlotsWindow(true);
+            if (AppFeedbackService.ShowOwnedDialog(window, this, editorPanel, listPanel, searchPanel) == true)
             {
                 LoadData();
             }
         }
 
-        private void ConfigureCreateMode()
+        private void OpenEditWindow()
         {
-            Title = "Create Time Slot";
+            if (_mode != EditorMode.ListEmbedded || !_selectedId.HasValue)
+            {
+                if (_mode == EditorMode.ListEmbedded)
+                {
+                    MessageBox.Show("Select a time slot first.", "Time Slot", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+                return;
+            }
+
+            var editId = _selectedId.Value;
+            var window = new TimeSlotsWindow(editId);
+            if (AppFeedbackService.ShowOwnedDialog(window, this, editorPanel, listPanel, searchPanel) == true)
+            {
+                LoadData(editId);
+            }
+        }
+
+        private void ConfigureModalEditorChrome()
+        {
             searchPanel.Visibility = Visibility.Collapsed;
             gridTimeSlots.Visibility = Visibility.Collapsed;
             Grid.SetColumn(editorPanel, 0);
             Grid.SetColumnSpan(editorPanel, 2);
             editorPanel.Margin = new Thickness(0);
-            btnAdd.Content = "Create";
-            btnSave.Visibility = Visibility.Collapsed;
-            btnDelete.Visibility = Visibility.Collapsed;
             btnExport.Visibility = Visibility.Collapsed;
-            btnClear.Content = "Cancel";
             Width = 600;
             Height = 520;
             MinWidth = 600;
             MinHeight = 520;
+        }
+
+        private void ConfigureCreateMode()
+        {
+            Title = "Create Time Slot";
+            ConfigureModalEditorChrome();
+            btnAdd.Content = "Create";
+            btnSave.Visibility = Visibility.Collapsed;
+            btnDelete.Visibility = Visibility.Collapsed;
+            btnClear.Content = "Cancel";
             ClearEditor();
+        }
+
+        private void ConfigureEditMode()
+        {
+            Title = "Edit Time Slot";
+            ConfigureModalEditorChrome();
+            btnAdd.Content = "Save";
+            btnSave.Visibility = Visibility.Collapsed;
+            btnDelete.Visibility = Visibility.Collapsed;
+            btnClear.Content = "Cancel";
+            LoadEditorFromEntity();
+        }
+
+        private void LoadEditorFromEntity()
+        {
+            if (!_editId.HasValue)
+            {
+                return;
+            }
+
+            var slot = _service.GetById(_editId.Value);
+            if (slot == null)
+            {
+                MessageBox.Show("Time slot not found.", "Time Slot", MessageBoxButton.OK, MessageBoxImage.Warning);
+                Close();
+                return;
+            }
+
+            _selectedId = slot.Id;
+            txtCode.Text = slot.Code ?? string.Empty;
+            txtName.Text = slot.Name ?? string.Empty;
+            txtStart.Text = slot.StartTime.ToString(@"hh\:mm");
+            txtEnd.Text = slot.EndTime.ToString(@"hh\:mm");
+            txtSort.Text = slot.SortOrder.ToString();
+            chkBellPeriod.IsChecked = slot.IsBellPeriod;
         }
 
         private static DataTable CreateTableSchema()
@@ -201,7 +306,7 @@ namespace School_Management_System.Views
 
             _service.Create(entity);
             AuditTrailService.Log("CREATE", "time_slots", entity.Id, null, entity);
-            if (_createOnly)
+            if (_mode == EditorMode.Create)
             {
                 DialogResult = true;
                 Close();
@@ -241,6 +346,13 @@ namespace School_Management_System.Views
 
             _service.Update(entity);
             AuditTrailService.Log("UPDATE", "time_slots", entity.Id, oldData, entity);
+            if (_mode == EditorMode.Edit)
+            {
+                DialogResult = true;
+                Close();
+                return;
+            }
+
             LoadData(entity.Id);
         }
 
@@ -258,8 +370,7 @@ namespace School_Management_System.Views
                 return;
             }
 
-            var confirm = MessageBox.Show("Delete selected time slot?", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No);
-            if (confirm != MessageBoxResult.Yes)
+            if (!AppFeedbackService.Confirm("Delete selected time slot?", "Confirm", this))
             {
                 return;
             }

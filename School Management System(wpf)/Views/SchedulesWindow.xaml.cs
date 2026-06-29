@@ -20,7 +20,15 @@ namespace School_Management_System.Views
         private readonly SubjectService _subjectService = new();
         private readonly RoomService _roomService = new();
         private readonly TimeSlotService _timeSlotService = new();
-        private readonly bool _createOnly;
+        private readonly EditorMode _mode;
+        private long? _editId;
+
+        private enum EditorMode
+        {
+            ListEmbedded,
+            Create,
+            Edit
+        }
 
         private DataTable _table = new();
         private long? _selectedId;
@@ -35,9 +43,25 @@ namespace School_Management_System.Views
 
         private bool _suppressEvents;
 
-        public SchedulesWindow(bool createOnly = false)
+        public SchedulesWindow()
+            : this(EditorMode.ListEmbedded, null)
         {
-            _createOnly = createOnly;
+        }
+
+        public SchedulesWindow(bool createOnly)
+            : this(createOnly ? EditorMode.Create : EditorMode.ListEmbedded, null)
+        {
+        }
+
+        public SchedulesWindow(long editId)
+            : this(EditorMode.Edit, editId)
+        {
+        }
+
+        private SchedulesWindow(EditorMode mode, long? editId)
+        {
+            _mode = mode;
+            _editId = editId;
             InitializeComponent();
 
             cboFilterSchoolYear.SelectionChanged += (_, _) => { if (!_suppressEvents) LoadData(); };
@@ -53,13 +77,20 @@ namespace School_Management_System.Views
                 }
             };
             gridSchedules.SelectionChanged += GridSchedules_SelectionChanged;
+            gridSchedules.MouseDoubleClick += (_, _) => OpenEditWindow();
             btnNew.Click += (_, _) => OpenCreateWindow();
+            btnListEdit.Click += (_, _) => OpenEditWindow();
+            btnListDelete.Click += (_, _) => DeleteSchedule();
             btnRefresh.Click += (_, _) => LoadData();
             btnAdd.Click += (_, _) =>
             {
-                if (_createOnly)
+                if (_mode == EditorMode.Create)
                 {
                     AddSchedule();
+                }
+                else if (_mode == EditorMode.Edit)
+                {
+                    SaveSchedule();
                 }
                 else
                 {
@@ -70,7 +101,7 @@ namespace School_Management_System.Views
             btnDelete.Click += (_, _) => DeleteSchedule();
             btnClear.Click += (_, _) =>
             {
-                if (_createOnly)
+                if (_mode != EditorMode.ListEmbedded)
                 {
                     Close();
                 }
@@ -96,44 +127,120 @@ namespace School_Management_System.Views
             txtEnd.Text = "08:00";
 
             LoadLookups();
-            if (_createOnly)
+            if (_mode == EditorMode.Create)
             {
                 ConfigureCreateMode();
             }
+            else if (_mode == EditorMode.Edit)
+            {
+                ConfigureEditMode();
+            }
             else
             {
+                ConfigureListMode();
                 LoadData();
             }
         }
 
+        private void ConfigureListMode()
+        {
+            editorPanel.Visibility = Visibility.Collapsed;
+            Grid.SetColumn(searchPanel, 0);
+            Grid.SetColumnSpan(searchPanel, 2);
+            searchPanel.Margin = new Thickness(0, 0, 0, 8);
+            Grid.SetColumnSpan(listPanel, 2);
+            listPanel.Margin = new Thickness(0);
+        }
+
         private void OpenCreateWindow()
         {
-            var window = new SchedulesWindow(true) { Owner = this };
-            if (window.ShowDialog() == true)
+            var window = new SchedulesWindow(true);
+            if (AppFeedbackService.ShowOwnedDialog(window, this, editorPanel, listPanel, searchPanel) == true)
             {
                 LoadLookups();
                 LoadData();
             }
         }
 
-        private void ConfigureCreateMode()
+        private void OpenEditWindow()
         {
-            Title = "Create Schedule";
+            if (_mode != EditorMode.ListEmbedded || !_selectedId.HasValue)
+            {
+                if (_mode == EditorMode.ListEmbedded)
+                {
+                    MessageBox.Show("Select a schedule first.", "Schedule", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+                return;
+            }
+
+            var editId = _selectedId.Value;
+            var window = new SchedulesWindow(editId);
+            if (AppFeedbackService.ShowOwnedDialog(window, this, editorPanel, listPanel, searchPanel) == true)
+            {
+                LoadLookups();
+                LoadData(editId);
+            }
+        }
+
+        private void ConfigureModalEditorChrome()
+        {
             searchPanel.Visibility = Visibility.Collapsed;
             gridSchedules.Visibility = Visibility.Collapsed;
             Grid.SetColumn(editorPanel, 0);
             Grid.SetColumnSpan(editorPanel, 2);
             editorPanel.Margin = new Thickness(0);
-            btnAdd.Content = "Create";
-            btnSave.Visibility = Visibility.Collapsed;
-            btnDelete.Visibility = Visibility.Collapsed;
             btnExport.Visibility = Visibility.Collapsed;
-            btnClear.Content = "Cancel";
             Width = 640;
             Height = 600;
             MinWidth = 640;
             MinHeight = 600;
+        }
+
+        private void ConfigureCreateMode()
+        {
+            Title = "Create Schedule";
+            ConfigureModalEditorChrome();
+            btnAdd.Content = "Create";
+            btnSave.Visibility = Visibility.Collapsed;
+            btnDelete.Visibility = Visibility.Collapsed;
+            btnClear.Content = "Cancel";
             ClearEditor();
+        }
+
+        private void ConfigureEditMode()
+        {
+            Title = "Edit Schedule";
+            ConfigureModalEditorChrome();
+            btnAdd.Content = "Save";
+            btnSave.Visibility = Visibility.Collapsed;
+            btnDelete.Visibility = Visibility.Collapsed;
+            btnClear.Content = "Cancel";
+            LoadEditorFromEntity();
+        }
+
+        private void LoadEditorFromEntity()
+        {
+            if (!_editId.HasValue)
+            {
+                return;
+            }
+
+            var schedule = _scheduleService.GetById(_editId.Value);
+            if (schedule == null)
+            {
+                MessageBox.Show("Schedule not found.", "Schedule", MessageBoxButton.OK, MessageBoxImage.Warning);
+                Close();
+                return;
+            }
+
+            _selectedId = schedule.Id;
+            cboOffering.SelectedValue = schedule.ClassOfferingId;
+            cboRoom.SelectedValue = schedule.RoomId ?? 0L;
+            cboTimeSlot.SelectedValue = schedule.TimeSlotId ?? 0L;
+            cboDay.SelectedValue = schedule.DayOfWeek;
+            txtStart.Text = schedule.StartTime.ToString(@"hh\:mm");
+            txtEnd.Text = schedule.EndTime.ToString(@"hh\:mm");
+            UpdateScheduleWarnings();
         }
 
         private void LoadLookups()
@@ -337,7 +444,7 @@ namespace School_Management_System.Views
 
             _scheduleService.Create(entity);
             AuditTrailService.Log("CREATE", "class_schedules", entity.Id, null, entity);
-            if (_createOnly)
+            if (_mode == EditorMode.Create)
             {
                 DialogResult = true;
                 Close();
@@ -377,6 +484,13 @@ namespace School_Management_System.Views
 
             _scheduleService.Update(entity);
             AuditTrailService.Log("UPDATE", "class_schedules", entity.Id, oldData, entity);
+            if (_mode == EditorMode.Edit)
+            {
+                DialogResult = true;
+                Close();
+                return;
+            }
+
             LoadData(entity.Id);
         }
 
@@ -394,8 +508,7 @@ namespace School_Management_System.Views
                 return;
             }
 
-            var confirm = MessageBox.Show("Delete selected schedule?", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No);
-            if (confirm != MessageBoxResult.Yes)
+            if (!AppFeedbackService.Confirm("Delete selected schedule?", "Confirm", this))
             {
                 return;
             }

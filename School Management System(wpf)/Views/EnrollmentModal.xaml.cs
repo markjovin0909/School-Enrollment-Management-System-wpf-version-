@@ -24,7 +24,6 @@ namespace School_Management_System.Views
         private List<StudentItem> _allStudents = new();
         private long? _selectedStudentId;
 
-        /// <summary>The enrollment ID created after successful enrollment.</summary>
         public long? CreatedEnrollmentId { get; private set; }
 
         public EnrollmentModal()
@@ -47,21 +46,23 @@ namespace School_Management_System.Views
         private void LoadStudents()
         {
             _allStudents = _studentService.GetAll()
-                .OrderBy(s => s.LastName).ThenBy(s => s.FirstName)
+                .OrderBy(s => s.LastName)
+                .ThenBy(s => s.FirstName)
                 .Select(s => new StudentItem
                 {
                     Id = s.Id,
                     FullName = $"{s.LastName}, {s.FirstName}{(string.IsNullOrWhiteSpace(s.MiddleName) ? "" : $" {s.MiddleName}")}",
-                    Lrn = s.Lrn ?? "",
-                    StudentNumber = s.StudentNumber ?? ""
+                    Lrn = s.Lrn ?? string.Empty,
+                    StudentNumber = s.StudentNumber ?? string.Empty
                 })
                 .ToList();
+
             ApplyStudentFilter();
         }
 
         private void ApplyStudentFilter()
         {
-            var term = (txtStudentSearch.Text ?? "").Trim();
+            var term = (txtStudentSearch.Text ?? string.Empty).Trim();
             var filtered = string.IsNullOrWhiteSpace(term)
                 ? _allStudents
                 : _allStudents.Where(s =>
@@ -75,12 +76,14 @@ namespace School_Management_System.Views
 
         private void LstStudents_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            if (lstStudents.SelectedItem is StudentItem selected)
+            if (lstStudents.SelectedItem is not StudentItem selected)
             {
-                _selectedStudentId = selected.Id;
-                txtSelectedStudent.Text = $"Enrolling: {selected.FullName} (LRN: {selected.Lrn})";
-                GoToStep2();
+                return;
             }
+
+            _selectedStudentId = selected.Id;
+            txtSelectedStudent.Text = $"Enrolling: {selected.FullName} (LRN: {selected.Lrn})";
+            GoToStep2();
         }
 
         private void GoToStep1()
@@ -137,8 +140,8 @@ namespace School_Management_System.Views
 
             var sections = _sectionService.GetAll()
                 .Where(s => !s.IsArchived &&
-                       (schoolYearId == 0 || s.SchoolYearId == schoolYearId) &&
-                       (gradeLevelId == 0 || s.GradeLevelId == gradeLevelId))
+                    (schoolYearId == 0 || s.SchoolYearId == schoolYearId) &&
+                    (gradeLevelId == 0 || s.GradeLevelId == gradeLevelId))
                 .OrderBy(s => s.Name)
                 .Select(s => new LookupItem(s.Id, s.Name))
                 .ToList();
@@ -168,8 +171,15 @@ namespace School_Management_System.Views
                 .Select(o =>
                 {
                     var subjectName = subjects.TryGetValue(o.SubjectId, out var subj) ? subj.Title : "Unknown";
-                    var teacherName = o.TeacherId.HasValue && teachers.TryGetValue(o.TeacherId.Value, out var t) ? $"{t.LastName}, {t.FirstName}" : "Unassigned";
-                    return new OfferingRow { SubjectName = subjectName, TeacherName = teacherName, Status = o.Status.ToString() };
+                    var teacherName = o.TeacherId.HasValue && teachers.TryGetValue(o.TeacherId.Value, out var teacher)
+                        ? $"{teacher.LastName}, {teacher.FirstName}"
+                        : "Unassigned";
+                    return new OfferingRow
+                    {
+                        SubjectName = subjectName,
+                        TeacherName = teacherName,
+                        Status = o.Status.ToString()
+                    };
                 })
                 .ToList();
 
@@ -180,7 +190,7 @@ namespace School_Management_System.Views
         {
             if (!_selectedStudentId.HasValue)
             {
-                MessageBox.Show("No student selected.", "Enrollment", MessageBoxButton.OK, MessageBoxImage.Warning);
+                AppFeedbackService.ShowWarning("No student selected.", "Enrollment", this);
                 return;
             }
 
@@ -190,7 +200,7 @@ namespace School_Management_System.Views
 
             if (schoolYearId == 0 || sectionId == 0 || curriculumId == 0)
             {
-                MessageBox.Show("Please select school year, section, and curriculum.", "Enrollment", MessageBoxButton.OK, MessageBoxImage.Warning);
+                AppFeedbackService.ShowWarning("Please select school year, section, and curriculum.", "Enrollment", this);
                 return;
             }
 
@@ -205,57 +215,66 @@ namespace School_Management_System.Views
                     EnrollmentType = "NEW"
                 };
 
-                // First check validation summary to give detailed feedback
                 var validationResult = _enrollmentService.BuildValidationSummary(draft);
                 if (validationResult.Success && validationResult.Data != null && !validationResult.Data.CanSubmit)
                 {
-                    var details = validationResult.Data.ToDisplayText();
-                    MessageBox.Show(details, "Enrollment Cannot Be Submitted", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    AppFeedbackService.ShowWarning(
+                        validationResult.Data.ToDisplayText(),
+                        "Enrollment Cannot Be Submitted",
+                        this);
                     return;
                 }
 
                 var result = _enrollmentService.SubmitEnrollmentRequest(draft);
                 if (!result.Success || result.Data == null)
                 {
-                    var errorMsg = result.Message ?? "Enrollment failed.";
-                    if (result.Errors != null && result.Errors.Count > 0)
-                    {
-                        errorMsg += "\n\n" + string.Join("\n", result.Errors.Select(e => $"• {e}"));
-                    }
-                    MessageBox.Show(errorMsg, "Enrollment", MessageBoxButton.OK, MessageBoxImage.Error);
+                    AppFeedbackService.ShowDetailedWarning(
+                        result.Message ?? "Enrollment failed.",
+                        result.Errors,
+                        "Enrollment",
+                        this);
                     return;
                 }
 
                 CreatedEnrollmentId = result.Data.Id;
+                AppFeedbackService.ShowSuccess(
+                    result.Message ?? "Enrollment submitted successfully.",
+                    "Enrollment",
+                    this);
                 DialogResult = true;
                 Close();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Enrollment failed: {ex.Message}", "Enrollment", MessageBoxButton.OK, MessageBoxImage.Error);
+                AppFeedbackService.ShowError($"Enrollment failed: {ex.Message}", "Enrollment", this);
             }
         }
 
         public class StudentItem
         {
             public long Id { get; set; }
-            public string FullName { get; set; } = "";
-            public string Lrn { get; set; } = "";
-            public string StudentNumber { get; set; } = "";
+            public string FullName { get; set; } = string.Empty;
+            public string Lrn { get; set; } = string.Empty;
+            public string StudentNumber { get; set; } = string.Empty;
         }
 
         private sealed class LookupItem
         {
-            public LookupItem(long id, string label) { Id = id; Label = label; }
+            public LookupItem(long id, string label)
+            {
+                Id = id;
+                Label = label;
+            }
+
             public long Id { get; }
             public string Label { get; }
         }
 
         public class OfferingRow
         {
-            public string SubjectName { get; set; } = "";
-            public string TeacherName { get; set; } = "";
-            public string Status { get; set; } = "";
+            public string SubjectName { get; set; } = string.Empty;
+            public string TeacherName { get; set; } = string.Empty;
+            public string Status { get; set; } = string.Empty;
         }
     }
 }

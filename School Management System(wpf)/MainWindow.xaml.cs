@@ -167,11 +167,6 @@ namespace School_Management_System
 
         private void WireTopBar()
         {
-            btnTopDbSettings.Click += (_, _) => new DatabaseConfigurationWindow { Owner = this }.ShowDialog();
-            btnTopChangePassword.Click += (_, _) => new ChangePasswordWindow(_currentUser.Id) { Owner = this }.ShowDialog();
-            btnTopActivity.Click += (_, _) => new UserActivityHistoryWindow(_currentUser) { Owner = this }.ShowDialog();
-            btnTopLogout.Click += (_, _) => Logout("USER_LOGOUT");
-
             btnDashboardRefresh.Click += (_, _) => LoadDashboard();
 
             Closing += (_, _) =>
@@ -507,7 +502,14 @@ namespace School_Management_System
 
         private void OpenStudentGradesWindow()
         {
-            NavigateToStudentGrades();
+            try
+            {
+                NavigateToStudentGrades();
+            }
+            catch (Exception ex)
+            {
+                AppFeedbackService.ShowError($"Failed to open Student Grades: {ex.Message}", "Student Grades", this);
+            }
         }
 
         private void OpenMasterDataSections()

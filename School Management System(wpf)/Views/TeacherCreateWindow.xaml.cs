@@ -11,9 +11,17 @@ namespace School_Management_System.Views
 {
     public partial class TeacherCreateWindow : Window
     {
+        private enum EditorMode
+        {
+            Create,
+            Edit
+        }
+
         private readonly TeacherService _teacherService = new();
         private readonly UserService _userService = new();
         private readonly AuthService _authService = new();
+        private readonly EditorMode _mode;
+        private readonly long? _editTeacherId;
 
         private static readonly string[] AdvisoryStatuses = { "UNASSIGNED", "ASSIGNED" };
         private static readonly string[] EmploymentStatuses = { "REGULAR", "PROBATIONARY", "PART_TIME", "CONTRACTUAL" };
@@ -21,9 +29,22 @@ namespace School_Management_System.Views
         private string _lastAutoTeacherUsername = string.Empty;
 
         public long? CreatedTeacherId { get; private set; }
+        public long? SavedTeacherId { get; private set; }
 
         public TeacherCreateWindow()
+            : this(EditorMode.Create, null)
         {
+        }
+
+        public TeacherCreateWindow(long teacherId)
+            : this(EditorMode.Edit, teacherId)
+        {
+        }
+
+        private TeacherCreateWindow(EditorMode mode, long? editTeacherId)
+        {
+            _mode = mode;
+            _editTeacherId = editTeacherId;
             InitializeComponent();
 
             cboTeacherStatus.ItemsSource = Enum.GetValues(typeof(UserStatus));
@@ -31,15 +52,27 @@ namespace School_Management_System.Views
             cboTeacherEmploymentStatus.ItemsSource = EmploymentStatuses;
 
             txtTeacherEmployeeNo.TextChanged += (_, _) => AutoFillTeacherUsernameFromEmployeeNo();
-            btnCreate.Click += (_, _) => CreateTeacher();
+            btnCreate.Click += (_, _) => SaveTeacher();
             btnClear.Click += (_, _) => ResetEditor();
             btnCancel.Click += (_, _) => Close();
 
-            ResetEditor();
+            if (_mode == EditorMode.Edit)
+            {
+                ConfigureEditMode();
+            }
+            else
+            {
+                ConfigureCreateMode();
+            }
         }
 
         private void AutoFillTeacherUsernameFromEmployeeNo()
         {
+            if (_mode == EditorMode.Edit)
+            {
+                return;
+            }
+
             var employeeNo = txtTeacherEmployeeNo.Text.Trim();
             if (string.IsNullOrWhiteSpace(employeeNo))
             {
@@ -52,6 +85,39 @@ namespace School_Management_System.Views
                 txtTeacherUsername.Text = employeeNo;
                 _lastAutoTeacherUsername = employeeNo;
             }
+        }
+
+        private void ConfigureCreateMode()
+        {
+            Title = "Create Teacher";
+            txtDialogTitle.Text = "Create Teacher";
+            txtDialogSubtitle.Text = "Create a teacher profile and linked managed account in a dedicated form, keeping creation separate from later editing.";
+            btnCreate.Content = "Create Teacher";
+            btnClear.Visibility = Visibility.Visible;
+            txtTeacherInitialPassword.Visibility = Visibility.Visible;
+            ResetEditor();
+        }
+
+        private void ConfigureEditMode()
+        {
+            Title = "Edit Teacher";
+            txtDialogTitle.Text = "Edit Teacher";
+            txtDialogSubtitle.Text = "Update the teacher profile in one modal flow and keep the linked account synchronized in the same save path.";
+            btnCreate.Content = "Save Changes";
+            btnClear.Visibility = Visibility.Collapsed;
+            txtTeacherInitialPassword.Visibility = Visibility.Collapsed;
+            LoadTeacherForEdit();
+        }
+
+        private void SaveTeacher()
+        {
+            if (_mode == EditorMode.Edit)
+            {
+                UpdateTeacher();
+                return;
+            }
+
+            CreateTeacher();
         }
 
         private void CreateTeacher()
@@ -121,7 +187,7 @@ namespace School_Management_System.Views
                 var userResult = _authService.Register(user, initialPassword);
                 if (!userResult.Success || userResult.Data == null)
                 {
-                    MessageBox.Show(userResult.Message, "Create Teacher", MessageBoxButton.OK, MessageBoxImage.Error);
+                    AppFeedbackService.ShowError(userResult.Message, "Create Teacher", this);
                     return;
                 }
 
@@ -154,7 +220,12 @@ namespace School_Management_System.Views
                 });
                 AuditTrailService.Log("CREATE", "teachers", teacher.Id, null, teacher);
 
+                AppFeedbackService.ShowSuccess(
+                    $"Teacher created successfully: {teacher.LastName}, {teacher.FirstName} ({teacher.EmployeeNo}).",
+                    "Create Teacher",
+                    this);
                 CreatedTeacherId = teacher.Id;
+                SavedTeacherId = teacher.Id;
                 DialogResult = true;
                 Close();
             }
@@ -175,8 +246,174 @@ namespace School_Management_System.Views
                     }
                 }
 
-                MessageBox.Show($"Create teacher failed: {ex.Message}", "Create Teacher", MessageBoxButton.OK, MessageBoxImage.Error);
+                AppFeedbackService.ShowError("Create teacher failed.", ex, "Create Teacher", this);
             }
+        }
+
+        private void UpdateTeacher()
+        {
+            ResetValidationState();
+
+            if (!_editTeacherId.HasValue)
+            {
+                AppFeedbackService.ShowWarning("No teacher was supplied for edit mode.", "Edit Teacher", this);
+                return;
+            }
+
+            try
+            {
+                var teacher = _teacherService.GetById(_editTeacherId.Value);
+                if (teacher == null)
+                {
+                    AppFeedbackService.ShowWarning("Teacher record not found.", "Edit Teacher", this);
+                    return;
+                }
+
+                var validationErrors = new List<string>();
+                var employeeNo = txtTeacherEmployeeNo.Text.Trim();
+                var username = txtTeacherUsername.Text.Trim();
+                var firstName = txtTeacherFirst.Text.Trim();
+                var lastName = txtTeacherLast.Text.Trim();
+
+                SetInputValidationState(txtTeacherEmployeeNo, string.IsNullOrWhiteSpace(employeeNo));
+                SetInputValidationState(txtTeacherUsername, string.IsNullOrWhiteSpace(username));
+                SetInputValidationState(txtTeacherFirst, string.IsNullOrWhiteSpace(firstName));
+                SetInputValidationState(txtTeacherLast, string.IsNullOrWhiteSpace(lastName));
+
+                if (string.IsNullOrWhiteSpace(employeeNo) || string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName))
+                {
+                    validationErrors.Add("Employee no, first name, and last name are required.");
+                }
+
+                if (string.IsNullOrWhiteSpace(username))
+                {
+                    validationErrors.Add("Account ID is required.");
+                }
+
+                var duplicateEmployee = _teacherService.GetAll().Any(t =>
+                    t.Id != teacher.Id &&
+                    string.Equals(t.EmployeeNo ?? string.Empty, employeeNo, StringComparison.OrdinalIgnoreCase));
+                if (duplicateEmployee)
+                {
+                    validationErrors.Add("Employee number already exists.");
+                    SetInputValidationState(txtTeacherEmployeeNo, true);
+                }
+
+                var user = _userService.GetById(teacher.UserId);
+                if (user != null)
+                {
+                    var duplicateUsername = _userService.GetAll().Any(u =>
+                        u.Id != user.Id &&
+                        string.Equals(u.Username, username, StringComparison.OrdinalIgnoreCase));
+                    if (duplicateUsername)
+                    {
+                        validationErrors.Add("Account ID already exists.");
+                        SetInputValidationState(txtTeacherUsername, true);
+                    }
+                }
+
+                if (validationErrors.Count > 0)
+                {
+                    ShowValidationSummary(validationErrors);
+                    return;
+                }
+
+                var oldData = new
+                {
+                    teacher.EmployeeNo,
+                    teacher.ProfileImageUrl,
+                    teacher.FirstName,
+                    teacher.LastName,
+                    teacher.MiddleName,
+                    teacher.Email,
+                    teacher.ContactNo,
+                    teacher.Specialization,
+                    teacher.AdvisoryAssignmentStatus,
+                    teacher.EmploymentStatus,
+                    teacher.HireDate,
+                    teacher.Status
+                };
+
+                teacher.EmployeeNo = employeeNo;
+                teacher.ProfileImageUrl = NullIfWhite(txtTeacherProfileImage.Text);
+                teacher.FirstName = firstName;
+                teacher.LastName = lastName;
+                teacher.MiddleName = NullIfWhite(txtTeacherMiddle.Text);
+                teacher.Email = NullIfWhite(txtTeacherEmail.Text);
+                teacher.ContactNo = NullIfWhite(txtTeacherContact.Text);
+                teacher.Specialization = string.IsNullOrWhiteSpace(txtTeacherSpecialization.Text) ? "General" : txtTeacherSpecialization.Text.Trim();
+                teacher.AdvisoryAssignmentStatus = string.IsNullOrWhiteSpace(cboTeacherAdvisoryStatus.Text) ? AdvisoryStatuses[0] : cboTeacherAdvisoryStatus.Text.Trim();
+                teacher.EmploymentStatus = string.IsNullOrWhiteSpace(cboTeacherEmploymentStatus.Text) ? EmploymentStatuses[0] : cboTeacherEmploymentStatus.Text.Trim();
+                teacher.HireDate = dpTeacherHireDate.SelectedDate?.Date;
+                teacher.Status = cboTeacherStatus.SelectedItem is UserStatus selectedStatus ? selectedStatus : teacher.Status;
+                teacher.UpdatedAt = DateTime.UtcNow;
+
+                _teacherService.Update(teacher);
+                AuditTrailService.Log("UPDATE", "teachers", teacher.Id, oldData, teacher);
+
+                if (user != null)
+                {
+                    var oldUser = new { user.Username, user.Status };
+                    user.Username = username;
+                    user.Role = UserRole.TEACHER;
+                    user.CanLogin = false;
+                    user.Status = teacher.Status;
+                    _userService.Update(user);
+                    AuditTrailService.Log("UPDATE", "users", user.Id, oldUser, new { user.Username, user.Status, user.Role, user.CanLogin });
+                }
+
+                AppFeedbackService.ShowSuccess(
+                    $"Teacher updated successfully: {teacher.LastName}, {teacher.FirstName} ({teacher.EmployeeNo}).",
+                    "Edit Teacher",
+                    this);
+                SavedTeacherId = teacher.Id;
+                DialogResult = true;
+                Close();
+            }
+            catch (DomainValidationException ex)
+            {
+                ShowValidationSummary(new[] { ex.Message });
+            }
+            catch (Exception ex)
+            {
+                AppFeedbackService.ShowError("Update teacher failed.", ex, "Edit Teacher", this);
+            }
+        }
+
+        private void LoadTeacherForEdit()
+        {
+            if (!_editTeacherId.HasValue)
+            {
+                AppFeedbackService.ShowWarning("No teacher was supplied for edit mode.", "Edit Teacher", this);
+                Close();
+                return;
+            }
+
+            var teacher = _teacherService.GetById(_editTeacherId.Value);
+            if (teacher == null)
+            {
+                AppFeedbackService.ShowWarning("Teacher record not found.", "Edit Teacher", this);
+                Close();
+                return;
+            }
+
+            ResetValidationState();
+            txtTeacherEmployeeNo.Text = teacher.EmployeeNo ?? string.Empty;
+            txtTeacherProfileImage.Text = teacher.ProfileImageUrl ?? string.Empty;
+            txtTeacherFirst.Text = teacher.FirstName;
+            txtTeacherLast.Text = teacher.LastName;
+            txtTeacherMiddle.Text = teacher.MiddleName ?? string.Empty;
+            txtTeacherEmail.Text = teacher.Email ?? string.Empty;
+            txtTeacherContact.Text = teacher.ContactNo ?? string.Empty;
+            txtTeacherSpecialization.Text = teacher.Specialization ?? string.Empty;
+            cboTeacherAdvisoryStatus.SelectedItem = string.IsNullOrWhiteSpace(teacher.AdvisoryAssignmentStatus) ? AdvisoryStatuses[0] : teacher.AdvisoryAssignmentStatus;
+            cboTeacherEmploymentStatus.SelectedItem = string.IsNullOrWhiteSpace(teacher.EmploymentStatus) ? EmploymentStatuses[0] : teacher.EmploymentStatus;
+            dpTeacherHireDate.SelectedDate = teacher.HireDate?.Date;
+            cboTeacherStatus.SelectedItem = teacher.Status;
+
+            var user = _userService.GetById(teacher.UserId);
+            txtTeacherUsername.Text = user?.Username ?? string.Empty;
+            txtTeacherInitialPassword.Password = string.Empty;
         }
 
         private void ResetEditor()
@@ -206,7 +443,7 @@ namespace School_Management_System.Views
             SetInputValidationState(txtTeacherUsername, false);
             SetInputValidationState(txtTeacherFirst, false);
             SetInputValidationState(txtTeacherLast, false);
-            SetInputValidationState(txtTeacherInitialPassword, false);
+            SetInputValidationState(txtTeacherInitialPassword, _mode == EditorMode.Create && string.IsNullOrWhiteSpace(txtTeacherInitialPassword.Password));
         }
 
         private void ShowValidationSummary(IEnumerable<string> errors)

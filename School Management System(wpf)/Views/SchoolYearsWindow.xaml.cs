@@ -11,13 +11,37 @@ namespace School_Management_System.Views
     public partial class SchoolYearsWindow : Window
     {
         private readonly SchoolYearService _schoolYearService = new();
-        private readonly bool _createOnly;
+        private readonly EditorMode _mode;
         private DataTable _table = new();
         private long? _selectedId;
+        private long? _editId;
 
-        public SchoolYearsWindow(bool createOnly = false)
+        private enum EditorMode
         {
-            _createOnly = createOnly;
+            ListEmbedded,
+            Create,
+            Edit
+        }
+
+        public SchoolYearsWindow()
+            : this(EditorMode.ListEmbedded, null)
+        {
+        }
+
+        public SchoolYearsWindow(bool createOnly)
+            : this(createOnly ? EditorMode.Create : EditorMode.ListEmbedded, null)
+        {
+        }
+
+        public SchoolYearsWindow(long editId)
+            : this(EditorMode.Edit, editId)
+        {
+        }
+
+        private SchoolYearsWindow(EditorMode mode, long? editId)
+        {
+            _mode = mode;
+            _editId = editId;
             InitializeComponent();
 
             cboStatus.ItemsSource = Enum.GetValues(typeof(SchoolYearStatus));
@@ -32,13 +56,20 @@ namespace School_Management_System.Views
                 }
             };
             gridSchoolYears.SelectionChanged += GridSchoolYears_SelectionChanged;
+            gridSchoolYears.MouseDoubleClick += (_, _) => OpenEditWindow();
             btnNew.Click += (_, _) => OpenCreateWindow();
+            btnListEdit.Click += (_, _) => OpenEditWindow();
+            btnListDelete.Click += (_, _) => ArchiveOrRestoreSchoolYear();
             btnRefresh.Click += (_, _) => LoadData();
             btnAdd.Click += (_, _) =>
             {
-                if (_createOnly)
+                if (_mode == EditorMode.Create)
                 {
                     AddSchoolYear();
+                }
+                else if (_mode == EditorMode.Edit)
+                {
+                    SaveSchoolYear();
                 }
                 else
                 {
@@ -49,7 +80,7 @@ namespace School_Management_System.Views
             btnArchiveRestore.Click += (_, _) => ArchiveOrRestoreSchoolYear();
             btnClear.Click += (_, _) =>
             {
-                if (_createOnly)
+                if (_mode != EditorMode.ListEmbedded)
                 {
                     Close();
                 }
@@ -64,42 +95,120 @@ namespace School_Management_System.Views
             dpEnrollOpen.SelectedDate = DateTime.Today;
             dpEnrollClose.SelectedDate = DateTime.Today;
 
-            if (_createOnly)
+            if (_mode == EditorMode.Create)
             {
                 ConfigureCreateMode();
             }
+            else if (_mode == EditorMode.Edit)
+            {
+                ConfigureEditMode();
+            }
             else
             {
+                ConfigureListMode();
                 LoadData();
             }
+        }
+
+        private void ConfigureListMode()
+        {
+            editorPanel.Visibility = Visibility.Collapsed;
+            Grid.SetColumn(searchPanel, 0);
+            Grid.SetColumnSpan(searchPanel, 2);
+            searchPanel.Margin = new Thickness(0, 0, 0, 8);
+            Grid.SetColumnSpan(listPanel, 2);
+            listPanel.Margin = new Thickness(0);
         }
 
         private void OpenCreateWindow()
         {
-            var window = new SchoolYearsWindow(true) { Owner = this };
-            if (window.ShowDialog() == true)
+            var window = new SchoolYearsWindow(true);
+            if (AppFeedbackService.ShowOwnedDialog(window, this, editorPanel, listPanel, searchPanel) == true)
             {
                 LoadData();
             }
         }
 
-        private void ConfigureCreateMode()
+        private void OpenEditWindow()
         {
-            Title = "Create School Year";
+            if (_mode != EditorMode.ListEmbedded || !_selectedId.HasValue)
+            {
+                if (_mode == EditorMode.ListEmbedded)
+                {
+                    MessageBox.Show("Select a school year first.", "School Year", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+                return;
+            }
+
+            var editId = _selectedId.Value;
+            var window = new SchoolYearsWindow(editId);
+            if (AppFeedbackService.ShowOwnedDialog(window, this, editorPanel, listPanel, searchPanel) == true)
+            {
+                LoadData(editId);
+            }
+        }
+
+        private void ConfigureModalEditorChrome()
+        {
             searchPanel.Visibility = Visibility.Collapsed;
             gridSchoolYears.Visibility = Visibility.Collapsed;
             Grid.SetColumn(editorPanel, 0);
             Grid.SetColumnSpan(editorPanel, 2);
             editorPanel.Margin = new Thickness(0);
-            btnAdd.Content = "Create";
-            btnSave.Visibility = Visibility.Collapsed;
-            btnArchiveRestore.Visibility = Visibility.Collapsed;
-            btnClear.Content = "Cancel";
             Width = 620;
             Height = 520;
             MinWidth = 620;
             MinHeight = 520;
+        }
+
+        private void ConfigureCreateMode()
+        {
+            Title = "Create School Year";
+            ConfigureModalEditorChrome();
+            btnAdd.Content = "Create";
+            btnSave.Visibility = Visibility.Collapsed;
+            btnArchiveRestore.Visibility = Visibility.Collapsed;
+            btnClear.Content = "Cancel";
             ClearEditor();
+        }
+
+        private void ConfigureEditMode()
+        {
+            Title = "Edit School Year";
+            ConfigureModalEditorChrome();
+            btnAdd.Content = "Save";
+            btnSave.Visibility = Visibility.Collapsed;
+            btnArchiveRestore.Visibility = Visibility.Collapsed;
+            btnClear.Content = "Cancel";
+            LoadEditorFromEntity();
+        }
+
+        private void LoadEditorFromEntity()
+        {
+            if (!_editId.HasValue)
+            {
+                return;
+            }
+
+            var schoolYear = _schoolYearService.GetById(_editId.Value);
+            if (schoolYear == null)
+            {
+                MessageBox.Show("School year not found.", "School Year", MessageBoxButton.OK, MessageBoxImage.Warning);
+                Close();
+                return;
+            }
+
+            _selectedId = schoolYear.Id;
+            txtName.Text = schoolYear.Name;
+            chkStart.IsChecked = schoolYear.StartDate.HasValue;
+            dpStart.SelectedDate = schoolYear.StartDate?.Date ?? DateTime.Today;
+            chkEnd.IsChecked = schoolYear.EndDate.HasValue;
+            dpEnd.SelectedDate = schoolYear.EndDate?.Date ?? DateTime.Today;
+            chkEnrollOpen.IsChecked = schoolYear.EnrollmentOpenDate.HasValue;
+            dpEnrollOpen.SelectedDate = schoolYear.EnrollmentOpenDate?.Date ?? DateTime.Today;
+            chkEnrollClose.IsChecked = schoolYear.EnrollmentCloseDate.HasValue;
+            dpEnrollClose.SelectedDate = schoolYear.EnrollmentCloseDate?.Date ?? DateTime.Today;
+            cboStatus.SelectedItem = schoolYear.Status;
         }
 
         private void LoadData(long? preferredId = null)
@@ -208,7 +317,7 @@ namespace School_Management_System.Views
             {
                 _schoolYearService.Create(entity);
                 AuditTrailService.Log("CREATE", "school_years", entity.Id, null, entity);
-                if (_createOnly)
+                if (_mode == EditorMode.Create)
                 {
                     DialogResult = true;
                     Close();
@@ -269,6 +378,13 @@ namespace School_Management_System.Views
             {
                 _schoolYearService.Update(sy);
                 AuditTrailService.Log("UPDATE", "school_years", sy.Id, oldData, sy);
+                if (_mode == EditorMode.Edit)
+                {
+                    DialogResult = true;
+                    Close();
+                    return;
+                }
+
                 LoadData(sy.Id);
             }
             catch (DomainValidationException ex)
@@ -295,15 +411,10 @@ namespace School_Management_System.Views
                 return;
             }
 
-            var confirm = MessageBox.Show(
-                sy.IsArchived
-                    ? "Restore selected school year?"
-                    : "Archive selected school year? Historical records will remain available.",
-                "Confirm",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Question,
-                MessageBoxResult.No);
-            if (confirm != MessageBoxResult.Yes)
+            var confirmMessage = sy.IsArchived
+                ? "Restore selected school year?"
+                : "Archive selected school year? Historical records will remain available.";
+            if (!AppFeedbackService.Confirm(confirmMessage, "Confirm", this))
             {
                 return;
             }

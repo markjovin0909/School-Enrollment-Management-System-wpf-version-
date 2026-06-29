@@ -1,12 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using School_Management_System.Data;
-using School_Management_System.Interfaces;
 using School_Management_System.Models;
 
 namespace School_Management_System.Services
 {
-    internal class GradeLevelService : IGradeLevelService
+    internal class GradeLevelService
     {
         public IEnumerable<GradeLevel> GetAll()
         {

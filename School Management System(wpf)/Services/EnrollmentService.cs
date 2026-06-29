@@ -2,12 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using School_Management_System.Data;
-using School_Management_System.Interfaces;
 using School_Management_System.Models;
 
 namespace School_Management_System.Services
 {
-    internal class EnrollmentService : IEnrollmentService
+    internal class EnrollmentService
     {
         private readonly EnrollmentStateMachineService _stateMachine = new();
         private readonly PermissionBoundaryService _permissionBoundary = new();
@@ -402,6 +401,21 @@ namespace School_Management_System.Services
                     "Enrollment cannot be approved because the student is inactive.",
                     correlationId: correlationId);
                 return OperationResult<Enrollment>.Fail("Enrollment cannot be approved because the student is inactive.");
+            }
+
+            if (enrollment.Status == EnrollmentStatus.ENROLLED &&
+                enrollment.ApprovalStatus == EnrollmentApprovalStatus.APPROVED)
+            {
+                const string message = "Enrollment is already approved and enrolled.";
+                _operationLogService.Log(
+                    PolicyActionKey.ENROLLMENT_APPROVE,
+                    "ENROLLMENT_APPROVE_BLOCKED",
+                    "enrollments",
+                    enrollmentId,
+                    GovernedOperationStatus.BLOCKED,
+                    message,
+                    correlationId: correlationId);
+                return OperationResult<Enrollment>.Fail(message);
             }
 
             var previousStatus = enrollment.Status;

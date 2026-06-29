@@ -49,10 +49,11 @@ namespace School_Management_System.Views
                 }
             };
             gridOfferings.SelectionChanged += GridOfferings_SelectionChanged;
+            gridOfferings.MouseDoubleClick += (_, _) => OpenEditOfferingWindow();
 
             btnRefresh.Click += (_, _) => LoadOfferings();
             btnGenerate.Click += (_, _) => GenerateOfferings();
-            btnSave.Click += (_, _) => SaveOffering();
+            btnSave.Click += (_, _) => OpenEditOfferingWindow();
             btnFinalize.Click += (_, _) => FinalizeOffering();
             btnDelete.Click += (_, _) => DeleteOffering();
             btnClear.Click += (_, _) => ClearEditor();
@@ -319,65 +320,18 @@ namespace School_Management_System.Views
             LoadOfferings(lastCreatedId);
         }
 
-        private void SaveOffering()
+        private void OpenEditOfferingWindow()
         {
             if (!_selectedId.HasValue)
             {
-                MessageBox.Show("Select an offering first.", "Save", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Select an offering first.", "Edit Offering", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            var offering = _offeringService.GetById(_selectedId.Value);
-            if (offering == null)
+            var window = new ClassOfferingEditWindow(_selectedId.Value);
+            if (AppFeedbackService.ShowOwnedDialog(window, this, gridOfferings) == true && window.SavedOfferingId.HasValue)
             {
-                return;
-            }
-
-            var teacherId = cboTeacher.SelectedValue is long selectedTeacherId ? selectedTeacherId : 0L;
-            if (teacherId != 0)
-            {
-                var duplicateAssignment = _offeringService.GetAll().Any(o =>
-                    o.Id != offering.Id &&
-                    o.SchoolYearId == offering.SchoolYearId &&
-                    o.SectionId == offering.SectionId &&
-                    o.SubjectId == offering.SubjectId &&
-                    o.TeacherId == teacherId);
-                if (duplicateAssignment)
-                {
-                    MessageBox.Show("Duplicate teacher assignment detected for this section/subject.", "Save", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                var teacherLoad = _offeringService.GetAll().Count(o =>
-                    o.Id != offering.Id &&
-                    o.SchoolYearId == offering.SchoolYearId &&
-                    o.TeacherId == teacherId &&
-                    o.Status != ClassOfferingStatus.ARCHIVED);
-                if (teacherLoad >= TeacherLoadLimit)
-                {
-                    MessageBox.Show($"Teacher load limit reached ({TeacherLoadLimit}).", "Save", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-            }
-
-            var oldData = new { offering.TeacherId, offering.Status, offering.Room };
-            offering.TeacherId = teacherId == 0 ? null : teacherId;
-            if (cboStatus.SelectedItem is ClassOfferingStatus status)
-            {
-                offering.Status = status;
-            }
-
-            offering.Room = string.IsNullOrWhiteSpace(txtRoom.Text) ? null : txtRoom.Text.Trim();
-
-            try
-            {
-                _offeringService.Update(offering);
-                AuditTrailService.Log("UPDATE", "class_offerings", offering.Id, oldData, offering);
-                LoadOfferings(offering.Id);
-            }
-            catch (DomainValidationException ex)
-            {
-                MessageBox.Show(ex.Message, "Save Offering", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LoadOfferings(window.SavedOfferingId.Value);
             }
         }
 
@@ -391,6 +345,11 @@ namespace School_Management_System.Views
 
             var offering = _offeringService.GetById(_selectedId.Value);
             if (offering == null)
+            {
+                return;
+            }
+
+            if (!AppFeedbackService.Confirm("Finalize selected offering?", "Confirm", this))
             {
                 return;
             }
@@ -418,8 +377,7 @@ namespace School_Management_System.Views
                 return;
             }
 
-            var confirm = MessageBox.Show("Delete selected offering?", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No);
-            if (confirm != MessageBoxResult.Yes)
+            if (!AppFeedbackService.Confirm("Delete selected offering?", "Confirm", this))
             {
                 return;
             }

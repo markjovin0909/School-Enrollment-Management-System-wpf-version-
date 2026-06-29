@@ -1,0 +1,98 @@
+<Window x:Class="School_Management_System.Views.ClassOfferingEditWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Edit Offering"
+        Style="{StaticResource DialogWindow}"
+        Width="640"
+        Height="460"
+        MinWidth="640"
+        MinHeight="460"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource Brush.Background}"
+        Foreground="{DynamicResource Brush.TextPrimary}"
+        FontFamily="{DynamicResource FontFamily.Base}"
+        FontSize="13"
+        ResizeMode="NoResize">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Themes/Colors.xaml"/>
+                <ResourceDictionary Source="/Themes/Typography.xaml"/>
+                <ResourceDictionary Source="/Themes/Buttons.xaml"/>
+                <ResourceDictionary Source="/Themes/Inputs.xaml"/>
+                <ResourceDictionary Source="/Themes/Cards.xaml"/>
+                <ResourceDictionary Source="/Themes/Dialogs.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Grid Style="{StaticResource DialogRootGrid}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Style="{StaticResource DialogShell}">
+            <StackPanel>
+                <TextBlock Text="Edit Class Offering" Style="{StaticResource DialogHeaderTitle}"/>
+                <TextBlock Text="Assign teacher, room context, and offering state in a dedicated modal."
+                           Style="{StaticResource DialogHeaderSubtitle}"/>
+            </StackPanel>
+        </Border>
+
+        <Border x:Name="validationSummaryHost"
+                Grid.Row="1"
+                Style="{StaticResource ErrorBanner}"
+                Visibility="Collapsed"
+                Margin="0,0,0,12">
+            <TextBlock x:Name="txtValidationSummary"
+                       Foreground="{StaticResource Brush.Danger}"
+                       TextWrapping="Wrap"/>
+        </Border>
+
+        <Border Grid.Row="2" Style="{StaticResource DialogSection}">
+            <StackPanel>
+                <TextBlock Text="Offering Summary" Style="{StaticResource Text.CaptionStrong}" Margin="0,0,0,8"/>
+                <Grid Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Label Grid.Row="0" Grid.Column="0" Content="Subject"/>
+                    <Label Grid.Row="0" Grid.Column="1" Content="Section"/>
+                    <TextBox Grid.Row="1" Grid.Column="0" x:Name="txtSubject" IsReadOnly="True" Margin="0,0,8,12"/>
+                    <TextBox Grid.Row="1" Grid.Column="1" x:Name="txtSection" IsReadOnly="True" Margin="8,0,0,12"/>
+
+                    <Label Grid.Row="2" Grid.Column="0" Content="School Year"/>
+                    <Label Grid.Row="2" Grid.Column="1" Content="Curriculum"/>
+                    <TextBox Grid.Row="3" Grid.Column="0" x:Name="txtSchoolYear" IsReadOnly="True" Margin="0,0,8,0"/>
+                    <TextBox Grid.Row="3" Grid.Column="1" x:Name="txtCurriculum" IsReadOnly="True" Margin="8,0,0,0"/>
+                </Grid>
+
+                <TextBlock Text="Assignment" Style="{StaticResource Text.CaptionStrong}" Margin="0,0,0,8"/>
+                <Label Content="Teacher"/>
+                <ComboBox x:Name="cboTeacher" DisplayMemberPath="Name" SelectedValuePath="Id"/>
+
+                <Label Content="Status" Margin="0,8,0,0"/>
+                <ComboBox x:Name="cboStatus"/>
+
+                <Label Content="Room" Margin="0,8,0,0"/>
+                <TextBox x:Name="txtRoom"/>
+            </StackPanel>
+        </Border>
+
+        <DockPanel Grid.Row="3" Style="{StaticResource DialogActionBar}" LastChildFill="False">
+            <Button x:Name="btnCancel" Content="Cancel" Width="110" Style="{StaticResource SecondaryActionButton}" DockPanel.Dock="Right" Margin="8,0,0,0"/>
+            <Button x:Name="btnSave" Content="Save Changes" Width="132" DockPanel.Dock="Right" Margin="8,0,0,0"/>
+        </DockPanel>
+    </Grid>
+</Window>

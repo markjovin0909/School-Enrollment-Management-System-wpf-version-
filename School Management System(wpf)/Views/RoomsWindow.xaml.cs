@@ -11,13 +11,37 @@ namespace School_Management_System.Views
     public partial class RoomsWindow : Window
     {
         private readonly RoomService _roomService = new();
-        private readonly bool _createOnly;
+        private readonly EditorMode _mode;
         private DataTable _table = new();
         private long? _selectedId;
+        private long? _editId;
 
-        public RoomsWindow(bool createOnly = false)
+        private enum EditorMode
         {
-            _createOnly = createOnly;
+            ListEmbedded,
+            Create,
+            Edit
+        }
+
+        public RoomsWindow()
+            : this(EditorMode.ListEmbedded, null)
+        {
+        }
+
+        public RoomsWindow(bool createOnly)
+            : this(createOnly ? EditorMode.Create : EditorMode.ListEmbedded, null)
+        {
+        }
+
+        public RoomsWindow(long editId)
+            : this(EditorMode.Edit, editId)
+        {
+        }
+
+        private RoomsWindow(EditorMode mode, long? editId)
+        {
+            _mode = mode;
+            _editId = editId;
             InitializeComponent();
 
             txtSearch.TextChanged += (_, _) => ApplyFilter();
@@ -29,12 +53,20 @@ namespace School_Management_System.Views
                 }
             };
             gridRooms.SelectionChanged += GridRooms_SelectionChanged;
+            gridRooms.MouseDoubleClick += (_, _) => OpenEditWindow();
+            btnNew.Click += (_, _) => OpenCreateWindow();
+            btnListEdit.Click += (_, _) => OpenEditWindow();
+            btnListDelete.Click += (_, _) => DeleteRoom();
             btnRefresh.Click += (_, _) => LoadData();
             btnAdd.Click += (_, _) =>
             {
-                if (_createOnly)
+                if (_mode == EditorMode.Create)
                 {
                     AddRoom();
+                }
+                else if (_mode == EditorMode.Edit)
+                {
+                    SaveRoom();
                 }
                 else
                 {
@@ -45,7 +77,7 @@ namespace School_Management_System.Views
             btnDelete.Click += (_, _) => DeleteRoom();
             btnClear.Click += (_, _) =>
             {
-                if (_createOnly)
+                if (_mode != EditorMode.ListEmbedded)
                 {
                     Close();
                 }
@@ -57,44 +89,116 @@ namespace School_Management_System.Views
             btnExport.Click += (_, _) => CsvExportService.SaveDataTable(_table, "rooms.csv");
 
             chkActive.IsChecked = true;
-            if (_createOnly)
+            if (_mode == EditorMode.Create)
             {
                 ConfigureCreateMode();
             }
+            else if (_mode == EditorMode.Edit)
+            {
+                ConfigureEditMode();
+            }
             else
             {
+                ConfigureListMode();
                 LoadData();
             }
+        }
+
+        private void ConfigureListMode()
+        {
+            editorPanel.Visibility = Visibility.Collapsed;
+            Grid.SetColumn(searchPanel, 0);
+            Grid.SetColumnSpan(searchPanel, 2);
+            searchPanel.Margin = new Thickness(0, 0, 0, 8);
+            Grid.SetColumnSpan(listPanel, 2);
+            listPanel.Margin = new Thickness(0);
         }
 
         private void OpenCreateWindow()
         {
-            var window = new RoomsWindow(true) { Owner = this };
-            if (window.ShowDialog() == true)
+            var window = new RoomsWindow(true);
+            if (AppFeedbackService.ShowOwnedDialog(window, this, editorPanel, listPanel, searchPanel) == true)
             {
                 LoadData();
             }
         }
 
-        private void ConfigureCreateMode()
+        private void OpenEditWindow()
         {
-            Title = "Create Room";
+            if (_mode != EditorMode.ListEmbedded || !_selectedId.HasValue)
+            {
+                if (_mode == EditorMode.ListEmbedded)
+                {
+                    MessageBox.Show("Select a room first.", "Room", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+                return;
+            }
+
+            var editId = _selectedId.Value;
+            var window = new RoomsWindow(editId);
+            if (AppFeedbackService.ShowOwnedDialog(window, this, editorPanel, listPanel, searchPanel) == true)
+            {
+                LoadData(editId);
+            }
+        }
+
+        private void ConfigureModalEditorChrome()
+        {
             searchPanel.Visibility = Visibility.Collapsed;
             listPanel.Visibility = Visibility.Collapsed;
             Grid.SetColumn(editorPanel, 0);
             Grid.SetColumnSpan(editorPanel, 2);
             editorPanel.Margin = new Thickness(4);
-            btnAdd.Content = "Create";
-            btnSave.Visibility = Visibility.Collapsed;
-            btnDelete.Visibility = Visibility.Collapsed;
             btnRefresh.Visibility = Visibility.Collapsed;
             btnExport.Visibility = Visibility.Collapsed;
-            btnClear.Content = "Cancel";
             Width = 620;
             Height = 430;
             MinWidth = 620;
             MinHeight = 430;
+        }
+
+        private void ConfigureCreateMode()
+        {
+            Title = "Create Room";
+            ConfigureModalEditorChrome();
+            btnAdd.Content = "Create";
+            btnSave.Visibility = Visibility.Collapsed;
+            btnDelete.Visibility = Visibility.Collapsed;
+            btnClear.Content = "Cancel";
             ClearEditor();
+        }
+
+        private void ConfigureEditMode()
+        {
+            Title = "Edit Room";
+            ConfigureModalEditorChrome();
+            btnAdd.Content = "Save";
+            btnSave.Visibility = Visibility.Collapsed;
+            btnDelete.Visibility = Visibility.Collapsed;
+            btnClear.Content = "Cancel";
+            LoadEditorFromEntity();
+        }
+
+        private void LoadEditorFromEntity()
+        {
+            if (!_editId.HasValue)
+            {
+                return;
+            }
+
+            var room = _roomService.GetById(_editId.Value);
+            if (room == null)
+            {
+                MessageBox.Show("Room not found.", "Room", MessageBoxButton.OK, MessageBoxImage.Warning);
+                Close();
+                return;
+            }
+
+            _selectedId = room.Id;
+            txtCode.Text = room.Code ?? string.Empty;
+            txtName.Text = room.Name ?? string.Empty;
+            txtCapacity.Text = room.Capacity?.ToString() ?? string.Empty;
+            chkActive.IsChecked = room.IsActive;
         }
 
         private void LoadData(long? preferredId = null)
@@ -187,7 +291,7 @@ namespace School_Management_System.Views
 
             _roomService.Create(entity);
             AuditTrailService.Log("CREATE", "rooms", entity.Id, null, entity);
-            if (_createOnly)
+            if (_mode == EditorMode.Create)
             {
                 DialogResult = true;
                 Close();
@@ -225,6 +329,13 @@ namespace School_Management_System.Views
 
             _roomService.Update(entity);
             AuditTrailService.Log("UPDATE", "rooms", entity.Id, oldData, entity);
+            if (_mode == EditorMode.Edit)
+            {
+                DialogResult = true;
+                Close();
+                return;
+            }
+
             LoadData(entity.Id);
         }
 
@@ -242,8 +353,7 @@ namespace School_Management_System.Views
                 return;
             }
 
-            var confirm = MessageBox.Show("Delete selected room?", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No);
-            if (confirm != MessageBoxResult.Yes)
+            if (!AppFeedbackService.Confirm("Delete selected room?", "Confirm", this))
             {
                 return;
             }

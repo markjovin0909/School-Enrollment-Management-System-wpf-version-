@@ -23,7 +23,7 @@ namespace School_Management_System
             btnStudentsNew.Click += (_, _) => OpenCreateStudentDialog();
             btnStudentsRefresh.Click += (_, _) => LoadStudents();
             btnStudentAdd.Click += (_, _) => OpenCreateStudentDialog();
-            btnStudentSave.Click += (_, _) => SaveStudent();
+            btnStudentSave.Click += (_, _) => OpenEditStudentDialog();
             btnStudentArchiveRestore.Click += (_, _) => ArchiveOrRestoreStudent();
             btnStudentResetAccount.Click += (_, _) => ResetStudentAccount();
             btnStudentHistory.Click += (_, _) => OpenStudentHistory();
@@ -31,6 +31,7 @@ namespace School_Management_System
             btnStudentAccounts.Click += (_, _) => OpenStudentAccounts();
             btnStudentAccountHistory.Click += (_, _) => OpenStudentAccountHistory();
             btnStudentClear.Click += (_, _) => ClearStudentEditor();
+            btnStudentSave.Content = "Edit Selected";
 
             txtStudentSearch.TextChanged += (_, _) =>
             {
@@ -52,6 +53,7 @@ namespace School_Management_System
             gridStudents.SelectionChanged += GridStudents_SelectionChanged;
             WireGridSortPersistence(gridStudents, "students");
 
+            SetStudentViewerMode();
             LoadStudentPreferenceLookups();
             ClearStudentEditor();
             LoadStudents();
@@ -62,19 +64,38 @@ namespace School_Management_System
             try
             {
                 var dialog = new StudentCreateWindow { Owner = this };
-                if (dialog.ShowDialog() == true && dialog.CreatedStudentId.HasValue)
+                if (dialog.ShowDialog() == true && dialog.SavedStudentId.HasValue)
                 {
                     LoadStudentPreferenceLookups();
-                    LoadStudents(dialog.CreatedStudentId.Value);
+                    LoadStudents(dialog.SavedStudentId.Value);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    $"Open create student dialog failed: {ex.Message}",
-                    "Students",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                AppFeedbackService.ShowError("Open create student dialog failed.", ex, "Students", this);
+            }
+        }
+
+        private void OpenEditStudentDialog()
+        {
+            if (!_selectedStudentId.HasValue)
+            {
+                MessageBox.Show("Select a student first.", "Edit Student", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                var dialog = new StudentCreateWindow(_selectedStudentId.Value) { Owner = this };
+                if (dialog.ShowDialog() == true && dialog.SavedStudentId.HasValue)
+                {
+                    LoadStudentPreferenceLookups();
+                    LoadStudents(dialog.SavedStudentId.Value);
+                }
+            }
+            catch (Exception ex)
+            {
+                AppFeedbackService.ShowError("Open edit student dialog failed.", ex, "Edit Student", this);
             }
         }
 
@@ -360,107 +381,6 @@ namespace School_Management_System
             UpdateStudentsWorkspaceInfo();
         }
 
-        private void SaveStudent()
-        {
-            ResetStudentValidationState();
-            if (!_selectedStudentId.HasValue)
-            {
-                MessageBox.Show("Select a student first.", "Update Student", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            try
-            {
-                var student = _studentService.GetById(_selectedStudentId.Value);
-                if (student == null)
-                {
-                    return;
-                }
-
-                var newLrn = txtStudentLrn.Text.Trim();
-                var firstName = txtStudentFirst.Text.Trim();
-                var lastName = txtStudentLast.Text.Trim();
-                var validationErrors = new List<string>();
-
-                SetInputValidationState(txtStudentLrn, string.IsNullOrWhiteSpace(newLrn));
-                SetInputValidationState(txtStudentFirst, string.IsNullOrWhiteSpace(firstName));
-                SetInputValidationState(txtStudentLast, string.IsNullOrWhiteSpace(lastName));
-                if (string.IsNullOrWhiteSpace(newLrn) || string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName))
-                {
-                    validationErrors.Add("LRN, first name, and last name are required.");
-                }
-
-                // Use the already-loaded _students list instead of a new GetAll() DB call
-                var duplicateLrn = _students.Any(s => s.Id != student.Id && string.Equals(s.Lrn, newLrn, StringComparison.OrdinalIgnoreCase));
-                if (duplicateLrn)
-                {
-                    validationErrors.Add("LRN already exists.");
-                    SetInputValidationState(txtStudentLrn, true);
-                }
-
-                if (validationErrors.Count > 0)
-                {
-                    ShowValidationSummary(studentValidationSummaryHost, txtStudentValidationSummary, validationErrors);
-                    return;
-                }
-
-                var oldData = new
-                {
-                    student.Lrn,
-                    student.FirstName,
-                    student.LastName,
-                    student.MiddleName,
-                    student.Address,
-                    student.ContactNo,
-                    student.GuardianName,
-                    student.GuardianContact,
-                    student.PreviousSchool,
-                    student.PreferredGradeLevelId,
-                    student.PreferredCurriculumId,
-                    student.Status
-                };
-
-                student.Lrn = newLrn;
-                student.ProfileImageUrl = NullIfWhite(txtStudentProfileImage.Text);
-                student.FirstName = txtStudentFirst.Text.Trim();
-                student.LastName = txtStudentLast.Text.Trim();
-                student.MiddleName = NullIfWhite(txtStudentMiddle.Text);
-                student.Address = NullIfWhite(txtStudentAddress.Text);
-                student.ContactNo = NullIfWhite(txtStudentContactNo.Text);
-                student.GuardianName = NullIfWhite(txtStudentGuardianName.Text);
-                student.GuardianContact = txtStudentGuardianContact.Text.Trim();
-                student.PreviousSchool = NullIfWhite(txtStudentPreviousSchool.Text);
-                student.PreferredGradeLevelId = GetSelectedLookupId(cboStudentPreferredGrade);
-                student.PreferredCurriculumId = GetSelectedLookupId(cboStudentPreferredCurriculum);
-                student.Sex = cboStudentSex.SelectedItem is Sex selectedSex ? selectedSex : null;
-                student.Birthdate = dpStudentBirthdate.SelectedDate?.Date;
-                student.Age = ComputeAge(student.Birthdate);
-                student.Status = cboStudentStatus.SelectedItem is UserStatus selectedStatus ? selectedStatus : student.Status;
-                student.UpdatedAt = DateTime.UtcNow;
-
-                _studentService.Update(student);
-                AuditTrailService.Log("UPDATE", "students", student.Id, oldData, student);
-
-                var syncResult = _studentAccountService.SyncStudentAccount(student.Id);
-                if (!syncResult.Success)
-                {
-                    MessageBox.Show(syncResult.Message, "Student Account", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                HideValidationSummary(studentValidationSummaryHost, txtStudentValidationSummary);
-                LoadStudents(student.Id);
-            }
-            catch (DomainValidationException ex)
-            {
-                ShowValidationSummary(studentValidationSummaryHost, txtStudentValidationSummary, new[] { ex.Message });
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Update student failed: {ex.Message}", "Update Student", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
         private void ArchiveOrRestoreStudent()
         {
             if (!_selectedStudentId.HasValue)
@@ -480,8 +400,7 @@ namespace School_Management_System
             {
                 if (student.Status == UserStatus.INACTIVE)
                 {
-                    var confirmRestore = MessageBox.Show("Restore selected student record?", "Confirm Restore", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                    if (confirmRestore != MessageBoxResult.Yes)
+                    if (!AppFeedbackService.Confirm("Restore selected student record?", "Confirm Restore", this))
                     {
                         return;
                     }
@@ -494,7 +413,7 @@ namespace School_Management_System
                     var syncResult = _studentAccountService.SyncStudentAccount(student.Id);
                     if (!syncResult.Success)
                     {
-                        MessageBox.Show(syncResult.Message, "Restore Student", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        AppFeedbackService.ShowWarning(syncResult.Message, "Restore Student", this);
                         return;
                     }
 
@@ -506,12 +425,15 @@ namespace School_Management_System
                         AccountId = syncResult.Data?.Username ?? student.StudentNumber,
                         Status = syncResult.Data?.Status ?? student.Status
                     });
+                    AppFeedbackService.ShowSuccess(
+                        $"Student restored successfully: {student.LastName}, {student.FirstName} ({student.StudentNumber}).",
+                        "Restore Student",
+                        this);
                     LoadStudents(student.Id);
                     return;
                 }
 
-                var confirm = MessageBox.Show("Archive selected student record?", "Confirm Archive", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                if (confirm != MessageBoxResult.Yes)
+                if (!AppFeedbackService.Confirm("Archive selected student record?", "Confirm Archive", this))
                 {
                     return;
                 }
@@ -532,12 +454,16 @@ namespace School_Management_System
                     _userService.Delete(user.Id);
                 }
 
+                AppFeedbackService.ShowSuccess(
+                    $"Student archived successfully: {student.LastName}, {student.FirstName} ({student.StudentNumber}).",
+                    "Archive Student",
+                    this);
                 LoadStudents();
                 ClearStudentEditor();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Student operation failed: {ex.Message}", "Student", MessageBoxButton.OK, MessageBoxImage.Error);
+                AppFeedbackService.ShowError("Student operation failed.", ex, "Student", this);
             }
         }
 
@@ -552,11 +478,11 @@ namespace School_Management_System
             var result = _studentAccountService.ResetStudentAccount(_selectedStudentId.Value);
             if (!result.Success)
             {
-                MessageBox.Show(result.Message, "Reset Account", MessageBoxButton.OK, MessageBoxImage.Warning);
+                AppFeedbackService.ShowWarning(result.Message, "Reset Account", this);
                 return;
             }
 
-            MessageBox.Show(result.Message, "Reset Account", MessageBoxButton.OK, MessageBoxImage.Information);
+            AppFeedbackService.ShowSuccess(result.Message, "Reset Account", this);
             LoadStudents(_selectedStudentId);
         }
 
@@ -658,6 +584,25 @@ namespace School_Management_System
             SetInputValidationState(dpStudentBirthdate, false);
         }
 
+        private void SetStudentViewerMode()
+        {
+            txtStudentLrn.IsReadOnly = true;
+            txtStudentProfileImage.IsReadOnly = true;
+            txtStudentFirst.IsReadOnly = true;
+            txtStudentLast.IsReadOnly = true;
+            txtStudentMiddle.IsReadOnly = true;
+            dpStudentBirthdate.IsEnabled = false;
+            cboStudentSex.IsEnabled = false;
+            txtStudentAddress.IsReadOnly = true;
+            txtStudentContactNo.IsReadOnly = true;
+            txtStudentGuardianName.IsReadOnly = true;
+            txtStudentGuardianContact.IsReadOnly = true;
+            txtStudentPreviousSchool.IsReadOnly = true;
+            cboStudentPreferredGrade.IsEnabled = false;
+            cboStudentPreferredCurriculum.IsEnabled = false;
+            cboStudentStatus.IsEnabled = false;
+        }
+
         private static string? NullIfWhite(string? value)
         {
             return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
@@ -669,7 +614,7 @@ namespace School_Management_System
             var visible = _studentsTable?.Rows?.Count ?? 0;
             if (!_selectedStudentId.HasValue)
             {
-                txtStudentsWorkspaceInfo.Text = $"Showing {visible} of {total} student records. Use grade and status filters to narrow the browse table, then select a row to edit details.";
+                txtStudentsWorkspaceInfo.Text = $"Showing {visible} of {total} student records. Use grade and status filters to narrow the browse table, then select a row to review details or launch the edit modal.";
                 return;
             }
 

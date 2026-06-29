@@ -34,20 +34,24 @@
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="220"/>
                     <ColumnDefinition Width="200"/>
                     <ColumnDefinition Width="120"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <Button Grid.Column="0" x:Name="btnNew" Content="New Section" Width="108" Margin="0,0,8,0"/>
-                <TextBox Grid.Column="1" x:Name="txtSearch" Margin="0,0,8,0"/>
-                <ComboBox Grid.Column="2" x:Name="cboFilterSchoolYear" Margin="0,0,8,0" DisplayMemberPath="Name" SelectedValuePath="Id"/>
-                <ComboBox Grid.Column="3" x:Name="cboFilterGrade" Margin="0,0,8,0" DisplayMemberPath="Code" SelectedValuePath="Id"/>
-                <Button Grid.Column="4" x:Name="btnRefresh" Content="Refresh" Width="90" Style="{StaticResource GhostButton}"/>
+                <Button Grid.Column="1" x:Name="btnListEdit" Content="Edit" Width="80" Margin="0,0,8,0"/>
+                <Button Grid.Column="2" x:Name="btnListDelete" Content="Archive/Restore" Width="120" Margin="0,0,8,0" Style="{StaticResource GhostButton}"/>
+                <TextBox Grid.Column="3" x:Name="txtSearch" Margin="0,0,8,0"/>
+                <ComboBox Grid.Column="4" x:Name="cboFilterSchoolYear" Margin="0,0,8,0" DisplayMemberPath="Name" SelectedValuePath="Id"/>
+                <ComboBox Grid.Column="5" x:Name="cboFilterGrade" Margin="0,0,8,0" DisplayMemberPath="Code" SelectedValuePath="Id"/>
+                <Button Grid.Column="6" x:Name="btnRefresh" Content="Refresh" Width="90" Style="{StaticResource GhostButton}"/>
             </Grid>
         </Border>
 
-        <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,8,0">
+        <Border x:Name="listPanel" Grid.Row="2" Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,8,0">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>

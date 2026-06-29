@@ -166,7 +166,7 @@ namespace School_Management_System.Views
 
         private string FormatDefaultGradeLevels(string? rawIds)
         {
-            var selectedIds = SchoolSettingCompat.ParseGradeLevelIds(rawIds);
+            var selectedIds = SchoolSettingService.ParseGradeLevelIds(rawIds);
             if (selectedIds.Count == 0)
             {
                 return string.Empty;
@@ -233,7 +233,7 @@ namespace School_Management_System.Views
 
             normalized = resolvedIds.Count == 0
                 ? null
-                : SchoolSettingCompat.NormalizeGradeLevelIds(resolvedIds);
+                : SchoolSettingService.NormalizeGradeLevelIds(resolvedIds);
             return true;
         }
 

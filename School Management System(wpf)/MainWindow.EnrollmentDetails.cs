@@ -32,7 +32,7 @@ namespace School_Management_System
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to open enrollment: {ex.Message}", "Enrollment", MessageBoxButton.OK, MessageBoxImage.Error);
+                AppFeedbackService.ShowError("Failed to open enrollment.", ex, "Enrollment", this);
             }
         }
 

@@ -123,7 +123,8 @@ namespace School_Management_System.Views
                 dialog.InitialDirectory = txtBackupFolder.Text;
             }
 
-            if (dialog.ShowDialog() == true)
+            var owner = AppFeedbackService.ResolveOwner(this, txtBackupFolder);
+            if (owner != null ? dialog.ShowDialog(owner) == true : dialog.ShowDialog() == true)
             {
                 txtBackupFolder.Text = dialog.FolderName;
                 PersistSettings();
@@ -139,7 +140,8 @@ namespace School_Management_System.Views
                 Title = "Select restore source"
             };
 
-            if (dialog.ShowDialog() == true)
+            var owner = AppFeedbackService.ResolveOwner(this, txtRestoreFile);
+            if (owner != null ? dialog.ShowDialog(owner) == true : dialog.ShowDialog() == true)
             {
                 txtRestoreFile.Text = dialog.FileName;
             }
@@ -157,7 +159,8 @@ namespace School_Management_System.Views
                 dialog.InitialDirectory = txtMySqlBinFolder.Text;
             }
 
-            if (dialog.ShowDialog() == true)
+            var owner = AppFeedbackService.ResolveOwner(this, txtMySqlBinFolder);
+            if (owner != null ? dialog.ShowDialog(owner) == true : dialog.ShowDialog() == true)
             {
                 txtMySqlBinFolder.Text = dialog.FolderName;
                 PersistSettings();

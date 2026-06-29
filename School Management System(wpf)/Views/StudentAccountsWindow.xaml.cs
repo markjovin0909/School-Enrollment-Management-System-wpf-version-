@@ -229,13 +229,7 @@ namespace School_Management_System.Views
 
             var label = $"Student Account {student.LastName}, {student.FirstName} ({student.StudentNumber})";
             var historyWindow = new UserActivityHistoryWindow(_viewer, "student_accounts", student.Id, label);
-            var owner = ResolveHistoryOwner();
-            if (owner != null)
-            {
-                historyWindow.Owner = owner;
-            }
-
-            historyWindow.ShowDialog();
+            AppFeedbackService.ShowOwnedDialog(historyWindow, ResolveHistoryOwner(), gridAccounts);
         }
 
         private Window? ResolveHistoryOwner()

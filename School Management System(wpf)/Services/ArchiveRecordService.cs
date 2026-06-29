@@ -11,7 +11,7 @@ using School_Management_System.Repositories;
 
 namespace School_Management_System.Services
 {
-    internal class ArchiveRecordService : IArchiveRecordService
+    internal class ArchiveRecordService
     {
         private static readonly JsonSerializerOptions JsonOptions = new()
         {

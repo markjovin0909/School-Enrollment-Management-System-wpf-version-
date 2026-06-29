@@ -39,8 +39,8 @@
 
             <Border Grid.Row="0" Style="{StaticResource DialogShell}">
                 <StackPanel>
-                    <TextBlock Text="Create Student" Style="{StaticResource DialogHeaderTitle}"/>
-                    <TextBlock Text="Create a new student record in a dedicated form, then let the managed account be generated automatically in the background."
+                    <TextBlock x:Name="txtDialogTitle" Text="Create Student" Style="{StaticResource DialogHeaderTitle}"/>
+                    <TextBlock x:Name="txtDialogSubtitle" Text="Create a new student record in a dedicated form, then let the managed account be generated automatically in the background."
                                Style="{StaticResource DialogHeaderSubtitle}"/>
                 </StackPanel>
             </Border>

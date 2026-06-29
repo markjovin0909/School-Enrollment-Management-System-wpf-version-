@@ -1,12 +1,11 @@
 using System.Collections.Generic;
 using School_Management_System.Data;
-using School_Management_System.Interfaces;
 using School_Management_System.Models;
 using School_Management_System.Repositories;
 
 namespace School_Management_System.Services
 {
-    internal class GradeComponentService : IGradeComponentService
+    internal class GradeComponentService
     {
         public IEnumerable<GradeComponent> GetAll()
         {

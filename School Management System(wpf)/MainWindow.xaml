@@ -105,10 +105,6 @@
                     <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                         <WrapPanel HorizontalAlignment="Right" VerticalAlignment="Center" ItemHeight="36">
                         <Button x:Name="btnTopDashboard" Content="Dashboard" Style="{StaticResource MainShellPrimaryButton}"/>
-                        <Button x:Name="btnTopDbSettings" Content="DB Settings" Style="{StaticResource MainShellButton}"/>
-                        <Button x:Name="btnTopChangePassword" Content="Change Password" Style="{StaticResource MainShellButton}"/>
-                        <Button x:Name="btnTopActivity" Content="Activity History" Style="{StaticResource MainShellButton}"/>
-                        <Button x:Name="btnTopLogout" Content="Logout" Style="{StaticResource MainShellDangerButton}" Margin="0"/>
                         </WrapPanel>
                     </StackPanel>
                 </Grid>

@@ -15,22 +15,46 @@ namespace School_Management_System.Views
         private readonly CurriculumSubjectService _curriculumSubjectService = new();
         private readonly SubjectService _subjectService = new();
         private readonly GradeLevelService _gradeLevelService = new();
-        private readonly bool _createOnly;
+        private readonly EditorMode _mode;
+        private long? _editId;
+
+        private enum EditorMode
+        {
+            ListEmbedded,
+            Create,
+            Edit
+        }
 
         private DataTable _table = new();
         private DataTable _mappingTable = new();
         private long? _selectedCurriculumId;
         private long? _selectedMappingId;
+        private bool _modalDirty;
         private List<GradeLevel> _gradeLevels = new();
         private List<Subject> _subjects = new();
 
-        public CurriculumWindow(bool createOnly = false)
+        public CurriculumWindow()
+            : this(EditorMode.ListEmbedded, null)
         {
-            _createOnly = createOnly;
+        }
+
+        public CurriculumWindow(bool createOnly)
+            : this(createOnly ? EditorMode.Create : EditorMode.ListEmbedded, null)
+        {
+        }
+
+        public CurriculumWindow(long editId)
+            : this(EditorMode.Edit, editId)
+        {
+        }
+
+        private CurriculumWindow(EditorMode mode, long? editId)
+        {
+            _mode = mode;
+            _editId = editId;
             InitializeComponent();
 
             txtSearch.TextChanged += (_, _) => ApplyFilter();
-            cboMapGrade.SelectionChanged += (_, _) => BindMapSubjects();
             gridCurricula.AutoGeneratingColumn += (_, e) =>
             {
                 if (e.PropertyName == "Id")
@@ -46,15 +70,23 @@ namespace School_Management_System.Views
                 }
             };
             gridCurricula.SelectionChanged += GridCurricula_SelectionChanged;
+            gridCurricula.MouseDoubleClick += (_, _) => OpenEditWindow();
             gridMappings.SelectionChanged += GridMappings_SelectionChanged;
+            gridMappings.MouseDoubleClick += (_, _) => OpenEditMappingWindow();
 
             btnNew.Click += (_, _) => OpenCreateWindow();
+            btnListEdit.Click += (_, _) => OpenEditWindow();
+            btnListDelete.Click += (_, _) => DeleteCurriculum();
             btnRefresh.Click += (_, _) => LoadData();
             btnAdd.Click += (_, _) =>
             {
-                if (_createOnly)
+                if (_mode == EditorMode.Create)
                 {
                     AddCurriculum();
+                }
+                else if (_mode == EditorMode.Edit)
+                {
+                    SaveCurriculum();
                 }
                 else
                 {
@@ -65,8 +97,13 @@ namespace School_Management_System.Views
             btnDelete.Click += (_, _) => DeleteCurriculum();
             btnClear.Click += (_, _) =>
             {
-                if (_createOnly)
+                if (_mode != EditorMode.ListEmbedded)
                 {
+                    if (_modalDirty)
+                    {
+                        DialogResult = true;
+                    }
+
                     Close();
                 }
                 else
@@ -75,7 +112,8 @@ namespace School_Management_System.Views
                 }
             };
 
-            btnMapAdd.Click += (_, _) => AddMapping();
+            btnMapAdd.Click += (_, _) => OpenAddMappingWindow();
+            btnMapEdit.Click += (_, _) => OpenEditMappingWindow();
             btnMapDelete.Click += (_, _) => RemoveMapping();
 
             cboMapSemester.ItemsSource = new[] { string.Empty, "1", "2" };
@@ -86,22 +124,58 @@ namespace School_Management_System.Views
             chkActive.IsChecked = true;
 
             LoadLookups();
-            if (_createOnly)
+            if (_mode == EditorMode.Create)
             {
                 ConfigureCreateMode();
             }
+            else if (_mode == EditorMode.Edit)
+            {
+                ConfigureEditMode();
+            }
             else
+            {
+                ConfigureListMode();
+                LoadData();
+            }
+        }
+
+        private void ConfigureListMode()
+        {
+            editorPanel.Visibility = Visibility.Collapsed;
+            mappingPanel.Visibility = Visibility.Collapsed;
+            mappedGridPanel.Visibility = Visibility.Collapsed;
+            Grid.SetColumn(searchPanel, 0);
+            Grid.SetColumnSpan(searchPanel, 2);
+            searchPanel.Margin = new Thickness(0, 0, 0, 8);
+            Grid.SetColumnSpan(listPanel, 2);
+            listPanel.Margin = new Thickness(0);
+        }
+
+        private void OpenCreateWindow()
+        {
+            var window = new CurriculumWindow(true);
+            if (AppFeedbackService.ShowOwnedDialog(window, this, editorPanel, listPanel, searchPanel, mappingPanel, mappedGridPanel) == true)
             {
                 LoadData();
             }
         }
 
-        private void OpenCreateWindow()
+        private void OpenEditWindow()
         {
-            var window = new CurriculumWindow(true) { Owner = this };
-            if (window.ShowDialog() == true)
+            if (_mode != EditorMode.ListEmbedded || !_selectedCurriculumId.HasValue)
             {
-                LoadData();
+                if (_mode == EditorMode.ListEmbedded)
+                {
+                    MessageBox.Show("Select a curriculum first.", "Curriculum", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+                return;
+            }
+
+            var editId = _selectedCurriculumId.Value;
+            var window = new CurriculumWindow(editId);
+            if (AppFeedbackService.ShowOwnedDialog(window, this, editorPanel, listPanel, searchPanel, mappingPanel, mappedGridPanel) == true)
+            {
+                LoadData(editId);
             }
         }
 
@@ -110,8 +184,9 @@ namespace School_Management_System.Views
             Title = "Create Curriculum";
             searchPanel.Visibility = Visibility.Collapsed;
             gridCurricula.Visibility = Visibility.Collapsed;
+            listPanel.Visibility = Visibility.Collapsed;
             mappingPanel.Visibility = Visibility.Collapsed;
-            gridMappings.Visibility = Visibility.Collapsed;
+            mappedGridPanel.Visibility = Visibility.Collapsed;
             Grid.SetColumn(editorPanel, 0);
             Grid.SetColumnSpan(editorPanel, 2);
             editorPanel.Margin = new Thickness(0);
@@ -126,32 +201,59 @@ namespace School_Management_System.Views
             ClearEditor();
         }
 
+        private void ConfigureEditMode()
+        {
+            Title = "Edit Curriculum";
+            searchPanel.Visibility = Visibility.Collapsed;
+            gridCurricula.Visibility = Visibility.Collapsed;
+            listPanel.Visibility = Visibility.Collapsed;
+            Grid.SetColumn(editorPanel, 0);
+            Grid.SetColumnSpan(editorPanel, 2);
+            editorPanel.Margin = new Thickness(0, 0, 0, 8);
+            Grid.SetColumn(mappingPanel, 0);
+            Grid.SetColumnSpan(mappingPanel, 2);
+            mappingPanel.Margin = new Thickness(0, 0, 0, 8);
+            Grid.SetColumn(mappedGridPanel, 0);
+            Grid.SetColumnSpan(mappedGridPanel, 2);
+            mappedGridPanel.Margin = new Thickness(0);
+            btnAdd.Content = "Save";
+            btnSave.Visibility = Visibility.Collapsed;
+            btnDelete.Visibility = Visibility.Collapsed;
+            btnClear.Content = "Cancel";
+            Width = 760;
+            Height = 720;
+            MinWidth = 760;
+            MinHeight = 640;
+            LoadEditorFromEntity();
+        }
+
+        private void LoadEditorFromEntity()
+        {
+            if (!_editId.HasValue)
+            {
+                return;
+            }
+
+            var curriculum = _curriculumService.GetById(_editId.Value);
+            if (curriculum == null)
+            {
+                MessageBox.Show("Curriculum not found.", "Curriculum", MessageBoxButton.OK, MessageBoxImage.Warning);
+                Close();
+                return;
+            }
+
+            _selectedCurriculumId = curriculum.Id;
+            txtName.Text = curriculum.Name;
+            txtDescription.Text = curriculum.Description ?? string.Empty;
+            chkActive.IsChecked = curriculum.IsActive;
+            LoadMappings();
+        }
+
         private void LoadLookups()
         {
             _gradeLevels = _gradeLevelService.GetAll().OrderBy(g => g.Code).ThenBy(g => g.Name).ToList();
             _subjects = _subjectService.GetAll().OrderBy(s => s.Code).ThenBy(s => s.Title).ToList();
-
-            cboMapGrade.ItemsSource = _gradeLevels;
-            cboMapGrade.SelectedIndex = _gradeLevels.Count > 0 ? 0 : -1;
-            BindMapSubjects();
-        }
-
-        private void BindMapSubjects()
-        {
-            var gradeLevelId = cboMapGrade.SelectedValue is long id ? id : 0;
-            var subjectItems = _subjects
-                .Where(s => !s.GradeLevelId.HasValue || s.GradeLevelId == gradeLevelId)
-                .OrderBy(s => s.Code)
-                .ThenBy(s => s.Title)
-                .Select(s => new SubjectOption
-                {
-                    Id = s.Id,
-                    Label = string.IsNullOrWhiteSpace(s.Code) ? s.Title : $"{s.Code} - {s.Title}"
-                })
-                .ToList();
-
-            cboMapSubject.ItemsSource = subjectItems;
-            cboMapSubject.SelectedIndex = subjectItems.Count > 0 ? 0 : -1;
+            ClearMappingSummary();
         }
 
         private void LoadData(long? preferredCurriculumId = null)
@@ -287,10 +389,74 @@ namespace School_Management_System.Views
             if (gridMappings.SelectedItem is not DataRowView row)
             {
                 _selectedMappingId = null;
+                ClearMappingSummary();
                 return;
             }
 
             _selectedMappingId = row.Row.Field<long>("Id");
+            var mapping = _curriculumSubjectService.GetById(_selectedMappingId.Value);
+            if (mapping == null)
+            {
+                ClearMappingSummary();
+                return;
+            }
+
+            var subjectItems = _subjects
+                .Where(s => !s.GradeLevelId.HasValue || s.GradeLevelId == mapping.GradeLevelId)
+                .OrderBy(s => s.Code)
+                .ThenBy(s => s.Title)
+                .Select(s => new SubjectOption
+                {
+                    Id = s.Id,
+                    Label = string.IsNullOrWhiteSpace(s.Code) ? s.Title : $"{s.Code} - {s.Title}"
+                })
+                .ToList();
+
+            cboMapGrade.ItemsSource = _gradeLevels;
+            cboMapGrade.SelectedValue = mapping.GradeLevelId;
+            cboMapSubject.ItemsSource = subjectItems;
+            cboMapSubject.SelectedValue = mapping.SubjectId;
+            cboMapSemester.SelectedItem = mapping.Semester?.ToString() ?? string.Empty;
+            cboMapRequired.SelectedItem = mapping.IsRequired ? "Yes" : "No";
+            txtMapSort.Text = mapping.SortOrder.ToString();
+        }
+
+        private void OpenAddMappingWindow()
+        {
+            if (!_selectedCurriculumId.HasValue)
+            {
+                MessageBox.Show("Select a curriculum first.", "Mapping", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var window = new CurriculumMappingWindow(_selectedCurriculumId.Value);
+            if (AppFeedbackService.ShowOwnedDialog(window, this, editorPanel, mappingPanel, mappedGridPanel, listPanel) == true && window.SavedMappingId.HasValue)
+            {
+                _modalDirty = true;
+                LoadMappings(window.SavedMappingId.Value);
+            }
+        }
+
+        private void OpenEditMappingWindow()
+        {
+            if (!_selectedCurriculumId.HasValue)
+            {
+                MessageBox.Show("Select a curriculum first.", "Mapping", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (!_selectedMappingId.HasValue)
+            {
+                MessageBox.Show("Select a mapping first.", "Mapping", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var window = new CurriculumMappingWindow(_selectedCurriculumId.Value, _selectedMappingId.Value);
+            if (AppFeedbackService.ShowOwnedDialog(window, this, editorPanel, mappingPanel, mappedGridPanel, listPanel) == true && window.SavedMappingId.HasValue)
+            {
+                _modalDirty = true;
+                LoadMappings(window.SavedMappingId.Value);
+            }
         }
 
         private void AddCurriculum()
@@ -308,7 +474,7 @@ namespace School_Management_System.Views
             {
                 _curriculumService.Create(entity);
                 AuditTrailService.Log("CREATE", "curricula", entity.Id, null, entity);
-                if (_createOnly)
+                if (_mode == EditorMode.Create)
                 {
                     DialogResult = true;
                     Close();
@@ -346,6 +512,13 @@ namespace School_Management_System.Views
             {
                 _curriculumService.Update(curriculum);
                 AuditTrailService.Log("UPDATE", "curricula", curriculum.Id, oldData, curriculum);
+                if (_mode == EditorMode.Edit)
+                {
+                    _modalDirty = true;
+                    AppFeedbackService.ShowSuccess("Curriculum updated.", "Curriculum", this);
+                    return;
+                }
+
                 LoadData(curriculum.Id);
             }
             catch (DomainValidationException ex)
@@ -362,8 +535,7 @@ namespace School_Management_System.Views
                 return;
             }
 
-            var confirm = MessageBox.Show("Delete selected curriculum?", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No);
-            if (confirm != MessageBoxResult.Yes)
+            if (!AppFeedbackService.Confirm("Delete selected curriculum?", "Confirm", this))
             {
                 return;
             }
@@ -387,50 +559,6 @@ namespace School_Management_System.Views
             }
         }
 
-        private void AddMapping()
-        {
-            if (!_selectedCurriculumId.HasValue)
-            {
-                MessageBox.Show("Select a curriculum first.", "Mapping", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            if (cboMapGrade.SelectedValue is not long gradeLevelId || cboMapSubject.SelectedValue is not long subjectId)
-            {
-                MessageBox.Show("Select grade level and subject.", "Mapping", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            if (!int.TryParse(txtMapSort.Text.Trim(), out var sortOrder) || sortOrder < 0)
-            {
-                MessageBox.Show("Sort must be a non-negative integer.", "Mapping", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            var mapping = new CurriculumSubject
-            {
-                CurriculumId = _selectedCurriculumId.Value,
-                GradeLevelId = gradeLevelId,
-                SubjectId = subjectId,
-                Semester = byte.TryParse(cboMapSemester.SelectedItem?.ToString(), out var semester) ? semester : null,
-                IsRequired = string.Equals(cboMapRequired.SelectedItem?.ToString(), "Yes", StringComparison.OrdinalIgnoreCase),
-                SortOrder = sortOrder,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            };
-
-            try
-            {
-                _curriculumSubjectService.Create(mapping);
-                AuditTrailService.Log("CREATE", "curriculum_subjects", mapping.Id, null, mapping);
-                LoadMappings(mapping.Id);
-            }
-            catch (DomainValidationException ex)
-            {
-                MessageBox.Show(ex.Message, "Mapping", MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
-        }
-
         private void RemoveMapping()
         {
             if (!_selectedMappingId.HasValue)
@@ -445,14 +573,14 @@ namespace School_Management_System.Views
                 return;
             }
 
-            var confirm = MessageBox.Show("Remove selected mapping?", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No);
-            if (confirm != MessageBoxResult.Yes)
+            if (!AppFeedbackService.Confirm("Remove selected mapping?", "Confirm", this))
             {
                 return;
             }
 
             AuditTrailService.Log("DELETE", "curriculum_subjects", mapping.Id, mapping, null);
             _curriculumSubjectService.Delete(mapping.Id);
+            _modalDirty = true;
             LoadMappings();
         }
 
@@ -465,6 +593,17 @@ namespace School_Management_System.Views
             chkActive.IsChecked = true;
             gridCurricula.SelectedItem = null;
             LoadMappings();
+            ClearMappingSummary();
+        }
+
+        private void ClearMappingSummary()
+        {
+            cboMapGrade.ItemsSource = _gradeLevels;
+            cboMapGrade.SelectedIndex = _gradeLevels.Count > 0 ? 0 : -1;
+            cboMapSubject.ItemsSource = Array.Empty<SubjectOption>();
+            cboMapSemester.SelectedIndex = 0;
+            cboMapRequired.SelectedIndex = 0;
+            txtMapSort.Text = "0";
         }
 
         private sealed class SubjectOption

@@ -40,7 +40,7 @@
         <Setter Property="MinWidth" Value="110"/>
     </Style>
 
-    <Style x:Key="DialogPrimaryActionButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+    <Style x:Key="DialogPrimaryActionButton" TargetType="Button" BasedOn="{StaticResource PageActionButton}">
         <Setter Property="MinWidth" Value="110"/>
     </Style>
 

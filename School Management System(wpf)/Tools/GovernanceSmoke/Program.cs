@@ -51,6 +51,13 @@ try
 
     if (submitResult.Success && submitResult.Data != null)
     {
+        using (var capacityDb = new AppDbContext())
+        {
+            var section = capacityDb.Sections.Single(x => x.Id == 1);
+            section.Capacity = 2;
+            capacityDb.SaveChanges();
+        }
+
         var approveResult = enrollmentService.ApproveEnrollment(submitResult.Data.Id);
         checks.Add(("Enrollment.Approve", approveResult.Success && approveResult.Data?.Status == EnrollmentStatus.ENROLLED, approveResult.Message));
 
@@ -182,7 +189,7 @@ static void Seed()
         SchoolYearId = 1,
         GradeLevelId = 1,
         Name = "Aster",
-        Capacity = 35,
+        Capacity = 1,
         IsArchived = false,
         CreatedAt = now,
         UpdatedAt = now
@@ -201,6 +208,31 @@ static void Seed()
         UpdatedAt = now
     });
 
+    db.Users.Add(new User
+    {
+        Id = 3,
+        Username = "existing_student_user",
+        PasswordHash = "hash",
+        Role = UserRole.STUDENT,
+        CanLogin = true,
+        Status = UserStatus.ACTIVE,
+        CreatedAt = now,
+        UpdatedAt = now
+    });
+
+    db.Students.Add(new Student
+    {
+        Id = 3,
+        UserId = 3,
+        Lrn = "123456789013",
+        StudentNumber = "S-000002",
+        FirstName = "Existing",
+        LastName = "Student",
+        Status = UserStatus.ACTIVE,
+        CreatedAt = now,
+        UpdatedAt = now
+    });
+
     db.StudentRequirements.Add(new StudentRequirement
     {
         Id = 1,
@@ -210,6 +242,35 @@ static void Seed()
         SubmittedAt = now,
         CreatedAt = now,
         UpdatedAt = now
+    });
+
+    db.StudentRequirements.Add(new StudentRequirement
+    {
+        Id = 2,
+        StudentId = 3,
+        RequirementName = "Birth Certificate",
+        IsSubmitted = true,
+        SubmittedAt = now,
+        CreatedAt = now,
+        UpdatedAt = now
+    });
+
+    db.Enrollments.Add(new Enrollment
+    {
+        Id = 1,
+        SchoolYearId = 1,
+        StudentId = 3,
+        GradeLevelId = 1,
+        SectionId = 1,
+        CurriculumId = 1,
+        Status = EnrollmentStatus.ENROLLED,
+        ApprovalStatus = EnrollmentApprovalStatus.APPROVED,
+        EnrollmentType = "NEW",
+        ApprovedByUserId = 1,
+        ApprovedAt = now,
+        EnrolledAt = now.AddMinutes(-5),
+        CreatedAt = now.AddMinutes(-5),
+        UpdatedAt = now.AddMinutes(-5)
     });
 
     db.SaveChanges();

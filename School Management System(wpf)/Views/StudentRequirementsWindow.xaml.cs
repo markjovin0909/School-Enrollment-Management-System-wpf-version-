@@ -10,17 +10,42 @@ namespace School_Management_System.Views
 {
     public partial class StudentRequirementsWindow : Window
     {
+        private enum EditorMode
+        {
+            ListEmbedded,
+            Create,
+            Edit
+        }
+
         private readonly StudentService _studentService = new();
         private readonly StudentRequirementService _requirementService = new();
         private readonly RequirementChecklistService _checklistService = new();
-        private readonly bool _createOnly;
+        private readonly EditorMode _mode;
+        private readonly long? _editRequirementId;
 
         private List<Student> _students = new();
         private long? _selectedRequirementId;
 
-        public StudentRequirementsWindow(long? preferredStudentId = null, bool createOnly = false)
+        public StudentRequirementsWindow(long? preferredStudentId = null)
+            : this(EditorMode.ListEmbedded, null, preferredStudentId)
         {
-            _createOnly = createOnly;
+        }
+
+        public StudentRequirementsWindow(bool createOnly, long? preferredStudentId = null)
+            : this(createOnly ? EditorMode.Create : EditorMode.ListEmbedded, null, preferredStudentId)
+        {
+        }
+
+        public StudentRequirementsWindow(long requirementId, long? preferredStudentId = null)
+            : this(EditorMode.Edit, requirementId, preferredStudentId)
+        {
+        }
+
+        private StudentRequirementsWindow(EditorMode mode, long? editRequirementId, long? preferredStudentId)
+        {
+            _mode = mode;
+            _editRequirementId = editRequirementId;
+
             InitializeComponent();
 
             cboRequirement.ItemsSource = _checklistService.GetRequiredRequirements();
@@ -30,14 +55,27 @@ namespace School_Management_System.Views
             cboRequirementStatus.SelectedItem = RequirementChecklistStatus.MISSING;
             dpSubmitted.SelectedDate = DateTime.Today;
 
-            cboStudent.SelectionChanged += (_, _) => LoadRequirements();
+            cboStudent.SelectionChanged += (_, _) =>
+            {
+                if (_mode == EditorMode.ListEmbedded)
+                {
+                    LoadRequirements();
+                }
+            };
             requirementsChecklistPanel.SelectionChanged += RequirementsChecklistPanel_SelectionChanged;
+            requirementsChecklistPanel.MouseDoubleClick += (_, _) => OpenEditWindow();
             btnNew.Click += (_, _) => OpenCreateWindow();
+            btnListEdit.Click += (_, _) => OpenEditWindow();
+            btnListDelete.Click += (_, _) => DeleteRequirement();
             btnAdd.Click += (_, _) =>
             {
-                if (_createOnly)
+                if (_mode == EditorMode.Create)
                 {
                     AddRequirement();
+                }
+                else if (_mode == EditorMode.Edit)
+                {
+                    SaveRequirement();
                 }
                 else
                 {
@@ -46,55 +84,127 @@ namespace School_Management_System.Views
             };
             btnSave.Click += (_, _) => SaveRequirement();
             btnDelete.Click += (_, _) => DeleteRequirement();
-            btnCancel.Click += (_, _) => Close();
+            btnCancel.Click += (_, _) =>
+            {
+                if (_mode == EditorMode.ListEmbedded)
+                {
+                    ClearEditor();
+                }
+                else
+                {
+                    Close();
+                }
+            };
             btnRefresh.Click += (_, _) =>
             {
                 var selectedStudentId = cboStudent.SelectedValue is long id ? id : (long?)null;
                 LoadStudents(selectedStudentId);
-                LoadRequirements();
+                if (_mode == EditorMode.ListEmbedded)
+                {
+                    LoadRequirements();
+                }
             };
 
             LoadStudents(preferredStudentId);
-            if (_createOnly)
+
+            if (_mode == EditorMode.Create)
             {
                 ConfigureCreateMode();
             }
+            else if (_mode == EditorMode.Edit)
+            {
+                ConfigureEditMode();
+            }
             else
             {
+                ConfigureListMode();
                 LoadRequirements();
             }
         }
 
-        private void OpenCreateWindow()
+        private void ConfigureListMode()
         {
-            var selectedStudentId = cboStudent.SelectedValue is long id ? id : (long?)null;
-            var window = new StudentRequirementsWindow(selectedStudentId, true) { Owner = this };
-            if (window.ShowDialog() == true)
-            {
-                LoadStudents(selectedStudentId);
-                LoadRequirements();
-            }
+            Title = "Student Requirements";
+            sectionHeader.Title = "Student Requirements";
+            sectionHeader.Subtitle = "Track required document submission and compliance notes";
+            editorPanel.Visibility = Visibility.Collapsed;
+            Grid.SetColumn(requirementsChecklistPanel, 0);
+            Grid.SetColumnSpan(requirementsChecklistPanel, 2);
+            toolbarPanel.Visibility = Visibility.Visible;
+            ClearEditor();
+        }
+
+        private void ConfigureModalEditorChrome()
+        {
+            toolbarPanel.Visibility = Visibility.Collapsed;
+            requirementsChecklistPanel.Visibility = Visibility.Collapsed;
+            Grid.SetColumn(editorPanel, 0);
+            Grid.SetColumnSpan(editorPanel, 2);
+            editorPanel.Margin = new Thickness(0);
+            Width = 760;
+            Height = 520;
+            MinWidth = 760;
+            MinHeight = 520;
         }
 
         private void ConfigureCreateMode()
         {
             Title = "Create Student Requirement";
-            requirementsChecklistPanel.Visibility = Visibility.Collapsed;
-            Grid.SetColumn(editorPanel, 0);
-            Grid.SetColumnSpan(editorPanel, 2);
-            editorPanel.Margin = new Thickness(0);
-            btnNew.Visibility = Visibility.Collapsed;
-            btnRefresh.Visibility = Visibility.Collapsed;
-            txtSummary.Visibility = Visibility.Collapsed;
+            sectionHeader.Title = "Create Student Requirement";
+            sectionHeader.Subtitle = "Add a requirement record for the selected student in a dedicated modal.";
+            ConfigureModalEditorChrome();
             btnAdd.Content = "Create";
             btnSave.Visibility = Visibility.Collapsed;
             btnDelete.Visibility = Visibility.Collapsed;
             btnCancel.Visibility = Visibility.Visible;
-            Width = 760;
-            Height = 520;
-            MinWidth = 760;
-            MinHeight = 520;
-            LoadRequirements();
+            ClearEditor();
+        }
+
+        private void ConfigureEditMode()
+        {
+            Title = "Edit Student Requirement";
+            sectionHeader.Title = "Edit Student Requirement";
+            sectionHeader.Subtitle = "Update requirement status, submitted date, and notes in a dedicated modal.";
+            ConfigureModalEditorChrome();
+            btnAdd.Content = "Save";
+            btnSave.Visibility = Visibility.Collapsed;
+            btnDelete.Visibility = Visibility.Collapsed;
+            btnCancel.Visibility = Visibility.Visible;
+            LoadRequirementForEdit();
+        }
+
+        private void OpenCreateWindow()
+        {
+            var selectedStudentId = cboStudent.SelectedValue is long id ? id : (long?)null;
+            var window = new StudentRequirementsWindow(true, selectedStudentId);
+            if (AppFeedbackService.ShowOwnedDialog(window, this, editorPanel, toolbarPanel, requirementsChecklistPanel) == true)
+            {
+                LoadStudents(selectedStudentId);
+                LoadRequirements();
+            }
+        }
+
+        private void OpenEditWindow()
+        {
+            if (_mode != EditorMode.ListEmbedded)
+            {
+                return;
+            }
+
+            if (!_selectedRequirementId.HasValue)
+            {
+                MessageBox.Show("Select a requirement first.", "Requirements", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var selectedStudentId = cboStudent.SelectedValue is long id ? id : (long?)null;
+            var window = new StudentRequirementsWindow(_selectedRequirementId.Value, selectedStudentId);
+            if (AppFeedbackService.ShowOwnedDialog(window, this, editorPanel, toolbarPanel, requirementsChecklistPanel) == true)
+            {
+                LoadStudents(selectedStudentId);
+                LoadRequirements();
+                SelectRequirementById(_selectedRequirementId.Value);
+            }
         }
 
         private void LoadStudents(long? preferredStudentId = null)
@@ -130,28 +240,22 @@ namespace School_Management_System.Views
             requirementsChecklistPanel.Items = snapshot.Items;
             requirementsChecklistPanel.SummaryText = snapshot.SummaryText;
             txtSummary.Text = snapshot.SummaryText;
-
             _selectedRequirementId = null;
             requirementsChecklistPanel.SelectedItem = null;
-            cboRequirementStatus.SelectedItem = RequirementChecklistStatus.MISSING;
-            dpSubmitted.SelectedDate = DateTime.Today;
-            txtNotes.Text = string.Empty;
         }
 
         private void RequirementsChecklistPanel_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var selected = requirementsChecklistPanel.SelectedItem;
-            if (selected == null)
-            {
-                _selectedRequirementId = null;
-                return;
-            }
+            _selectedRequirementId = selected?.RequirementId;
 
-            _selectedRequirementId = selected.RequirementId;
-            cboRequirement.Text = selected.RequirementName;
-            cboRequirementStatus.SelectedItem = selected.Status;
-            dpSubmitted.SelectedDate = selected.SubmittedAt?.ToLocalTime().Date ?? DateTime.Today;
-            txtNotes.Text = selected.Notes ?? string.Empty;
+            if (_mode != EditorMode.ListEmbedded && selected != null)
+            {
+                cboRequirement.Text = selected.RequirementName;
+                cboRequirementStatus.SelectedItem = selected.Status;
+                dpSubmitted.SelectedDate = selected.SubmittedAt?.ToLocalTime().Date ?? DateTime.Today;
+                txtNotes.Text = selected.Notes ?? string.Empty;
+            }
         }
 
         private void AddRequirement()
@@ -190,7 +294,8 @@ namespace School_Management_System.Views
 
             _requirementService.Create(entity);
             AuditTrailService.Log("CREATE", "student_requirements", entity.Id, null, entity);
-            if (_createOnly)
+
+            if (_mode == EditorMode.Create)
             {
                 DialogResult = true;
                 Close();
@@ -198,21 +303,13 @@ namespace School_Management_System.Views
             }
 
             LoadRequirements();
-            SelectChecklistItem(entity.RequirementName);
+            SelectRequirementById(entity.Id);
         }
 
         private void SaveRequirement()
         {
             if (!_selectedRequirementId.HasValue)
             {
-                // No existing record — create it instead (for MISSING requirements selected from checklist)
-                var requirementName = cboRequirement.Text.Trim();
-                if (!string.IsNullOrWhiteSpace(requirementName) && cboStudent.SelectedValue is long studentId)
-                {
-                    AddRequirement();
-                    return;
-                }
-
                 MessageBox.Show("Select a requirement first.", "Requirements", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
@@ -227,14 +324,39 @@ namespace School_Management_System.Views
                 ? selectedStatus
                 : RequirementChecklistStatus.MISSING;
 
+            var requirementName = cboRequirement.Text.Trim();
+            if (string.IsNullOrWhiteSpace(requirementName))
+            {
+                MessageBox.Show("Requirement name is required.", "Requirements", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var duplicate = _requirementService.GetAll()
+                .Any(r => r.Id != entity.Id &&
+                          r.StudentId == entity.StudentId &&
+                          string.Equals(r.RequirementName, requirementName, StringComparison.OrdinalIgnoreCase));
+            if (duplicate)
+            {
+                MessageBox.Show("This requirement already exists for the selected student.", "Requirements", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
             var oldData = new { entity.RequirementName, entity.IsSubmitted, entity.SubmittedAt, entity.Notes };
-            entity.RequirementName = cboRequirement.Text.Trim();
+            entity.RequirementName = requirementName;
             BuildEntityFromEditor(entity, status);
 
             _requirementService.Update(entity);
             AuditTrailService.Log("UPDATE", "student_requirements", entity.Id, oldData, entity);
+
+            if (_mode == EditorMode.Edit)
+            {
+                DialogResult = true;
+                Close();
+                return;
+            }
+
             LoadRequirements();
-            SelectChecklistItem(entity.RequirementName);
+            SelectRequirementById(entity.Id);
         }
 
         private void DeleteRequirement()
@@ -245,16 +367,64 @@ namespace School_Management_System.Views
                 return;
             }
 
-            var confirm = MessageBox.Show("Delete selected requirement?", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Question);
-            if (confirm != MessageBoxResult.Yes)
+            if (!AppFeedbackService.Confirm("Delete selected requirement?", "Confirm", this))
             {
                 return;
             }
 
             var entity = _requirementService.GetById(_selectedRequirementId.Value);
+            if (entity == null)
+            {
+                return;
+            }
+
             _requirementService.Delete(_selectedRequirementId.Value);
             AuditTrailService.Log("DELETE", "student_requirements", _selectedRequirementId, entity, null);
+
+            if (_mode != EditorMode.ListEmbedded)
+            {
+                DialogResult = true;
+                Close();
+                return;
+            }
+
             LoadRequirements();
+            ClearEditor();
+        }
+
+        private void LoadRequirementForEdit()
+        {
+            if (!_editRequirementId.HasValue)
+            {
+                MessageBox.Show("Requirement not supplied for edit mode.", "Requirements", MessageBoxButton.OK, MessageBoxImage.Warning);
+                Close();
+                return;
+            }
+
+            var entity = _requirementService.GetById(_editRequirementId.Value);
+            if (entity == null)
+            {
+                MessageBox.Show("Requirement record not found.", "Requirements", MessageBoxButton.OK, MessageBoxImage.Warning);
+                Close();
+                return;
+            }
+
+            LoadStudents(entity.StudentId);
+            cboStudent.SelectedValue = entity.StudentId;
+            _selectedRequirementId = entity.Id;
+            cboRequirement.Text = entity.RequirementName;
+
+            var status = RequirementChecklistStatus.MISSING;
+            if (entity.IsSubmitted)
+            {
+                status = entity.VerifiedByUserId.HasValue
+                    ? RequirementChecklistStatus.VERIFIED
+                    : RequirementChecklistStatus.SUBMITTED;
+            }
+
+            cboRequirementStatus.SelectedItem = status;
+            dpSubmitted.SelectedDate = entity.SubmittedAt?.Date ?? DateTime.Today;
+            txtNotes.Text = entity.Notes ?? string.Empty;
         }
 
         private StudentRequirement BuildEntityFromEditor(StudentRequirement entity, RequirementChecklistStatus status)
@@ -277,14 +447,26 @@ namespace School_Management_System.Views
             return entity;
         }
 
-        private void SelectChecklistItem(string requirementName)
+        private void SelectRequirementById(long requirementId)
         {
             var item = (requirementsChecklistPanel.Items ?? Array.Empty<RequirementChecklistItem>())
-                .FirstOrDefault(x => string.Equals(x.RequirementName, requirementName, StringComparison.OrdinalIgnoreCase));
+                .FirstOrDefault(x => x.RequirementId == requirementId);
             if (item != null)
             {
                 requirementsChecklistPanel.SelectedItem = item;
+                _selectedRequirementId = requirementId;
             }
+        }
+
+        private void ClearEditor()
+        {
+            _selectedRequirementId = null;
+            cboRequirement.SelectedIndex = cboRequirement.Items.Count > 0 ? 0 : -1;
+            cboRequirement.Text = cboRequirement.SelectedItem?.ToString() ?? string.Empty;
+            cboRequirementStatus.SelectedItem = RequirementChecklistStatus.MISSING;
+            dpSubmitted.SelectedDate = DateTime.Today;
+            txtNotes.Text = string.Empty;
+            requirementsChecklistPanel.SelectedItem = null;
         }
 
         private sealed class LookupItem

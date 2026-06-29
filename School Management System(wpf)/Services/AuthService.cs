@@ -1,12 +1,11 @@
 using System;
 using School_Management_System.Data;
-using School_Management_System.Interfaces;
 using School_Management_System.Models;
 using School_Management_System.Repositories;
 
 namespace School_Management_System.Services
 {
-    internal class AuthService : IAuthService
+    internal class AuthService
     {
         public OperationResult<User> Authenticate(string username, string password)
         {

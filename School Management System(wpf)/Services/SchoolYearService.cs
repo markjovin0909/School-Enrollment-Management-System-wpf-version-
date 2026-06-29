@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using School_Management_System.Data;
-using School_Management_System.Interfaces;
 using School_Management_System.Models;
 using School_Management_System.Repositories;
 
 namespace School_Management_System.Services
 {
-    internal class SchoolYearService : ISchoolYearService
+    internal class SchoolYearService
     {
         public IEnumerable<SchoolYear> GetAll()
         {
