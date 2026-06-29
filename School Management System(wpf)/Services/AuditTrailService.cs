@@ -41,7 +41,7 @@ namespace School_Management_System.Services
                     validation.PayloadValid,
                     Issues = validation.Issues
                 }
-            });
+            }, JsonSerializationDefaults.SafeGraph);
 
             var svc = new AuditLogService();
             svc.Create(new AuditLog
@@ -74,7 +74,7 @@ namespace School_Management_System.Services
             JsonDocument? doc = null;
             try
             {
-                doc = JsonDocument.Parse(JsonSerializer.Serialize(newData));
+                doc = JsonDocument.Parse(JsonSerializer.Serialize(newData, JsonSerializationDefaults.SafeGraph));
                 var root = doc.RootElement;
 
                 if (!HasReasonCode(root))

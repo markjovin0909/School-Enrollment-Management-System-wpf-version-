@@ -326,6 +326,7 @@ namespace School_Management_System
             BindOperationsModuleButton(btnOpsSections, OperationsSection.MasterData, "sections", () => new SectionsWindow());
 
             BindOperationsModuleButton(btnOpsOfferings, OperationsSection.Scheduling, "class_offerings", () => new ClassOfferingsWindow());
+            BindOperationsModuleButton(btnOpsSubjectEnrollees, OperationsSection.Scheduling, "subject_enrollees", () => new SubjectStudentsWindow(hostedInline: true));
             BindOperationsModuleButton(btnOpsSchedules, OperationsSection.Scheduling, "schedules", () => new SchedulesWindow());
             BindOperationsModuleButton(btnOpsTeacherLoads, OperationsSection.Scheduling, "teacher_loads", () => new TeacherLoadsWindow(hostedInline: true));
             BindOperationsModuleButton(btnOpsRooms, OperationsSection.Scheduling, "rooms", () => new RoomsWindow());

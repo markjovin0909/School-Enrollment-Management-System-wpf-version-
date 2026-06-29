@@ -1469,7 +1469,7 @@ namespace School_Management_System.Services
 
         private static string GetAppDataDirectory()
         {
-            var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            var appData = GetApplicationDataRoot();
             var root = Path.Combine(appData, ResolveAppName(), "BackupRestore");
             Directory.CreateDirectory(root);
             return root;
@@ -1477,10 +1477,21 @@ namespace School_Management_System.Services
 
         private static string GetLogsDirectory()
         {
-            var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            var appData = GetApplicationDataRoot();
             var logs = Path.Combine(appData, ResolveAppName(), "Logs", "BackupRestore");
             Directory.CreateDirectory(logs);
             return logs;
+        }
+
+        private static string GetApplicationDataRoot()
+        {
+            var overridden = Environment.GetEnvironmentVariable("APPDATA");
+            if (!string.IsNullOrWhiteSpace(overridden))
+            {
+                return overridden.Trim();
+            }
+
+            return Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
         }
 
         private static string GetSettingsFilePath()

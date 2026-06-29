@@ -211,4 +211,148 @@ public sealed class AdditionalDirectMethodTests : BackendTestBase
         Assert.True(ok.Success);
         Assert.False(fail.Success);
     }
+
+    [Fact]
+    public void Curriculum_Subjects_Can_Be_Generated_Into_Section_Class_Offerings()
+    {
+        using (var db = CreateDb())
+        {
+            Factory.SeedCoreData(db);
+        }
+
+        var curriculumService = new CurriculumService();
+        var curriculumSubjectService = new CurriculumSubjectService();
+        var sectionService = new SectionService();
+        var offeringService = new ClassOfferingService();
+
+        var section = sectionService.GetById(TestDataFactory.SectionId);
+        Assert.NotNull(section);
+
+        var curriculum = curriculumService.GetAll().FirstOrDefault(x => x.IsActive) ?? curriculumService.GetAll().FirstOrDefault();
+        Assert.NotNull(curriculum);
+
+        void GenerateOfferings()
+        {
+            var mappings = curriculumSubjectService.GetAll()
+                .Where(m => m.CurriculumId == curriculum!.Id && m.GradeLevelId == section!.GradeLevelId)
+                .ToList();
+
+            foreach (var mapping in mappings)
+            {
+                var exists = offeringService.GetAll().Any(o =>
+                    o.SchoolYearId == TestDataFactory.SchoolYearId &&
+                    o.SectionId == TestDataFactory.SectionId &&
+                    o.SubjectId == mapping.SubjectId);
+                if (exists)
+                {
+                    continue;
+                }
+
+                offeringService.Create(new ClassOffering
+                {
+                    SchoolYearId = TestDataFactory.SchoolYearId,
+                    SectionId = TestDataFactory.SectionId,
+                    SubjectId = mapping.SubjectId,
+                    CurriculumId = curriculum.Id,
+                    Status = ClassOfferingStatus.DRAFT,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                });
+            }
+        }
+
+        GenerateOfferings();
+
+        var created = offeringService.GetAll()
+            .Where(o => o.SchoolYearId == TestDataFactory.SchoolYearId && o.SectionId == TestDataFactory.SectionId)
+            .ToList();
+
+        Assert.Equal(2, created.Count);
+        Assert.Contains(created, o => o.SubjectId == TestDataFactory.SubjectId);
+        Assert.Contains(created, o => o.SubjectId == TestDataFactory.Subject2Id);
+
+        var newMapping = new CurriculumSubject
+        {
+            CurriculumId = curriculum.Id,
+            GradeLevelId = section.GradeLevelId,
+            SubjectId = TestDataFactory.Subject3Id,
+            IsRequired = true,
+            SortOrder = 3,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+        curriculumSubjectService.Create(newMapping);
+
+        GenerateOfferings();
+
+        var afterSecondGenerate = offeringService.GetAll()
+            .Where(o => o.SchoolYearId == TestDataFactory.SchoolYearId && o.SectionId == TestDataFactory.SectionId)
+            .ToList();
+
+        Assert.Equal(3, afterSecondGenerate.Count);
+        Assert.Contains(afterSecondGenerate, o => o.SubjectId == TestDataFactory.Subject3Id);
+    }
+
+    [Fact]
+    public void Subject_Offering_Can_Resolve_Its_Enrolled_Students()
+    {
+        using (var db = CreateDb())
+        {
+            Factory.SeedCoreData(db);
+
+            db.ClassOfferings.Add(new ClassOffering
+            {
+                Id = 500,
+                SchoolYearId = TestDataFactory.SchoolYearId,
+                SectionId = TestDataFactory.SectionId,
+                SubjectId = TestDataFactory.SubjectId,
+                CurriculumId = TestDataFactory.CurriculumId,
+                Status = ClassOfferingStatus.FINALIZED,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            });
+
+            db.ClassStudents.AddRange(
+                new ClassStudent
+                {
+                    Id = 700,
+                    ClassOfferingId = 500,
+                    StudentId = TestDataFactory.StudentId,
+                    EnrollmentId = TestDataFactory.EnrollmentId,
+                    Status = ClassStudentStatus.ACTIVE,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+                new ClassStudent
+                {
+                    Id = 701,
+                    ClassOfferingId = 500,
+                    StudentId = TestDataFactory.Student2Id,
+                    EnrollmentId = 2,
+                    Status = ClassStudentStatus.ACTIVE,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                });
+
+            db.SaveChanges();
+        }
+
+        var classStudentService = new ClassStudentService();
+        var studentService = new StudentService();
+
+        var classStudents = classStudentService.GetAll()
+            .Where(cs => cs.ClassOfferingId == 500 && cs.Status == ClassStudentStatus.ACTIVE)
+            .ToList();
+        var studentIds = classStudents.Select(cs => cs.StudentId).Distinct().ToList();
+        var students = studentService.GetAll()
+            .Where(s => studentIds.Contains(s.Id))
+            .OrderBy(s => s.LastName)
+            .ThenBy(s => s.FirstName)
+            .ToList();
+
+        Assert.Equal(2, classStudents.Count);
+        Assert.Equal(2, students.Count);
+        Assert.Contains(students, s => s.Id == TestDataFactory.StudentId);
+        Assert.Contains(students, s => s.Id == TestDataFactory.Student2Id);
+    }
 }

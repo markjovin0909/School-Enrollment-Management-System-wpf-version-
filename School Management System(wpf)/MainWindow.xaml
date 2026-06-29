@@ -1462,6 +1462,7 @@
                                         <TextBlock Text="Launch Modules" Style="{StaticResource Text.CaptionStrong}"/>
                                         <TextBlock Text="Open scheduling components without leaving the tab." Style="{StaticResource Text.Caption}" Margin="0,2,0,10"/>
                                         <Button x:Name="btnOpsOfferings" Content="Class Offerings" Style="{StaticResource OpsModuleButton}"/>
+                                        <Button x:Name="btnOpsSubjectEnrollees" Content="Subject Enrollees" Style="{StaticResource OpsModuleButton}"/>
                                         <Button x:Name="btnOpsSchedules" Content="Schedules" Style="{StaticResource OpsModuleButton}"/>
                                         <Button x:Name="btnOpsTeacherLoads" Content="Teacher Loads" Style="{StaticResource OpsModuleButton}"/>
                                         <Button x:Name="btnOpsRooms" Content="Rooms" Style="{StaticResource OpsModuleButton}"/>

@@ -215,11 +215,22 @@ namespace School_Management_System.Services
                 ? "School Management System"
                 : Application.ProductName.Trim();
             var root = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                GetApplicationDataRoot(),
                 appName,
                 "Reports");
             Directory.CreateDirectory(root);
             return root;
+        }
+
+        private static string GetApplicationDataRoot()
+        {
+            var overridden = Environment.GetEnvironmentVariable("APPDATA");
+            if (!string.IsNullOrWhiteSpace(overridden))
+            {
+                return overridden.Trim();
+            }
+
+            return Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
         }
 
         private static string GetPresetsFilePath()

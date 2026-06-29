@@ -54,7 +54,7 @@ namespace School_Management_System.Repositories
                 {
                     try
                     {
-                        var payload = JsonSerializer.Serialize(entity, entity.GetType());
+                        var payload = JsonSerializer.Serialize(entity, entity.GetType(), JsonSerializationDefaults.SafeGraph);
                         var softDeleteApplied = TryApplySoftDelete(entity, now);
                         var note = softDeleteApplied ? "SOFT_DELETE" : "HARD_DELETE";
 
