@@ -78,6 +78,7 @@ namespace School_Management_System
         private List<Enrollment> _cachedEnrollments = new();
         private readonly Dictionary<long, EnrollmentQueueSlaSeverity> _enrollmentQueueSeverityByStudentId = new();
         private EnrollmentQueueSlaPolicy _enrollmentQueueSlaPolicy = EnrollmentQueueSlaPolicy.Default;
+        private readonly List<EnrollmentSubjectOption> _enrollmentPlacementOptions = new();
 
         private enum OperationsSection
         {
@@ -136,7 +137,7 @@ namespace School_Management_System
             btnTopDashboard.Click += (_, _) => NavigateMainTab(0);
             btnHubStudents.Click += (_, _) => OpenStudentSearchModal();
             btnHubTeachers.Click += (_, _) => OpenTeacherSearchModal();
-            btnHubEnrollment.Click += (_, _) => OpenEnrollmentModal();
+            btnHubEnrollment.Click += (_, _) => NavigateMainTab(3);
             btnHubReports.Click += (_, _) => NavigateMainTab(4);
             btnHubMasterData.Click += (_, _) => NavigateMainTab(5);
             btnHubScheduling.Click += (_, _) => NavigateMainTab(6);

@@ -29,11 +29,34 @@ namespace School_Management_System
         private string _selectedEnrollmentSnapshotStatus = "NOT_ENROLLED";
         private string _selectedEnrollmentSnapshotApproval = "-";
 
+        private sealed class EnrollmentSubjectOption
+        {
+            public long SchoolYearId { get; init; }
+            public string SchoolYearName { get; init; } = string.Empty;
+            public long GradeLevelId { get; init; }
+            public string GradeDisplay { get; init; } = string.Empty;
+            public long SectionId { get; init; }
+            public string SectionName { get; init; } = string.Empty;
+            public long SubjectId { get; init; }
+            public string SubjectDisplay { get; init; } = string.Empty;
+            public int? Capacity { get; init; }
+            public int EnrolledCount { get; init; }
+            public int AvailableSeats { get; init; }
+            public string CapacityDisplay { get; init; } = string.Empty;
+            public string AvailableSeatsDisplay { get; init; } = string.Empty;
+            public string CurriculumDisplay { get; init; } = string.Empty;
+            public string PlacementStatus { get; init; } = string.Empty;
+        }
+
+        private sealed class EnrollmentActionReason
+        {
+            public string ReasonCode { get; init; } = string.Empty;
+            public string ReasonText { get; init; } = string.Empty;
+        }
+
         private void InitializeEnrollmentTab()
         {
             cboEnrollStatusChange.ItemsSource = Enum.GetValues(typeof(EnrollmentStatus));
-            cboEnrollStatusFilter.ItemsSource = new[] { "All Statuses", "NOT_ENROLLED", "PENDING", "ENROLLED", "RESERVED", "CANCELLED", "DROPPED", "COMPLETED", "TRANSFERRED_OUT" };
-            cboEnrollStatusFilter.SelectedIndex = 0;
             txtEnrollSearch.Text = GetSessionState("enrollment.search");
 
             var savedStatusChange = GetSessionState("enrollment.statusChange");
@@ -46,49 +69,33 @@ namespace School_Management_System
                 cboEnrollStatusChange.SelectedItem = EnrollmentStatus.PENDING;
             }
 
-            cboEnrollFilterSchoolYear.SelectionChanged += (_, _) =>
-            {
-                if (_suppressEnrollmentEvents) return;
-                SetSessionStateLong("enrollment.filter.schoolYearId", (cboEnrollFilterSchoolYear.SelectedItem as SchoolYear)?.Id);
-                LoadEnrollmentStudents();
-            };
-            cboEnrollFilterGrade.SelectionChanged += (_, _) =>
-            {
-                if (_suppressEnrollmentEvents) return;
-                SetSessionStateLong("enrollment.filter.gradeId", (cboEnrollFilterGrade.SelectedItem as GradeLevel)?.Id);
-                LoadEnrollmentStudents();
-            };
             cboEnrollSchoolYear.SelectionChanged += (_, _) =>
             {
                 if (_suppressEnrollmentEvents) return;
                 SetSessionStateLong("enrollment.schoolYearId", (cboEnrollSchoolYear.SelectedItem as SchoolYear)?.Id);
                 BindEnrollmentSections();
-                UpdateEnrollmentReviewContext(GetSelectedEnrollment());
+                LoadEnrollmentStudents();
             };
             cboEnrollGrade.SelectionChanged += (_, _) =>
             {
                 if (_suppressEnrollmentEvents) return;
                 SetSessionStateLong("enrollment.gradeId", (cboEnrollGrade.SelectedItem as GradeLevel)?.Id);
-                BindEnrollmentSections();
-                UpdateEnrollmentReviewContext(GetSelectedEnrollment());
+                SyncPlacementSelectionFromSection();
+                UpdateEnrollmentRecommendedOfferingText();
             };
             cboEnrollSection.SelectionChanged += (_, _) =>
             {
                 if (_suppressEnrollmentEvents) return;
                 SetSessionStateLong("enrollment.sectionId", (cboEnrollSection.SelectedItem as Section)?.Id);
-                LoadEnrollmentClassView((cboEnrollSchoolYear.SelectedItem as SchoolYear)?.Id, (cboEnrollSection.SelectedItem as Section)?.Id);
+                SyncPlacementSelectionFromSection();
+                UpdateEnrollmentRecommendedOfferingText();
             };
             cboEnrollCurriculum.SelectionChanged += (_, _) =>
             {
                 if (_suppressEnrollmentEvents) return;
                 SetSessionStateLong("enrollment.curriculumId", (cboEnrollCurriculum.SelectedItem as Curriculum)?.Id);
                 UpdateEnrollmentReviewContext(GetSelectedEnrollment());
-            };
-            cboEnrollStatusFilter.SelectionChanged += (_, _) =>
-            {
-                if (_suppressEnrollmentEvents) return;
-                SetSessionState("enrollment.statusFilter", cboEnrollStatusFilter.SelectedItem?.ToString());
-                LoadEnrollmentStudents();
+                RefreshSectionSubjectGrid();
             };
             txtEnrollSearch.TextChanged += (_, _) =>
             {
@@ -105,9 +112,11 @@ namespace School_Management_System
             gridEnrollmentStudents.AutoGeneratingColumn += GridEnrollmentStudents_AutoGeneratingColumn;
             gridEnrollmentStudents.LoadingRow += GridEnrollmentStudents_LoadingRow;
             gridEnrollmentStudents.SelectionChanged += GridEnrollmentStudents_SelectionChanged;
+            gridEnrollmentClasses.SelectionChanged += GridEnrollmentClasses_SelectionChanged;
             WireGridSortPersistence(gridEnrollmentStudents, "enrollment");
 
             btnEnrollRefresh.Click += (_, _) => RefreshEnrollmentTab();
+            btnEnrollRefreshPlacement.Click += (_, _) => RefreshSectionSubjectGrid();
             btnEnrollSubmit.Click += (_, _) => SubmitEnrollment();
             btnEnrollTransfer.Click += (_, _) => TransferEnrollment();
             btnEnrollApprove.Click += (_, _) => ApproveEnrollment();
@@ -129,49 +138,34 @@ namespace School_Management_System
             _sections = _sectionService.GetAll().Where(x => !x.IsArchived).ToList();
             _curricula = _curriculumService.GetAll().ToList();
             _students = _studentService.GetAll().ToList();
-            // Refresh the shared enrollment cache so GetSelectedEnrollment and LoadEnrollmentClassView use fresh data
             _cachedEnrollments = _enrollmentService.GetAll().ToList();
+            _enrollmentQueueSlaPolicy = _enrollmentQueueSlaService.LoadPolicy();
 
             _suppressEnrollmentEvents = true;
-            cboEnrollFilterSchoolYear.ItemsSource = _schoolYears;
-            cboEnrollFilterSchoolYear.DisplayMemberPath = "Name";
-            var savedFilterSchoolYear = ResolveById(_schoolYears, GetSessionStateLong("enrollment.filter.schoolYearId"), x => x.Id);
-            cboEnrollFilterSchoolYear.SelectedItem = savedFilterSchoolYear ?? _schoolYears.FirstOrDefault(x => x.Status == SchoolYearStatus.ACTIVE) ?? _schoolYears.FirstOrDefault();
-
-            cboEnrollFilterGrade.ItemsSource = _gradeLevels;
-            cboEnrollFilterGrade.DisplayMemberPath = "Code";
-            var savedFilterGrade = ResolveById(_gradeLevels, GetSessionStateLong("enrollment.filter.gradeId"), x => x.Id);
-            cboEnrollFilterGrade.SelectedItem = savedFilterGrade;
 
             cboEnrollSchoolYear.ItemsSource = _schoolYears;
             cboEnrollSchoolYear.DisplayMemberPath = "Name";
             var savedSchoolYear = ResolveById(_schoolYears, GetSessionStateLong("enrollment.schoolYearId"), x => x.Id);
             cboEnrollSchoolYear.SelectedItem = savedSchoolYear ?? _schoolYears.FirstOrDefault(x => x.Status == SchoolYearStatus.ACTIVE) ?? _schoolYears.FirstOrDefault();
 
+            cboEnrollCurriculum.ItemsSource = _curricula;
+            cboEnrollCurriculum.DisplayMemberPath = "Name";
+            var savedCurriculum = ResolveById(_curricula, GetSessionStateLong("enrollment.curriculumId"), x => x.Id);
+            cboEnrollCurriculum.SelectedItem = savedCurriculum ?? _curricula.FirstOrDefault(x => x.IsActive) ?? _curricula.FirstOrDefault();
+
             cboEnrollGrade.ItemsSource = _gradeLevels;
             cboEnrollGrade.DisplayMemberPath = "Code";
             var savedGrade = ResolveById(_gradeLevels, GetSessionStateLong("enrollment.gradeId"), x => x.Id);
             cboEnrollGrade.SelectedItem = savedGrade ?? _gradeLevels.FirstOrDefault();
 
-            cboEnrollCurriculum.ItemsSource = _curricula;
-            cboEnrollCurriculum.DisplayMemberPath = "Name";
-            var savedCurriculum = ResolveById(_curricula, GetSessionStateLong("enrollment.curriculumId"), x => x.Id);
-            cboEnrollCurriculum.SelectedItem = savedCurriculum ?? _curricula.FirstOrDefault();
-
-            var savedStatusFilter = GetSessionState("enrollment.statusFilter");
-            cboEnrollStatusFilter.SelectedItem = cboEnrollStatusFilter.Items
-                .OfType<string>()
-                .FirstOrDefault(x => string.Equals(x, savedStatusFilter, StringComparison.OrdinalIgnoreCase))
-                ?? "All Statuses";
-
             BindEnrollmentSections();
+
             _suppressEnrollmentEvents = false;
 
-            SetSessionStateLong("enrollment.filter.schoolYearId", (cboEnrollFilterSchoolYear.SelectedItem as SchoolYear)?.Id);
-            SetSessionStateLong("enrollment.filter.gradeId", (cboEnrollFilterGrade.SelectedItem as GradeLevel)?.Id);
             SetSessionStateLong("enrollment.schoolYearId", (cboEnrollSchoolYear.SelectedItem as SchoolYear)?.Id);
-            SetSessionStateLong("enrollment.gradeId", (cboEnrollGrade.SelectedItem as GradeLevel)?.Id);
             SetSessionStateLong("enrollment.curriculumId", (cboEnrollCurriculum.SelectedItem as Curriculum)?.Id);
+            SetSessionStateLong("enrollment.gradeId", (cboEnrollGrade.SelectedItem as GradeLevel)?.Id);
+            SetSessionStateLong("enrollment.sectionId", (cboEnrollSection.SelectedItem as Section)?.Id);
 
             LoadEnrollmentStudents();
         }
@@ -186,35 +180,90 @@ namespace School_Management_System
                 .OrderBy(s => s.Name)
                 .ToList();
 
+            _suppressEnrollmentEvents = true;
             cboEnrollSection.ItemsSource = sections;
             cboEnrollSection.DisplayMemberPath = "Name";
             var savedSection = ResolveById(sections, GetSessionStateLong("enrollment.sectionId"), x => x.Id);
             cboEnrollSection.SelectedItem = savedSection ?? sections.FirstOrDefault();
-            SetSessionStateLong("enrollment.sectionId", (cboEnrollSection.SelectedItem as Section)?.Id);
+            _suppressEnrollmentEvents = false;
 
-            LoadEnrollmentClassView(schoolYear?.Id, (cboEnrollSection.SelectedItem as Section)?.Id);
+            SetSessionStateLong("enrollment.sectionId", (cboEnrollSection.SelectedItem as Section)?.Id);
+            RefreshSectionSubjectGrid();
+        }
+
+        private void RefreshSectionSubjectGrid()
+        {
+            var schoolYear = cboEnrollSchoolYear.SelectedItem as SchoolYear;
+            var section = cboEnrollSection.SelectedItem as Section;
+            var curriculum = cboEnrollCurriculum.SelectedItem as Curriculum;
+            _enrollmentPlacementOptions.Clear();
+
+            if (schoolYear != null && section != null)
+            {
+                var grade = _gradeLevels.FirstOrDefault(x => x.Id == section.GradeLevelId);
+                var enrolledCount = _cachedEnrollments.Count(x =>
+                    x.SchoolYearId == schoolYear.Id &&
+                    x.SectionId == section.Id &&
+                    x.Status == EnrollmentStatus.ENROLLED);
+                var availableSeats = section.Capacity.HasValue
+                    ? Math.Max(section.Capacity.Value - enrolledCount, 0)
+                    : int.MaxValue;
+
+                var offerings = _classOfferingService.GetAll()
+                    .Where(x => x.SchoolYearId == schoolYear.Id && x.SectionId == section.Id && x.Status != ClassOfferingStatus.ARCHIVED)
+                    .OrderBy(x => _subjectService.GetById(x.SubjectId)?.Title ?? string.Empty)
+                    .ToList();
+
+                foreach (var offering in offerings)
+                {
+                    var subject = _subjectService.GetById(offering.SubjectId);
+                    var curriculumName = offering.CurriculumId.HasValue
+                        ? _curricula.FirstOrDefault(x => x.Id == offering.CurriculumId.Value)?.Name
+                        : curriculum?.Name;
+
+                    _enrollmentPlacementOptions.Add(new EnrollmentSubjectOption
+                    {
+                        SchoolYearId = schoolYear.Id,
+                        SchoolYearName = schoolYear.Name,
+                        GradeLevelId = section.GradeLevelId,
+                        GradeDisplay = grade?.Code ?? grade?.Name ?? "(Unknown Grade)",
+                        SectionId = section.Id,
+                        SectionName = section.Name,
+                        SubjectId = offering.SubjectId,
+                        SubjectDisplay = subject?.Title ?? subject?.Code ?? "(Unknown Subject)",
+                        Capacity = section.Capacity,
+                        EnrolledCount = enrolledCount,
+                        AvailableSeats = availableSeats,
+                        CapacityDisplay = section.Capacity.HasValue ? section.Capacity.Value.ToString() : "Open",
+                        AvailableSeatsDisplay = section.Capacity.HasValue ? availableSeats.ToString() : "Open",
+                        CurriculumDisplay = curriculumName ?? "(Select curriculum)",
+                        PlacementStatus = offering.Status.ToString()
+                    });
+                }
+            }
+
+            gridEnrollmentClasses.ItemsSource = null;
+            gridEnrollmentClasses.ItemsSource = _enrollmentPlacementOptions;
+            UpdateEnrollmentRecommendedOfferingText();
         }
 
         private void LoadEnrollmentStudents(long? preferredStudentId = null)
         {
-            var schoolYear = cboEnrollFilterSchoolYear.SelectedItem as SchoolYear;
-            var gradeFilter = cboEnrollFilterGrade.SelectedItem as GradeLevel;
+            var schoolYear = cboEnrollSchoolYear.SelectedItem as SchoolYear;
+            var gradeFilter = cboEnrollGrade.SelectedItem as GradeLevel;
             var search = (txtEnrollSearch.Text ?? string.Empty).Trim();
-            var statusFilter = (cboEnrollStatusFilter.SelectedItem as string ?? "All Statuses").Trim();
             var enrollments = _enrollmentService.GetAll().ToList();
-            // Keep the shared cache in sync so GetSelectedEnrollment and LoadEnrollmentClassView stay consistent
             _cachedEnrollments = enrollments;
-            _enrollmentQueueSlaPolicy = _enrollmentQueueSlaService.LoadPolicy();
+            _enrollmentSnapshotUpdatedAtByStudentId.Clear();
+            _enrollmentQueueSeverityByStudentId.Clear();
+
             var enrollmentByStudent = schoolYear == null
                 ? new Dictionary<long, Enrollment>()
                 : enrollments
                     .Where(x => x.SchoolYearId == schoolYear.Id)
                     .GroupBy(x => x.StudentId)
                     .ToDictionary(g => g.Key, g => g.OrderByDescending(x => x.EnrolledAt).ThenByDescending(x => x.Id).First());
-            _enrollmentSnapshotUpdatedAtByStudentId.Clear();
-            _enrollmentQueueSeverityByStudentId.Clear();
 
-            // Load ALL student requirements once and group by student — avoids N+1 DB calls inside the loop
             var requirementsByStudentId = _studentRequirementService.GetAll()
                 .GroupBy(x => x.StudentId)
                 .ToDictionary(g => g.Key, g => g.ToList());
@@ -225,66 +274,46 @@ namespace School_Management_System
             _enrollmentTable.Columns.Add("LRN");
             _enrollmentTable.Columns.Add("Student");
             _enrollmentTable.Columns.Add("Preferred Grade");
-            _enrollmentTable.Columns.Add("Curriculum");
             _enrollmentTable.Columns.Add("Requirements");
-            _enrollmentTable.Columns.Add("Enrollment Status");
-            _enrollmentTable.Columns.Add("Approval");
-            _enrollmentTable.Columns.Add("Type");
-            _enrollmentTable.Columns.Add("Waitlist");
-            _enrollmentTable.Columns.Add("Queue Age");
-            _enrollmentTable.Columns.Add("SLA");
-
-            var referenceUtc = DateTime.UtcNow;
+            _enrollmentTable.Columns.Add("Status");
 
             foreach (var student in _students)
             {
                 var enrollment = enrollmentByStudent.TryGetValue(student.Id, out var existing) ? existing : null;
-                var statusText = enrollment?.Status.ToString() ?? "NOT_ENROLLED";
-                var approvalText = enrollment?.ApprovalStatus.ToString() ?? "-";
-                var typeText = enrollment?.EnrollmentType ?? "-";
-                var waitlistText = enrollment?.WaitlistPosition.HasValue == true ? $"#{enrollment.WaitlistPosition.Value}" : "-";
-                var slaEvaluation = _enrollmentQueueSlaService.Evaluate(enrollment, referenceUtc, _enrollmentQueueSlaPolicy);
+                if (enrollment != null)
+                {
+                    continue;
+                }
+
                 var requirementSnapshot = _requirementChecklistService.BuildForStudent(
                     student.Id,
-                    requirementsByStudentId.TryGetValue(student.Id, out var reqs) ? reqs : new System.Collections.Generic.List<StudentRequirement>());
+                    requirementsByStudentId.TryGetValue(student.Id, out var reqs) ? reqs : new List<StudentRequirement>());
                 var gradeLabel = _gradeLevels.FirstOrDefault(x => x.Id == student.PreferredGradeLevelId)?.Code
                     ?? _gradeLevels.FirstOrDefault(x => x.Id == student.PreferredGradeLevelId)?.Name
                     ?? "(Not set)";
                 var curriculumLabel = _curricula.FirstOrDefault(x => x.Id == student.PreferredCurriculumId)?.Name ?? "(Not set)";
-                _enrollmentSnapshotUpdatedAtByStudentId[student.Id] = enrollment?.UpdatedAt;
-                _enrollmentQueueSeverityByStudentId[student.Id] = slaEvaluation.Severity;
-
-                if (!string.Equals(statusFilter, "All Statuses", StringComparison.OrdinalIgnoreCase) &&
-                    !string.Equals(statusText, statusFilter, StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
+                var readinessText = requirementSnapshot.MissingCount == 0
+                    ? "Ready for placement"
+                    : $"{requirementSnapshot.MissingCount} requirement(s) pending";
 
                 if (!string.IsNullOrWhiteSpace(search))
                 {
                     var matches = (student.StudentNumber ?? string.Empty).Contains(search, StringComparison.OrdinalIgnoreCase) ||
                                   (student.Lrn ?? string.Empty).Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                                  ($"{student.LastName}, {student.FirstName}").Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                                  statusText.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                                  gradeLabel.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                                  curriculumLabel.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                                  slaEvaluation.Label.Contains(search, StringComparison.OrdinalIgnoreCase);
+                                  ($"{student.LastName}, {student.FirstName}").Contains(search, StringComparison.OrdinalIgnoreCase);
                     if (!matches)
                     {
                         continue;
                     }
                 }
 
-                if (gradeFilter != null)
+                if (gradeFilter != null && student.PreferredGradeLevelId != gradeFilter.Id)
                 {
-                    var matchesGrade =
-                        student.PreferredGradeLevelId == gradeFilter.Id ||
-                        enrollment?.GradeLevelId == gradeFilter.Id;
-                    if (!matchesGrade)
-                    {
-                        continue;
-                    }
+                    continue;
                 }
+
+                _enrollmentSnapshotUpdatedAtByStudentId[student.Id] = null;
+                _enrollmentQueueSeverityByStudentId[student.Id] = EnrollmentQueueSlaSeverity.None;
 
                 _enrollmentTable.Rows.Add(
                     student.Id,
@@ -292,19 +321,14 @@ namespace School_Management_System
                     student.Lrn,
                     $"{student.LastName}, {student.FirstName}",
                     gradeLabel,
-                    curriculumLabel,
                     requirementSnapshot.MissingCount == 0 ? "Complete" : $"{requirementSnapshot.MissingCount} missing",
-                    statusText,
-                    approvalText,
-                    typeText,
-                    waitlistText,
-                    slaEvaluation.AgeDisplay,
-                    slaEvaluation.Label);
+                    readinessText);
             }
 
             gridEnrollmentStudents.ItemsSource = _enrollmentTable.DefaultView;
             ApplyGridSort("enrollment", _enrollmentTable.DefaultView);
             UpdateEnrollmentQueueInfo();
+
             if (preferredStudentId.HasValue)
             {
                 SelectEnrollmentStudent(preferredStudentId.Value);
@@ -313,12 +337,17 @@ namespace School_Management_System
             {
                 SelectEnrollmentStudent(_selectedEnrollmentStudentId.Value);
             }
+            else if (gridEnrollmentStudents.Items.Count > 0)
+            {
+                gridEnrollmentStudents.SelectedIndex = 0;
+            }
             else
             {
+                _selectedEnrollmentStudentId = null;
                 UpdateEnrollmentReviewContext(null);
             }
 
-            LoadEnrollmentClassView((cboEnrollSchoolYear.SelectedItem as SchoolYear)?.Id, (cboEnrollSection.SelectedItem as Section)?.Id);
+            RefreshSectionSubjectGrid();
         }
 
         private void SelectEnrollmentStudent(long studentId)
@@ -347,11 +376,24 @@ namespace School_Management_System
             }
 
             _selectedEnrollmentStudentId = row.Row.Field<long>("Id");
-            _selectedEnrollmentSnapshotUpdatedAtUtc = _enrollmentSnapshotUpdatedAtByStudentId.TryGetValue(_selectedEnrollmentStudentId.Value, out var updatedAt)
-                ? updatedAt
-                : null;
-            _selectedEnrollmentSnapshotStatus = row.Row["Enrollment Status"]?.ToString() ?? "NOT_ENROLLED";
-            _selectedEnrollmentSnapshotApproval = row.Row["Approval"]?.ToString() ?? "-";
+            _selectedEnrollmentSnapshotUpdatedAtUtc = null;
+            _selectedEnrollmentSnapshotStatus = "NOT_ENROLLED";
+            _selectedEnrollmentSnapshotApproval = "-";
+
+            var student = _students.FirstOrDefault(x => x.Id == _selectedEnrollmentStudentId.Value);
+            if (student?.PreferredGradeLevelId.HasValue == true)
+            {
+                var grade = _gradeLevels.FirstOrDefault(x => x.Id == student.PreferredGradeLevelId.Value);
+                if (grade != null)
+                {
+                    _suppressEnrollmentEvents = true;
+                    cboEnrollGrade.SelectedItem = grade;
+                    _suppressEnrollmentEvents = false;
+                    SetSessionStateLong("enrollment.gradeId", grade.Id);
+                    BindEnrollmentSections();
+                }
+            }
+
             UpdateEnrollmentReviewContext(GetSelectedEnrollment());
         }
 
@@ -365,16 +407,10 @@ namespace School_Management_System
 
             var allowed = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
-                "Student No",
-                "LRN",
                 "Student",
                 "Preferred Grade",
-                "Curriculum",
                 "Requirements",
-                "Enrollment Status",
-                "Approval",
-                "Queue Age",
-                "SLA"
+                "Status"
             };
 
             if (!allowed.Contains(e.PropertyName))
@@ -383,73 +419,31 @@ namespace School_Management_System
                 return;
             }
 
-            if (e.PropertyName == "Student No")
-            {
-                e.Column.Width = new DataGridLength(1.0, DataGridLengthUnitType.Star);
-                e.Column.DisplayIndex = 0;
-                return;
-            }
-
-            if (e.PropertyName == "LRN")
-            {
-                e.Column.Width = new DataGridLength(1.0, DataGridLengthUnitType.Star);
-                e.Column.DisplayIndex = 1;
-                return;
-            }
-
             if (e.PropertyName == "Student")
             {
-                e.Column.Width = new DataGridLength(2.1, DataGridLengthUnitType.Star);
-                e.Column.DisplayIndex = 2;
+                e.Column.Width = new DataGridLength(2.25, DataGridLengthUnitType.Star);
+                e.Column.DisplayIndex = 0;
                 return;
             }
 
             if (e.PropertyName == "Preferred Grade")
             {
-                e.Column.Width = new DataGridLength(0.9, DataGridLengthUnitType.Star);
-                e.Column.DisplayIndex = 3;
-                return;
-            }
-
-            if (e.PropertyName == "Curriculum")
-            {
-                e.Column.Width = new DataGridLength(1.1, DataGridLengthUnitType.Star);
-                e.Column.DisplayIndex = 4;
+                e.Column.Width = new DataGridLength(0.8, DataGridLengthUnitType.Star);
+                e.Column.DisplayIndex = 1;
                 return;
             }
 
             if (e.PropertyName == "Requirements")
             {
-                e.Column.Width = new DataGridLength(0.95, DataGridLengthUnitType.Star);
-                e.Column.DisplayIndex = 5;
+                e.Column.Width = new DataGridLength(1.0, DataGridLengthUnitType.Star);
+                e.Column.DisplayIndex = 2;
                 return;
             }
 
-            if (e.PropertyName == "Enrollment Status")
+            if (e.PropertyName == "Status")
             {
-                e.Column.Width = new DataGridLength(1.3, DataGridLengthUnitType.Star);
-                e.Column.DisplayIndex = 6;
-                return;
-            }
-
-            if (e.PropertyName == "Approval")
-            {
-                e.Column.Width = new DataGridLength(0.9, DataGridLengthUnitType.Star);
-                e.Column.DisplayIndex = 7;
-                return;
-            }
-
-            if (e.PropertyName == "Queue Age")
-            {
-                e.Column.Width = new DataGridLength(0.95, DataGridLengthUnitType.Star);
-                e.Column.DisplayIndex = 8;
-                return;
-            }
-
-            if (e.PropertyName == "SLA")
-            {
-                e.Column.Width = new DataGridLength(0.8, DataGridLengthUnitType.Star);
-                e.Column.DisplayIndex = 9;
+                e.Column.Width = new DataGridLength(1.35, DataGridLengthUnitType.Star);
+                e.Column.DisplayIndex = 3;
             }
         }
 
@@ -460,81 +454,85 @@ namespace School_Management_System
                 return;
             }
 
-            if (!_enrollmentQueueSeverityByStudentId.TryGetValue(row.Row.Field<long>("Id"), out var severity))
+            var readiness = row.Row["Status"]?.ToString() ?? string.Empty;
+            if (readiness.Contains("pending", StringComparison.OrdinalIgnoreCase))
             {
+                e.Row.Background = new SolidColorBrush(Color.FromRgb(255, 249, 236));
                 return;
             }
 
-            var rowBackground = severity switch
-            {
-                EnrollmentQueueSlaSeverity.Critical => (Brush?)new SolidColorBrush(Color.FromRgb(255, 244, 244)),
-                EnrollmentQueueSlaSeverity.Warning => (Brush?)new SolidColorBrush(Color.FromRgb(255, 249, 236)),
-                _ => null
-            };
-
-            if (rowBackground == null)
-            {
-                e.Row.ClearValue(Control.BackgroundProperty);
-                return;
-            }
-
-            e.Row.Background = rowBackground;
+            e.Row.ClearValue(Control.BackgroundProperty);
         }
 
-        private void LoadEnrollmentClassView(long? schoolYearId, long? sectionId)
+        private void GridEnrollmentClasses_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var table = new DataTable();
-            table.Columns.Add("Subject");
-            table.Columns.Add("Grade");
-            table.Columns.Add("Section");
-            table.Columns.Add("Teacher");
-            table.Columns.Add("Room");
-            table.Columns.Add("Schedule");
-            table.Columns.Add("Slots");
-            table.Columns.Add("Status");
-
-            if (schoolYearId.HasValue && sectionId.HasValue)
+            if (gridEnrollmentClasses.SelectedItem is not EnrollmentSubjectOption option)
             {
-                var offerings = _classOfferingService.GetAll()
-                    .Where(x => x.SchoolYearId == schoolYearId.Value && x.SectionId == sectionId.Value)
-                    .ToList();
-                var schedules = _classScheduleService.GetAll().ToList();
-                var section = _sections.FirstOrDefault(x => x.Id == sectionId.Value);
-                // Use the cached enrollment list — avoids a redundant GetAll() just for a count
-                var enrolledCount = _cachedEnrollments
-                    .Count(x => x.SchoolYearId == schoolYearId.Value && x.SectionId == sectionId.Value && x.Status == EnrollmentStatus.ENROLLED);
-
-                foreach (var offering in offerings)
-                {
-                    var subject = _subjectService.GetById(offering.SubjectId)?.Title ?? string.Empty;
-                    var teacher = offering.TeacherId.HasValue ? _teacherService.GetById(offering.TeacherId.Value) : null;
-                    var teacherName = teacher == null ? "Unassigned" : $"{teacher.LastName}, {teacher.FirstName}";
-                    var grade = section?.GradeLevelId is long gradeId
-                        ? _gradeLevels.FirstOrDefault(x => x.Id == gradeId)?.Code ?? _gradeLevels.FirstOrDefault(x => x.Id == gradeId)?.Name ?? string.Empty
-                        : string.Empty;
-                    var offeringSchedules = schedules.Where(x => x.ClassOfferingId == offering.Id).ToList();
-                    var scheduleLabel = offeringSchedules.Count == 0
-                        ? "No schedule"
-                        : string.Join(", ", offeringSchedules.Select(x => $"{ResolveDayOfWeekLabel(x.DayOfWeek)} {x.StartTime:hh\\:mm}-{x.EndTime:hh\\:mm}"));
-                    var roomLabel = !string.IsNullOrWhiteSpace(offering.Room) ? offering.Room : "TBD";
-                    var slotsLabel = section?.Capacity.HasValue == true
-                        ? $"{Math.Max(section.Capacity.Value - enrolledCount, 0)} / {section.Capacity.Value} open"
-                        : "Open";
-                    table.Rows.Add(subject, grade, section?.Name ?? string.Empty, teacherName, roomLabel, scheduleLabel, slotsLabel, offering.Status.ToString());
-                }
+                UpdateEnrollmentRecommendedOfferingText();
+                return;
             }
 
-            gridEnrollmentClasses.ItemsSource = table.DefaultView;
+            var grade = _gradeLevels.FirstOrDefault(x => x.Id == option.GradeLevelId);
+            var section = _sections.FirstOrDefault(x => x.Id == option.SectionId);
+
+            _suppressEnrollmentEvents = true;
+            if (grade != null)
+            {
+                cboEnrollGrade.SelectedItem = grade;
+            }
+            cboEnrollSection.SelectedItem = section;
+            _suppressEnrollmentEvents = false;
+
+            SetSessionStateLong("enrollment.gradeId", grade?.Id);
+            SetSessionStateLong("enrollment.sectionId", section?.Id);
+            UpdateEnrollmentRecommendedOfferingText();
+        }
+
+        private void SyncPlacementGridSelection()
+        {
+            if (cboEnrollSection.SelectedItem is not Section section)
+            {
+                gridEnrollmentClasses.SelectedItem = null;
+                return;
+            }
+
+            var matches = _enrollmentPlacementOptions.Where(x => x.SectionId == section.Id).Cast<object>().ToList();
+            if (matches.Count == 0)
+            {
+                gridEnrollmentClasses.SelectedItem = null;
+                return;
+            }
+
+            gridEnrollmentClasses.SelectedIndex = 0;
+            gridEnrollmentClasses.ScrollIntoView(gridEnrollmentClasses.Items[0]);
+        }
+
+        private void SyncPlacementSelectionFromSection()
+        {
+            if (cboEnrollSection.SelectedItem is not Section section)
+            {
+                return;
+            }
+
+            var grade = _gradeLevels.FirstOrDefault(x => x.Id == section.GradeLevelId);
+            if (grade != null)
+            {
+                _suppressEnrollmentEvents = true;
+                cboEnrollGrade.SelectedItem = grade;
+                _suppressEnrollmentEvents = false;
+                SetSessionStateLong("enrollment.gradeId", grade.Id);
+            }
+
+            SyncPlacementGridSelection();
         }
 
         private Enrollment? GetSelectedEnrollment()
         {
-            if (!_selectedEnrollmentStudentId.HasValue || cboEnrollFilterSchoolYear.SelectedItem is not SchoolYear schoolYear)
+            if (!_selectedEnrollmentStudentId.HasValue || cboEnrollSchoolYear.SelectedItem is not SchoolYear schoolYear)
             {
                 return null;
             }
 
-            // Use the cached enrollment list — avoids a GetAll() DB call on every selection/filter change
             return _cachedEnrollments
                 .FirstOrDefault(x => x.SchoolYearId == schoolYear.Id && x.StudentId == _selectedEnrollmentStudentId.Value);
         }
@@ -542,37 +540,30 @@ namespace School_Management_System
         private void UpdateEnrollmentQueueInfo()
         {
             var total = _enrollmentTable?.Rows?.Count ?? 0;
-            var pending = 0;
-            var reserved = 0;
-            var warning = 0;
-            var critical = 0;
+            var ready = 0;
+            var pendingRequirements = 0;
+            var schoolYear = cboEnrollSchoolYear.SelectedItem as SchoolYear;
+
             if (_enrollmentTable?.Rows != null)
             {
                 foreach (DataRow row in _enrollmentTable.Rows)
                 {
-                    var status = row["Enrollment Status"]?.ToString() ?? string.Empty;
-                    if (string.Equals(status, EnrollmentStatus.PENDING.ToString(), StringComparison.OrdinalIgnoreCase))
+                    var readiness = row["Status"]?.ToString() ?? string.Empty;
+                    if (readiness.Contains("Ready", StringComparison.OrdinalIgnoreCase))
                     {
-                        pending++;
+                        ready++;
                     }
-                    else if (string.Equals(status, EnrollmentStatus.RESERVED.ToString(), StringComparison.OrdinalIgnoreCase))
+                    else
                     {
-                        reserved++;
-                    }
-
-                    var sla = row["SLA"]?.ToString() ?? string.Empty;
-                    if (string.Equals(sla, "WARNING", StringComparison.OrdinalIgnoreCase))
-                    {
-                        warning++;
-                    }
-                    else if (string.Equals(sla, "CRITICAL", StringComparison.OrdinalIgnoreCase))
-                    {
-                        critical++;
+                        pendingRequirements++;
                     }
                 }
             }
 
-            txtEnrollmentQueueInfo.Text = $"{total} student(s) in queue | {pending} pending | {reserved} waitlisted | {warning} warning | {critical} critical";
+            txtEnrollmentQueueInfo.Text = $"School Year: {schoolYear?.Name ?? "-"} | Not Enrolled: {total} | Ready: {ready} | Pending Requirements: {pendingRequirements}";
+            txtEnrollTopEnrolled.Text = schoolYear == null
+                ? "0"
+                : _cachedEnrollments.Count(x => x.SchoolYearId == schoolYear.Id && x.Status == EnrollmentStatus.ENROLLED).ToString();
         }
 
         private void UpdateEnrollmentReviewContext(Enrollment? enrollment)
@@ -584,44 +575,65 @@ namespace School_Management_System
             if (student == null)
             {
                 txtEnrollReviewStudent.Text = "No student selected.";
-                txtEnrollReviewState.Text = "Status: - | Approval: -";
-                txtEnrollReviewMeta.Text = "Select a queue item to review details.";
+                txtEnrollReviewState.Text = "Waiting for selection";
+                txtEnrollReviewMeta.Text = string.Empty;
                 txtEnrollRequirementSummary.Text = "No student selected.";
-                txtEnrollRecommendedSection.Text = "Recommended section will appear after selecting a student and matching the target school year and target grade.";
+                txtEnrollSelectedYear.Text = (cboEnrollSchoolYear.SelectedItem as SchoolYear)?.Name ?? string.Empty;
+                txtEnrollRecommendedSection.Text = string.Empty;
+                txtEnrollPlacementSummary.Text = "Select a grade offering to review seats and placement outcome.";
+                txtEnrollValidationSummary.Text = string.Empty;
                 enrollRequirementChecklistPanel.Items = Array.Empty<RequirementChecklistItem>();
                 enrollRequirementChecklistPanel.SummaryText = "No student selected.";
                 HideEnrollmentStaleWarning();
                 return;
             }
 
-            txtEnrollReviewStudent.Text = $"{student.LastName}, {student.FirstName} ({student.StudentNumber})";
+            txtEnrollReviewStudent.Text = $"{student.LastName}, {student.FirstName}";
             var requirementSnapshot = UpdateEnrollmentRequirementChecklist(student.Id);
             var preferredGrade = _gradeLevels.FirstOrDefault(x => x.Id == student.PreferredGradeLevelId)?.Code
                 ?? _gradeLevels.FirstOrDefault(x => x.Id == student.PreferredGradeLevelId)?.Name
                 ?? "(Not set)";
             var preferredCurriculum = _curricula.FirstOrDefault(x => x.Id == student.PreferredCurriculumId)?.Name ?? "(Not set)";
-            txtEnrollReviewMeta.Text = $"{preferredGrade} / {preferredCurriculum}";
+            txtEnrollReviewMeta.Text = preferredGrade;
             txtEnrollRequirementSummary.Text = requirementSnapshot.MissingCount == 0
-                ? "All required documents complete."
-                : $"{requirementSnapshot.MissingCount} required document(s) missing.";
-            txtEnrollRecommendedSection.Text = ResolveRecommendedSectionText(student);
+                ? preferredCurriculum
+                : $"{preferredCurriculum} | {requirementSnapshot.MissingCount} missing";
+            txtEnrollSelectedYear.Text = (cboEnrollSchoolYear.SelectedItem as SchoolYear)?.Name ?? string.Empty;
 
             if (enrollment == null)
             {
-                txtEnrollReviewState.Text = $"Status: {_selectedEnrollmentSnapshotStatus} | Approval: {_selectedEnrollmentSnapshotApproval}";
+                txtEnrollReviewState.Text = "Not enrolled";
+                UpdateEnrollmentRecommendedOfferingText();
                 HideEnrollmentStaleWarning();
                 return;
             }
 
             var waitlistText = enrollment.WaitlistPosition.HasValue ? $" | Waitlist: #{enrollment.WaitlistPosition.Value}" : string.Empty;
-            txtEnrollReviewState.Text = $"Status: {enrollment.Status} | Approval: {enrollment.ApprovalStatus}{waitlistText}";
-            txtEnrollRecommendedSection.Text = $"{ResolveRecommendedSectionText(student)} | Current record type: {enrollment.EnrollmentType} | Last Updated: {enrollment.UpdatedAt.ToLocalTime():yyyy-MM-dd HH:mm:ss}";
+            txtEnrollReviewState.Text = $"{enrollment.Status} | {enrollment.ApprovalStatus}{waitlistText}";
+            UpdateEnrollmentRecommendedOfferingText();
             HideEnrollmentStaleWarning();
+        }
+
+        private void UpdateEnrollmentRecommendedOfferingText()
+        {
+            if (gridEnrollmentClasses.SelectedItem is not EnrollmentSubjectOption option)
+            {
+                txtEnrollRecommendedSection.Text = string.Empty;
+                txtEnrollPlacementSummary.Text = "Select a section to view the listed subjects and seat availability.";
+                return;
+            }
+
+            txtEnrollRecommendedSection.Text = $"{option.GradeDisplay} - {option.SectionName}";
+            txtEnrollPlacementSummary.Text =
+                $"Subject: {option.SubjectDisplay}{Environment.NewLine}" +
+                $"School Year: {option.SchoolYearName}{Environment.NewLine}" +
+                $"Capacity: {option.CapacityDisplay} | Enrolled: {option.EnrolledCount} | Available: {option.AvailableSeatsDisplay}{Environment.NewLine}" +
+                $"Curriculum: {option.CurriculumDisplay}{Environment.NewLine}" +
+                $"Status: {option.PlacementStatus}";
         }
 
         private RequirementChecklistSnapshot UpdateEnrollmentRequirementChecklist(long studentId)
         {
-            // Use the pre-loaded requirements dictionary when available, otherwise fall back to a targeted query
             var requirements = _studentRequirementService.GetAll()
                 .Where(x => x.StudentId == studentId)
                 .ToList();
@@ -647,7 +659,7 @@ namespace School_Management_System
         {
             if (!_selectedEnrollmentStudentId.HasValue)
             {
-                MessageBox.Show("Select an enrollment queue row first.", "Enrollment", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("Select a student row first.", "Enrollment", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 
@@ -658,7 +670,7 @@ namespace School_Management_System
         {
             if (gridEnrollmentStudents.Items.Count == 0)
             {
-                MessageBox.Show("No enrollment queue rows available.", "Enrollment", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("No not-enrolled students are available.", "Enrollment", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 
@@ -672,14 +684,8 @@ namespace School_Management_System
                     continue;
                 }
 
-                var status = row.Row["Enrollment Status"]?.ToString() ?? string.Empty;
-                var approval = row.Row["Approval"]?.ToString() ?? string.Empty;
-                var shouldReview =
-                    string.Equals(status, EnrollmentStatus.PENDING.ToString(), StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(status, EnrollmentStatus.RESERVED.ToString(), StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(approval, EnrollmentApprovalStatus.PENDING.ToString(), StringComparison.OrdinalIgnoreCase);
-
-                if (!shouldReview)
+                var readiness = row.Row["Status"]?.ToString() ?? string.Empty;
+                if (!readiness.Contains("Ready", StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
                 }
@@ -689,49 +695,7 @@ namespace School_Management_System
                 return;
             }
 
-            MessageBox.Show("No pending or waitlisted queue items found.", "Enrollment", MessageBoxButton.OK, MessageBoxImage.Information);
-        }
-
-        private string ResolveRecommendedSectionText(Student student)
-        {
-            var schoolYearId = (cboEnrollSchoolYear.SelectedItem as SchoolYear)?.Id;
-            var gradeId = (cboEnrollGrade.SelectedItem as GradeLevel)?.Id ?? student.PreferredGradeLevelId;
-            if (!schoolYearId.HasValue || !gradeId.HasValue)
-            {
-                return "Recommended section unavailable because the target school year or target grade is incomplete.";
-            }
-
-            var recommended = _sections
-                .Where(x => x.SchoolYearId == schoolYearId.Value &&
-                            x.GradeLevelId == gradeId.Value &&
-                            !x.IsArchived)
-                .OrderBy(x => x.Name)
-                .FirstOrDefault();
-
-            if (recommended == null)
-            {
-                return "No recommended section found for the selected target school year and target grade.";
-            }
-
-            var curriculumLabel = student.PreferredCurriculumId.HasValue
-                ? _curricula.FirstOrDefault(x => x.Id == student.PreferredCurriculumId.Value)?.Name ?? "(Not set)"
-                : "(Not set)";
-            return $"Recommended section: {recommended.Name} for {curriculumLabel}.";
-        }
-
-        private static string ResolveDayOfWeekLabel(byte dayOfWeek)
-        {
-            return dayOfWeek switch
-            {
-                1 => "Mon",
-                2 => "Tue",
-                3 => "Wed",
-                4 => "Thu",
-                5 => "Fri",
-                6 => "Sat",
-                7 => "Sun",
-                _ => "Day"
-            };
+            MessageBox.Show("No additional ready-for-placement students were found.", "Enrollment", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private bool EnsureEnrollmentFreshForDecision(Enrollment currentEnrollment, string actionName)
@@ -745,20 +709,20 @@ namespace School_Management_System
             var latest = _enrollmentService.GetById(currentEnrollment.Id);
             if (latest == null)
             {
-                ShowEnrollmentStaleWarning("Enrollment record no longer exists. Reload queue before proceeding.");
+                ShowEnrollmentStaleWarning("Enrollment record no longer exists. Reload the page before proceeding.");
                 TryRaiseEnrollmentConcurrencyException(
                     currentEnrollment,
                     "Enrollment record no longer exists while processing decision.");
-                MessageBox.Show("Enrollment record no longer exists. Reload the queue.", actionName, MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Enrollment record no longer exists. Reload the page.", actionName, MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
 
             if (latest.UpdatedAt != _selectedEnrollmentSnapshotUpdatedAtUtc.Value)
             {
-                ShowEnrollmentStaleWarning("Selected enrollment changed after queue load. Click 'Reload Selected' and review latest data.");
+                ShowEnrollmentStaleWarning("Selected enrollment changed after the page was loaded. Reload selected row before continuing.");
                 TryRaiseEnrollmentConcurrencyException(
                     currentEnrollment,
-                    "Selected enrollment changed after queue load.");
+                    "Selected enrollment changed after page load.");
                 MessageBox.Show(
                     "The selected enrollment was modified by a newer update. Reload selected row before continuing.",
                     actionName,
@@ -778,18 +742,15 @@ namespace School_Management_System
                 _exceptionQueueService.Raise(new ExceptionQueueCreateRequest
                 {
                     Category = "CONCURRENCY_CONFLICT",
-                    SourceModule = "Enrollment.ReviewWorkbench",
-                    Entity = "enrollments",
-                    EntityId = enrollment.Id,
-                    Severity = ExceptionQueueSeverity.WARNING,
+                    SourceModule = "Enrollment.PlacementPage",
                     Summary = summary,
                     Details = $"EnrollmentId={enrollment.Id}; StudentId={enrollment.StudentId}; SchoolYearId={enrollment.SchoolYearId}",
-                    CorrelationId = CorrelationContext.CurrentId
+                    Severity = ExceptionQueueSeverity.WARNING
                 });
             }
             catch
             {
-                // Exception queue capture should not block enrollment flow feedback.
+                // Swallow exception queue failures to avoid blocking primary action feedback.
             }
         }
 
@@ -819,7 +780,7 @@ namespace School_Management_System
             var draft = BuildEnrollmentDraft(_selectedEnrollmentStudentId, ((SchoolYear?)cboEnrollSchoolYear.SelectedItem)?.Id ?? 0L, ((Section?)cboEnrollSection.SelectedItem)?.Id ?? 0L, ((Curriculum?)cboEnrollCurriculum.SelectedItem)?.Id ?? 0L);
             if (draft == null)
             {
-                MessageBox.Show("Select student, school year, section, and curriculum first.", "Enrollment", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Select a student, school year, grade offering, and curriculum first.", "Enrollment", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -837,7 +798,30 @@ namespace School_Management_System
 
             AuditTrailService.Log("CREATE", "enrollments", result.Data.Id, null, result.Data);
             AppFeedbackService.ShowSuccess(result.Message, "Enrollment", this);
-            LoadEnrollmentStudents(_selectedEnrollmentStudentId);
+            var nextStudentId = ResolveNextAvailableStudentId();
+            _selectedEnrollmentStudentId = null;
+            LoadEnrollmentStudents(nextStudentId);
+        }
+
+        private long? ResolveNextAvailableStudentId()
+        {
+            foreach (var item in gridEnrollmentStudents.Items)
+            {
+                if (item is not DataRowView row)
+                {
+                    continue;
+                }
+
+                var studentId = row.Row.Field<long>("Id");
+                if (_selectedEnrollmentStudentId.HasValue && studentId == _selectedEnrollmentStudentId.Value)
+                {
+                    continue;
+                }
+
+                return studentId;
+            }
+
+            return null;
         }
 
         private void TransferEnrollment()
@@ -1228,37 +1212,27 @@ namespace School_Management_System
             });
             AppFeedbackService.ShowSuccess(result.Message, "Status Update", this);
             LoadEnrollmentStudents(_selectedEnrollmentStudentId);
-            SelectNextEnrollmentForReview();
         }
 
-        private EnrollmentActionReason? PromptEnrollmentActionReason(string actionTitle, string prompt)
+        private EnrollmentActionReason? PromptEnrollmentActionReason(string title, string message)
         {
-            var dialog = new ReasonPromptWindow(
-                $"{actionTitle} Reason",
-                prompt,
+            var prompt = new ReasonPromptWindow(
+                title,
+                message,
                 EnrollmentGovernanceReasonOptions)
             {
                 Owner = this
             };
-
-            if (dialog.ShowDialog() != true)
+            if (prompt.ShowDialog() != true)
             {
                 return null;
             }
 
-            return new EnrollmentActionReason(dialog.SelectedReasonCode, dialog.ReasonDetail);
-        }
-
-        private sealed class EnrollmentActionReason
-        {
-            public EnrollmentActionReason(string reasonCode, string reasonText)
+            return new EnrollmentActionReason
             {
-                ReasonCode = reasonCode;
-                ReasonText = reasonText;
-            }
-
-            public string ReasonCode { get; }
-            public string ReasonText { get; }
+                ReasonCode = prompt.SelectedReasonCode,
+                ReasonText = prompt.ReasonDetail
+            };
         }
     }
 }
