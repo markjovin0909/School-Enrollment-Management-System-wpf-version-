@@ -43,6 +43,43 @@
                                                 Subtitle="Institution identity and printed header information"
                                                 Margin="0,0,0,10"/>
 
+                        <Grid Margin="0,0,0,12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Border Width="120"
+                                    Height="120"
+                                    CornerRadius="18"
+                                    BorderBrush="{StaticResource BrushBorder}"
+                                    BorderThickness="1"
+                                    Background="#FFFFFF"
+                                    Padding="8"
+                                    Margin="0,0,14,0">
+                                <Image x:Name="imgSchoolLogo" Stretch="Uniform"/>
+                            </Border>
+
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <Label Content="School Logo" Padding="0"/>
+                                <TextBlock x:Name="txtLogoStatus"
+                                           Foreground="{StaticResource BrushMuted}"
+                                           TextWrapping="Wrap"
+                                           Margin="0,2,0,10"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <Button x:Name="btnBrowseLogo"
+                                            Content="Browse Logo"
+                                            Width="112"
+                                            Style="{StaticResource GhostButton}"
+                                            Margin="0,0,8,0"/>
+                                    <Button x:Name="btnClearLogo"
+                                            Content="Clear Logo"
+                                            Width="96"
+                                            Style="{StaticResource GhostButton}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+
                         <Label Content="School Name"/>
                         <TextBox x:Name="txtSchoolName"/>
 

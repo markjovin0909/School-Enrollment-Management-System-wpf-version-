@@ -64,6 +64,19 @@
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding" Value="16,12"/>
         </Style>
+        <Style x:Key="DetailNarrowField" TargetType="FrameworkElement">
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="Width" Value="150"/>
+        </Style>
+        <Style x:Key="DetailCompactField" TargetType="FrameworkElement" BasedOn="{StaticResource DetailNarrowField}">
+            <Setter Property="Width" Value="220"/>
+        </Style>
+        <Style x:Key="DetailMediumField" TargetType="FrameworkElement" BasedOn="{StaticResource DetailNarrowField}">
+            <Setter Property="Width" Value="280"/>
+        </Style>
+        <Style x:Key="DetailWideField" TargetType="FrameworkElement" BasedOn="{StaticResource DetailNarrowField}">
+            <Setter Property="Width" Value="360"/>
+        </Style>
     </Window.Resources>
     <Grid x:Name="rootShell" Background="#EEF3F9">
         <Grid>
@@ -90,10 +103,10 @@
                                 Padding="4"
                                 Margin="0,0,12,0"
                                 VerticalAlignment="Center">
-                            <Image Source="/Assets/Logo.jpg" Stretch="Uniform"/>
+                            <Image x:Name="imgTopBarLogo" Stretch="Uniform"/>
                         </Border>
                         <StackPanel Orientation="Vertical" VerticalAlignment="Center">
-                            <TextBlock Text="Enrollment Management System" FontSize="20" FontWeight="SemiBold" Foreground="#0F172A"/>
+                            <TextBlock x:Name="txtTopBarSchoolName" FontSize="20" FontWeight="SemiBold" Foreground="#0F172A"/>
                             <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
                                 <TextBlock x:Name="txtCurrentUser" Style="{StaticResource Text.CaptionStrong}" Foreground="#475569"/>
                                 <TextBlock Text="  •  " Style="{StaticResource Text.Caption}" Foreground="#94A3B8"/>
@@ -136,7 +149,7 @@
                                                 <RowDefinition Height="68"/>
                                                 <RowDefinition Height="126"/>
                                                 <RowDefinition Height="140"/>
-                                                <RowDefinition Height="104"/>
+                                                <RowDefinition Height="142"/>
                                                 <RowDefinition Height="108"/>
                                                 <RowDefinition Height="34"/>
                                             </Grid.RowDefinitions>
@@ -159,7 +172,7 @@
                                                                 BorderThickness="1"
                                                                 Padding="4"
                                                                 Margin="0,0,16,0">
-                                                            <Image Source="/Assets/Logo.jpg" Stretch="Uniform"/>
+                                                            <Image x:Name="imgDashboardHeaderLogo" Stretch="Uniform"/>
                                                         </Border>
                                                         <StackPanel VerticalAlignment="Center">
                                                             <TextBlock Text="SCHOOL" FontSize="13" FontWeight="Bold" Foreground="#CFEAFF"/>
@@ -167,8 +180,8 @@
                                                         </StackPanel>
                                                     </StackPanel>
 
-                                                    <TextBlock Grid.Column="1"
-                                                               Text="School Management System"
+                                                    <TextBlock x:Name="txtDashboardSchoolName"
+                                                               Grid.Column="1"
                                                                FontSize="30"
                                                                FontStyle="Italic"
                                                                FontWeight="Bold"
@@ -368,6 +381,14 @@
                                                         <TextBlock Text="Central dashboard for admissions, records, and daily school operations"
                                                                    FontSize="16"
                                                                    Foreground="#B9E8E3"/>
+                                                        <TextBlock x:Name="txtDashboardSchoolYear"
+                                                                   FontSize="14"
+                                                                   Foreground="#E6FFF9"
+                                                                   Margin="0,10,0,0"/>
+                                                        <TextBlock x:Name="txtDashboardCurrentGrading"
+                                                                   FontSize="14"
+                                                                   Foreground="#B6EBFF"
+                                                                   Margin="0,4,0,0"/>
                                                     </StackPanel>
                                                 </Border>
 
@@ -1417,30 +1438,32 @@
                                                     Margin="0,0,0,10"/>
 
                             <Grid Grid.Row="1">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="320"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
 
-                                <Border Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,10,0">
+                                <Border Grid.Row="0" Style="{StaticResource CardPanel}" Margin="0,0,0,10">
                                     <StackPanel>
                                         <Border Style="{StaticResource InfoBanner}" Margin="0,0,0,10">
                                             <TextBlock Text="Launch core academic setup modules from here. Select one module to open its workspace on this page."
                                                        Style="{StaticResource Text.Caption}"
                                                        TextWrapping="Wrap"/>
                                         </Border>
-                                        <TextBlock Text="Launch Modules" Style="{StaticResource Text.CaptionStrong}"/>
+                                        <TextBlock Text="Module Navigation" Style="{StaticResource Text.CaptionStrong}"/>
                                         <TextBlock Text="School profile, school years, grades, subjects, curriculum, and sections." Style="{StaticResource Text.Caption}" Margin="0,2,0,10"/>
-                                        <Button x:Name="btnOpsSchoolSettings" Content="School Settings" Style="{StaticResource OpsModuleButton}"/>
-                                        <Button x:Name="btnOpsSchoolYears" Content="School Years" Style="{StaticResource OpsModuleButton}"/>
-                                        <Button x:Name="btnOpsGradeLevels" Content="Grade Levels" Style="{StaticResource OpsModuleButton}"/>
-                                        <Button x:Name="btnOpsSubjects" Content="Subjects" Style="{StaticResource OpsModuleButton}"/>
-                                        <Button x:Name="btnOpsCurriculum" Content="Curriculum" Style="{StaticResource OpsModuleButton}"/>
-                                        <Button x:Name="btnOpsSections" Content="Sections" Style="{StaticResource OpsModuleButton}" Margin="0"/>
+                                        <WrapPanel>
+                                            <Button x:Name="btnOpsSchoolSettings" Content="School Settings" Style="{StaticResource OpsModuleButton}"/>
+                                            <Button x:Name="btnOpsSchoolYears" Content="School Years" Style="{StaticResource OpsModuleButton}"/>
+                                            <Button x:Name="btnOpsGradeLevels" Content="Grade Levels" Style="{StaticResource OpsModuleButton}"/>
+                                            <Button x:Name="btnOpsSubjects" Content="Subjects" Style="{StaticResource OpsModuleButton}"/>
+                                            <Button x:Name="btnOpsCurriculum" Content="Curriculum" Style="{StaticResource OpsModuleButton}"/>
+                                            <Button x:Name="btnOpsSections" Content="Sections" Style="{StaticResource OpsModuleButton}" Margin="0,0,0,8"/>
+                                        </WrapPanel>
                                     </StackPanel>
                                 </Border>
 
-                                <Border Grid.Column="1" Style="{StaticResource CardPanel}" MinWidth="540">
+                                <Border Grid.Row="1" Style="{StaticResource CardPanel}" MinWidth="540">
                                     <Grid>
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto"/>
@@ -1489,30 +1512,32 @@
                                                     Margin="0,0,0,10"/>
 
                             <Grid Grid.Row="1">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="320"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
 
-                                <Border Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,10,0">
+                                <Border Grid.Row="0" Style="{StaticResource CardPanel}" Margin="0,0,0,10">
                                     <StackPanel>
                                         <Border Style="{StaticResource InfoBanner}" Margin="0,0,0,10">
                                             <TextBlock Text="Use scheduling tools only after school years, grade levels, curricula, sections, rooms, and time slots are configured."
                                                        Style="{StaticResource Text.Caption}"
                                                        TextWrapping="Wrap"/>
                                         </Border>
-                                        <TextBlock Text="Launch Modules" Style="{StaticResource Text.CaptionStrong}"/>
+                                        <TextBlock Text="Module Navigation" Style="{StaticResource Text.CaptionStrong}"/>
                                         <TextBlock Text="Open scheduling components without leaving the tab." Style="{StaticResource Text.Caption}" Margin="0,2,0,10"/>
-                                        <Button x:Name="btnOpsOfferings" Content="Class Offerings" Style="{StaticResource OpsModuleButton}"/>
-                                        <Button x:Name="btnOpsSubjectEnrollees" Content="Subject Enrollees" Style="{StaticResource OpsModuleButton}"/>
-                                        <Button x:Name="btnOpsSchedules" Content="Schedules" Style="{StaticResource OpsModuleButton}"/>
-                                        <Button x:Name="btnOpsTeacherLoads" Content="Teacher Loads" Style="{StaticResource OpsModuleButton}"/>
-                                        <Button x:Name="btnOpsRooms" Content="Rooms" Style="{StaticResource OpsModuleButton}"/>
-                                        <Button x:Name="btnOpsTimeSlots" Content="Time Slots" Style="{StaticResource OpsModuleButton}" Margin="0"/>
+                                        <WrapPanel>
+                                            <Button x:Name="btnOpsOfferings" Content="Class Offerings" Style="{StaticResource OpsModuleButton}"/>
+                                            <Button x:Name="btnOpsSubjectEnrollees" Content="Subject Enrollees" Style="{StaticResource OpsModuleButton}"/>
+                                            <Button x:Name="btnOpsSchedules" Content="Schedules" Style="{StaticResource OpsModuleButton}"/>
+                                            <Button x:Name="btnOpsTeacherLoads" Content="Teacher Loads" Style="{StaticResource OpsModuleButton}"/>
+                                            <Button x:Name="btnOpsRooms" Content="Rooms" Style="{StaticResource OpsModuleButton}"/>
+                                            <Button x:Name="btnOpsTimeSlots" Content="Time Slots" Style="{StaticResource OpsModuleButton}" Margin="0,0,0,8"/>
+                                        </WrapPanel>
                                     </StackPanel>
                                 </Border>
 
-                                <Border Grid.Column="1" Style="{StaticResource CardPanel}" MinWidth="540">
+                                <Border Grid.Row="1" Style="{StaticResource CardPanel}" MinWidth="540">
                                     <Grid>
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto"/>
@@ -1742,16 +1767,24 @@
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1.55*"/>
+                                        <ColumnDefinition Width="24"/>
+                                        <ColumnDefinition Width="1*"/>
+                                    </Grid.ColumnDefinitions>
 
-                                    <controls:SectionHeader Grid.Row="0"
+                                    <controls:SectionHeader Grid.Row="0" Grid.ColumnSpan="3"
                                                             Title="Personal Information"
                                                             Subtitle="Identity, contact, guardian, and academic preferences"
                                                             Margin="0,0,0,10"/>
 
-                                    <Grid Grid.Row="1">
+                                    <Grid Grid.Row="1" Grid.Column="0">
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="16"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="16"/>
+                                            <ColumnDefinition Width="Auto"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
                                         <Grid.RowDefinitions>
@@ -1770,83 +1803,81 @@
                                         </Grid.RowDefinitions>
 
                                         <Label Grid.Row="0" Grid.Column="0" Content="Student Number"/>
-                                        <Label Grid.Row="0" Grid.Column="1" Content="LRN"/>
-                                        <Label Grid.Row="0" Grid.Column="2" Content="Status"/>
-                                        <TextBox Grid.Row="1" Grid.Column="0" x:Name="txtSDStudentNumber" IsReadOnly="True" Margin="0,0,6,8"/>
-                                        <TextBox Grid.Row="1" Grid.Column="1" x:Name="txtSDLrn" IsReadOnly="True" Margin="6,0,6,8"/>
-                                        <ComboBox Grid.Row="1" Grid.Column="2" x:Name="cboSDStatus" IsEnabled="False" Margin="6,0,0,8"/>
+                                        <Label Grid.Row="0" Grid.Column="2" Content="LRN"/>
+                                        <Label Grid.Row="0" Grid.Column="4" Content="Status"/>
+                                        <TextBox Grid.Row="1" Grid.Column="0" x:Name="txtSDStudentNumber" IsReadOnly="True" Style="{StaticResource DetailCompactField}"/>
+                                        <TextBox Grid.Row="1" Grid.Column="2" x:Name="txtSDLrn" IsReadOnly="True" Style="{StaticResource DetailMediumField}"/>
+                                        <ComboBox Grid.Row="1" Grid.Column="4" x:Name="cboSDStatus" IsEnabled="False" Style="{StaticResource DetailNarrowField}"/>
 
                                         <Label Grid.Row="2" Grid.Column="0" Content="First Name"/>
-                                        <Label Grid.Row="2" Grid.Column="1" Content="Last Name"/>
-                                        <Label Grid.Row="2" Grid.Column="2" Content="Middle Name"/>
-                                        <TextBox Grid.Row="3" Grid.Column="0" x:Name="txtSDFirstName" IsReadOnly="True" Margin="0,0,6,8"/>
-                                        <TextBox Grid.Row="3" Grid.Column="1" x:Name="txtSDLastName" IsReadOnly="True" Margin="6,0,6,8"/>
-                                        <TextBox Grid.Row="3" Grid.Column="2" x:Name="txtSDMiddleName" IsReadOnly="True" Margin="6,0,0,8"/>
+                                        <Label Grid.Row="2" Grid.Column="2" Content="Last Name"/>
+                                        <Label Grid.Row="2" Grid.Column="4" Content="Middle Name"/>
+                                        <TextBox Grid.Row="3" Grid.Column="0" x:Name="txtSDFirstName" IsReadOnly="True" Style="{StaticResource DetailCompactField}"/>
+                                        <TextBox Grid.Row="3" Grid.Column="2" x:Name="txtSDLastName" IsReadOnly="True" Style="{StaticResource DetailCompactField}"/>
+                                        <TextBox Grid.Row="3" Grid.Column="4" x:Name="txtSDMiddleName" IsReadOnly="True" Style="{StaticResource DetailCompactField}"/>
 
                                         <Label Grid.Row="4" Grid.Column="0" Content="Birthdate"/>
-                                        <Label Grid.Row="4" Grid.Column="1" Content="Age"/>
-                                        <Label Grid.Row="4" Grid.Column="2" Content="Sex"/>
-                                        <DatePicker Grid.Row="5" Grid.Column="0" x:Name="dpSDBirthdate" IsEnabled="False" Margin="0,0,6,8"/>
-                                        <TextBox Grid.Row="5" Grid.Column="1" x:Name="txtSDAge" IsReadOnly="True" Margin="6,0,6,8"/>
-                                        <ComboBox Grid.Row="5" Grid.Column="2" x:Name="cboSDSex" IsEnabled="False" Margin="6,0,0,8"/>
+                                        <Label Grid.Row="4" Grid.Column="2" Content="Age"/>
+                                        <Label Grid.Row="4" Grid.Column="4" Content="Sex"/>
+                                        <DatePicker Grid.Row="5" Grid.Column="0" x:Name="dpSDBirthdate" IsEnabled="False" Width="170" HorizontalAlignment="Left"/>
+                                        <TextBox Grid.Row="5" Grid.Column="2" x:Name="txtSDAge" IsReadOnly="True" Style="{StaticResource DetailNarrowField}"/>
+                                        <ComboBox Grid.Row="5" Grid.Column="4" x:Name="cboSDSex" IsEnabled="False" Style="{StaticResource DetailNarrowField}"/>
 
                                         <Label Grid.Row="6" Grid.Column="0" Content="Address"/>
-                                        <Label Grid.Row="6" Grid.Column="1" Content="Contact Number"/>
-                                        <Label Grid.Row="6" Grid.Column="2" Content="Previous School"/>
-                                        <TextBox Grid.Row="7" Grid.Column="0" x:Name="txtSDAddress" IsReadOnly="True" Margin="0,0,6,8"/>
-                                        <TextBox Grid.Row="7" Grid.Column="1" x:Name="txtSDContactNo" IsReadOnly="True" Margin="6,0,6,8"/>
-                                        <TextBox Grid.Row="7" Grid.Column="2" x:Name="txtSDPreviousSchool" IsReadOnly="True" Margin="6,0,0,8"/>
+                                        <Label Grid.Row="6" Grid.Column="4" Content="Contact Number"/>
+                                        <TextBox Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="3" x:Name="txtSDAddress" IsReadOnly="True" Style="{StaticResource DetailWideField}"/>
+                                        <TextBox Grid.Row="7" Grid.Column="4" x:Name="txtSDContactNo" IsReadOnly="True" Style="{StaticResource DetailNarrowField}"/>
 
-                                        <Label Grid.Row="8" Grid.Column="0" Content="Guardian Name"/>
-                                        <Label Grid.Row="8" Grid.Column="1" Content="Guardian Contact"/>
-                                        <TextBox Grid.Row="9" Grid.Column="0" x:Name="txtSDGuardianName" IsReadOnly="True" Margin="0,0,6,8"/>
-                                        <TextBox Grid.Row="9" Grid.Column="1" x:Name="txtSDGuardianContact" IsReadOnly="True" Margin="6,0,6,8"/>
+                                        <Label Grid.Row="8" Grid.Column="0" Content="Previous School" Margin="0,12,0,0"/>
+                                        <Label Grid.Row="8" Grid.Column="2" Content="Guardian Name" Margin="0,12,0,0"/>
+                                        <Label Grid.Row="8" Grid.Column="4" Content="Guardian Contact" Margin="0,12,0,0"/>
+                                        <TextBox Grid.Row="9" Grid.Column="0" x:Name="txtSDPreviousSchool" IsReadOnly="True" Style="{StaticResource DetailCompactField}"/>
+                                        <TextBox Grid.Row="9" Grid.Column="2" x:Name="txtSDGuardianName" IsReadOnly="True" Style="{StaticResource DetailMediumField}"/>
+                                        <TextBox Grid.Row="9" Grid.Column="4" x:Name="txtSDGuardianContact" IsReadOnly="True" Style="{StaticResource DetailNarrowField}"/>
 
-                                        <Label Grid.Row="10" Grid.Column="0" Content="Preferred Grade Level"/>
-                                        <Label Grid.Row="10" Grid.Column="1" Content="Preferred Curriculum"/>
-                                        <ComboBox Grid.Row="11" Grid.Column="0" x:Name="cboSDPreferredGrade" IsEnabled="False" Margin="0,0,6,0"/>
-                                        <ComboBox Grid.Row="11" Grid.Column="1" x:Name="cboSDPreferredCurriculum" IsEnabled="False" Margin="6,0,6,0"/>
+                                        <Label Grid.Row="10" Grid.Column="0" Content="Preferred Grade Level" Margin="0,12,0,0"/>
+                                        <Label Grid.Row="10" Grid.Column="2" Content="Preferred Curriculum" Margin="0,12,0,0"/>
+                                        <ComboBox Grid.Row="11" Grid.Column="0" x:Name="cboSDPreferredGrade" IsEnabled="False" Style="{StaticResource DetailCompactField}"/>
+                                        <ComboBox Grid.Row="11" Grid.Column="2" x:Name="cboSDPreferredCurriculum" IsEnabled="False" Style="{StaticResource DetailCompactField}"/>
                                     </Grid>
-                                </Grid>
-                            </Border>
 
-                            <!-- Requirements -->
-                            <Border Grid.Row="3" Style="{StaticResource CardPanel}" Margin="0,0,0,10">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="*"/>
-                                    </Grid.RowDefinitions>
+                                    <Border Grid.Row="1" Grid.Column="2" Style="{StaticResource CardPanel}" Padding="12">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="*"/>
+                                            </Grid.RowDefinitions>
 
-                                    <DockPanel Grid.Row="0" Margin="0,0,0,10">
-                                        <Button x:Name="btnSDManageRequirements"
-                                                Content="Manage"
-                                                Width="90"
-                                                Style="{StaticResource GhostButton}"
-                                                DockPanel.Dock="Right"/>
-                                        <controls:SectionHeader Title="Requirements"
-                                                                Subtitle="Document submission checklist and verification status"/>
-                                    </DockPanel>
+                                            <DockPanel Grid.Row="0" Margin="0,0,0,10">
+                                                <Button x:Name="btnSDManageRequirements"
+                                                        Content="Manage"
+                                                        Width="90"
+                                                        Style="{StaticResource GhostButton}"
+                                                        DockPanel.Dock="Right"/>
+                                                <controls:SectionHeader Title="Requirements"
+                                                                        Subtitle="Document submission checklist and verification status"/>
+                                            </DockPanel>
 
-                                    <DataGrid Grid.Row="1"
-                                              x:Name="gridSDRequirements"
-                                              AutoGenerateColumns="False"
-                                              CanUserAddRows="False"
-                                              IsReadOnly="True"
-                                              MaxHeight="180"
-                                              HeadersVisibility="Column">
-                                        <DataGrid.Columns>
-                                            <DataGridTextColumn Header="Requirement" Binding="{Binding Name}" Width="*"/>
-                                            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="110"/>
-                                            <DataGridTextColumn Header="Submitted" Binding="{Binding SubmittedDate}" Width="120"/>
-                                            <DataGridTextColumn Header="Notes" Binding="{Binding Notes}" Width="180"/>
-                                        </DataGrid.Columns>
-                                    </DataGrid>
+                                            <DataGrid Grid.Row="1"
+                                                      x:Name="gridSDRequirements"
+                                                      AutoGenerateColumns="False"
+                                                      CanUserAddRows="False"
+                                                      IsReadOnly="True"
+                                                      HeadersVisibility="Column">
+                                                <DataGrid.Columns>
+                                                    <DataGridTextColumn Header="Requirement" Binding="{Binding Name}" Width="*"/>
+                                                    <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="110"/>
+                                                    <DataGridTextColumn Header="Submitted" Binding="{Binding SubmittedDate}" Width="120"/>
+                                                    <DataGridTextColumn Header="Notes" Binding="{Binding Notes}" Width="180"/>
+                                                </DataGrid.Columns>
+                                            </DataGrid>
+                                        </Grid>
+                                    </Border>
                                 </Grid>
                             </Border>
 
                             <!-- Grades -->
-                            <Border Grid.Row="4" Style="{StaticResource CardPanel}" Margin="0,0,0,10">
+                            <Border Grid.Row="3" Style="{StaticResource CardPanel}" Margin="0,0,0,10">
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
@@ -1878,7 +1909,7 @@
                             </Border>
 
                             <!-- Enrolled Subjects -->
-                            <Border Grid.Row="5" Style="{StaticResource CardPanel}" Margin="0,0,0,10">
+                            <Border Grid.Row="4" Style="{StaticResource CardPanel}" Margin="0,0,0,10">
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
@@ -2167,8 +2198,11 @@
 
                                     <Grid Grid.Row="1">
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="16"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="16"/>
+                                            <ColumnDefinition Width="Auto"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
                                         <Grid.RowDefinitions>
@@ -2183,30 +2217,30 @@
                                         </Grid.RowDefinitions>
 
                                         <Label Grid.Row="0" Grid.Column="0" Content="Employee No"/>
-                                        <Label Grid.Row="0" Grid.Column="1" Content="Specialization"/>
-                                        <Label Grid.Row="0" Grid.Column="2" Content="Status"/>
-                                        <TextBox Grid.Row="1" Grid.Column="0" x:Name="txtTDEmployeeNo" IsReadOnly="True" Margin="0,0,6,8"/>
-                                        <TextBox Grid.Row="1" Grid.Column="1" x:Name="txtTDSpecialization" IsReadOnly="True" Margin="6,0,6,8"/>
-                                        <ComboBox Grid.Row="1" Grid.Column="2" x:Name="cboTDStatus" IsEnabled="False" Margin="6,0,0,8"/>
+                                        <Label Grid.Row="0" Grid.Column="2" Content="Specialization"/>
+                                        <Label Grid.Row="0" Grid.Column="4" Content="Status"/>
+                                        <TextBox Grid.Row="1" Grid.Column="0" x:Name="txtTDEmployeeNo" IsReadOnly="True" Style="{StaticResource DetailCompactField}"/>
+                                        <TextBox Grid.Row="1" Grid.Column="2" x:Name="txtTDSpecialization" IsReadOnly="True" Style="{StaticResource DetailMediumField}"/>
+                                        <ComboBox Grid.Row="1" Grid.Column="4" x:Name="cboTDStatus" IsEnabled="False" Style="{StaticResource DetailNarrowField}"/>
 
                                         <Label Grid.Row="2" Grid.Column="0" Content="First Name"/>
-                                        <Label Grid.Row="2" Grid.Column="1" Content="Last Name"/>
-                                        <Label Grid.Row="2" Grid.Column="2" Content="Middle Name"/>
-                                        <TextBox Grid.Row="3" Grid.Column="0" x:Name="txtTDFirstName" IsReadOnly="True" Margin="0,0,6,8"/>
-                                        <TextBox Grid.Row="3" Grid.Column="1" x:Name="txtTDLastName" IsReadOnly="True" Margin="6,0,6,8"/>
-                                        <TextBox Grid.Row="3" Grid.Column="2" x:Name="txtTDMiddleName" IsReadOnly="True" Margin="6,0,0,8"/>
+                                        <Label Grid.Row="2" Grid.Column="2" Content="Last Name"/>
+                                        <Label Grid.Row="2" Grid.Column="4" Content="Middle Name"/>
+                                        <TextBox Grid.Row="3" Grid.Column="0" x:Name="txtTDFirstName" IsReadOnly="True" Style="{StaticResource DetailCompactField}"/>
+                                        <TextBox Grid.Row="3" Grid.Column="2" x:Name="txtTDLastName" IsReadOnly="True" Style="{StaticResource DetailCompactField}"/>
+                                        <TextBox Grid.Row="3" Grid.Column="4" x:Name="txtTDMiddleName" IsReadOnly="True" Style="{StaticResource DetailCompactField}"/>
 
                                         <Label Grid.Row="4" Grid.Column="0" Content="Email"/>
-                                        <Label Grid.Row="4" Grid.Column="1" Content="Contact No"/>
-                                        <Label Grid.Row="4" Grid.Column="2" Content="Employment Status"/>
-                                        <TextBox Grid.Row="5" Grid.Column="0" x:Name="txtTDEmail" IsReadOnly="True" Margin="0,0,6,8"/>
-                                        <TextBox Grid.Row="5" Grid.Column="1" x:Name="txtTDContactNo" IsReadOnly="True" Margin="6,0,6,8"/>
-                                        <ComboBox Grid.Row="5" Grid.Column="2" x:Name="cboTDEmploymentStatus" IsEnabled="False" Margin="6,0,0,8"/>
+                                        <Label Grid.Row="4" Grid.Column="2" Content="Contact No"/>
+                                        <Label Grid.Row="4" Grid.Column="4" Content="Employment Status"/>
+                                        <TextBox Grid.Row="5" Grid.Column="0" x:Name="txtTDEmail" IsReadOnly="True" Style="{StaticResource DetailWideField}"/>
+                                        <TextBox Grid.Row="5" Grid.Column="2" x:Name="txtTDContactNo" IsReadOnly="True" Style="{StaticResource DetailNarrowField}"/>
+                                        <ComboBox Grid.Row="5" Grid.Column="4" x:Name="cboTDEmploymentStatus" IsEnabled="False" Style="{StaticResource DetailNarrowField}"/>
 
-                                        <Label Grid.Row="6" Grid.Column="0" Content="Hire Date"/>
-                                        <Label Grid.Row="6" Grid.Column="1" Content="Advisory Status"/>
-                                        <DatePicker Grid.Row="7" Grid.Column="0" x:Name="dpTDHireDate" IsEnabled="False" Margin="0,0,6,0"/>
-                                        <ComboBox Grid.Row="7" Grid.Column="1" x:Name="cboTDAdvisoryStatus" IsEnabled="False" Margin="6,0,6,0"/>
+                                        <Label Grid.Row="6" Grid.Column="0" Content="Hire Date" Margin="0,12,0,0"/>
+                                        <Label Grid.Row="6" Grid.Column="2" Content="Advisory Status" Margin="0,12,0,0"/>
+                                        <DatePicker Grid.Row="7" Grid.Column="0" x:Name="dpTDHireDate" IsEnabled="False" Width="170" HorizontalAlignment="Left"/>
+                                        <ComboBox Grid.Row="7" Grid.Column="2" x:Name="cboTDAdvisoryStatus" IsEnabled="False" Style="{StaticResource DetailNarrowField}"/>
                                     </Grid>
                                 </Grid>
                             </Border>
@@ -2316,40 +2350,58 @@
                                                             Subtitle="School year, grade level, section, curriculum, and status"
                                                             Margin="0,0,0,10"/>
 
-                                    <UniformGrid Grid.Row="1" Columns="4">
-                                        <StackPanel Margin="0,0,8,8">
+                                    <Grid Grid.Row="1">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="24"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="24"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="24"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,0,8">
                                             <TextBlock Text="School Year" Style="{StaticResource Text.Caption}"/>
                                             <TextBlock x:Name="txtEDSchoolYear" Style="{StaticResource Text.Body}" Text="-"/>
                                         </StackPanel>
-                                        <StackPanel Margin="0,0,8,8">
+                                        <StackPanel Grid.Row="0" Grid.Column="2" Margin="0,0,0,8">
                                             <TextBlock Text="Grade Level" Style="{StaticResource Text.Caption}"/>
                                             <TextBlock x:Name="txtEDGradeLevel" Style="{StaticResource Text.Body}" Text="-"/>
                                         </StackPanel>
-                                        <StackPanel Margin="0,0,8,8">
+                                        <StackPanel Grid.Row="0" Grid.Column="4" Margin="0,0,0,8">
                                             <TextBlock Text="Section" Style="{StaticResource Text.Caption}"/>
                                             <TextBlock x:Name="txtEDSection" Style="{StaticResource Text.Body}" Text="-"/>
                                         </StackPanel>
-                                        <StackPanel Margin="0,0,0,8">
+                                        <StackPanel Grid.Row="0" Grid.Column="6" Margin="0,0,0,8">
                                             <TextBlock Text="Curriculum" Style="{StaticResource Text.Caption}"/>
                                             <TextBlock x:Name="txtEDCurriculum" Style="{StaticResource Text.Body}" Text="-"/>
                                         </StackPanel>
-                                        <StackPanel Margin="0,0,8,0">
+
+                                        <StackPanel Grid.Row="2" Grid.Column="0">
                                             <TextBlock Text="Status" Style="{StaticResource Text.Caption}"/>
                                             <TextBlock x:Name="txtEDStatus" Style="{StaticResource Text.Body}" Text="-"/>
                                         </StackPanel>
-                                        <StackPanel Margin="0,0,8,0">
+                                        <StackPanel Grid.Row="2" Grid.Column="2">
                                             <TextBlock Text="Enrolled At" Style="{StaticResource Text.Caption}"/>
                                             <TextBlock x:Name="txtEDEnrolledAt" Style="{StaticResource Text.Body}" Text="-"/>
                                         </StackPanel>
-                                        <StackPanel Margin="0,0,8,0">
+                                        <StackPanel Grid.Row="2" Grid.Column="4">
                                             <TextBlock Text="Student" Style="{StaticResource Text.Caption}"/>
                                             <TextBlock x:Name="txtEDStudentName" Style="{StaticResource Text.Body}" Text="-"/>
                                         </StackPanel>
-                                        <StackPanel Margin="0,0,0,0">
+                                        <StackPanel Grid.Row="2" Grid.Column="6">
                                             <TextBlock Text="LRN" Style="{StaticResource Text.Caption}"/>
                                             <TextBlock x:Name="txtEDStudentLrn" Style="{StaticResource Text.Body}" Text="-"/>
                                         </StackPanel>
-                                    </UniformGrid>
+                                    </Grid>
                                 </Grid>
                             </Border>
 

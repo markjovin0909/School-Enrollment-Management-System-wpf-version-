@@ -38,6 +38,9 @@ namespace School_Management_System.Models
         [Column("print_header_line2")]
         public string? PrintHeaderLine2 { get; set; }
 
+        [Column("school_logo_file_key")]
+        public string? SchoolLogoPath { get; set; }
+
         [Column("student_number_prefix")]
         public string StudentNumberPrefix { get; set; } = "S";
 

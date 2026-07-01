@@ -12,6 +12,16 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Themes/LegacyAdminTheme.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+            <Style x:Key="NarrowField" TargetType="FrameworkElement">
+                <Setter Property="HorizontalAlignment" Value="Left"/>
+                <Setter Property="Width" Value="150"/>
+            </Style>
+            <Style x:Key="CompactField" TargetType="FrameworkElement" BasedOn="{StaticResource NarrowField}">
+                <Setter Property="Width" Value="220"/>
+            </Style>
+            <Style x:Key="MediumField" TargetType="FrameworkElement" BasedOn="{StaticResource NarrowField}">
+                <Setter Property="Width" Value="280"/>
+            </Style>
         </ResourceDictionary>
     </Window.Resources>
     <Grid Margin="12">
@@ -73,16 +83,34 @@
             <Border Style="{StaticResource CardPanel}">
                 <StackPanel>
                     <controls:SectionHeader Title="Section Details" Subtitle="Academic placement and advisory details" Margin="0,0,0,8"/>
-                    <Label Content="Name"/>
-                    <TextBox x:Name="txtName"/>
-                    <Label Content="School Year" Margin="0,8,0,0"/>
-                    <ComboBox x:Name="cboSchoolYear" DisplayMemberPath="Name" SelectedValuePath="Id"/>
-                    <Label Content="Grade Level" Margin="0,8,0,0"/>
-                    <ComboBox x:Name="cboGradeLevel" DisplayMemberPath="Code" SelectedValuePath="Id"/>
-                    <Label Content="Capacity" Margin="0,8,0,0"/>
-                    <TextBox x:Name="txtCapacity"/>
-                    <Label Content="Adviser" Margin="0,8,0,0"/>
-                    <ComboBox x:Name="cboAdviser" DisplayMemberPath="Name" SelectedValuePath="Id"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <Label Grid.Row="0" Grid.Column="0" Content="Name"/>
+                        <Label Grid.Row="0" Grid.Column="2" Content="School Year"/>
+                        <Label Grid.Row="0" Grid.Column="4" Content="Grade Level"/>
+                        <TextBox Grid.Row="1" Grid.Column="0" x:Name="txtName" Style="{StaticResource CompactField}"/>
+                        <ComboBox Grid.Row="1" Grid.Column="2" x:Name="cboSchoolYear" DisplayMemberPath="Name" SelectedValuePath="Id" Style="{StaticResource CompactField}"/>
+                        <ComboBox Grid.Row="1" Grid.Column="4" x:Name="cboGradeLevel" DisplayMemberPath="Code" SelectedValuePath="Id" Style="{StaticResource NarrowField}"/>
+
+                        <Label Grid.Row="2" Grid.Column="0" Content="Capacity" Margin="0,12,0,0"/>
+                        <Label Grid.Row="2" Grid.Column="2" Content="Adviser" Margin="0,12,0,0"/>
+                        <TextBox Grid.Row="3" Grid.Column="0" x:Name="txtCapacity" Style="{StaticResource NarrowField}"/>
+                        <ComboBox Grid.Row="3" Grid.Column="2" Grid.ColumnSpan="3" x:Name="cboAdviser" DisplayMemberPath="Name" SelectedValuePath="Id" Style="{StaticResource MediumField}"/>
+                    </Grid>
 
                     <WrapPanel Margin="0,12,0,0">
                         <Button x:Name="btnAdd" Content="Create" Width="90"/>

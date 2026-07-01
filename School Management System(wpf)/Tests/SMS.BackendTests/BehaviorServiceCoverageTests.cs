@@ -1,3 +1,5 @@
+using System;
+using System.IO;
 using School_Management_System.Models;
 using School_Management_System.Services;
 using SMS.BackendTests.TestSupport;
@@ -25,6 +27,40 @@ public sealed class BehaviorServiceCoverageTests : BackendTestBase
         Assert.Equal("S-000010", reserved);
         Assert.Equal("1,3,5", SchoolSettingService.NormalizeGradeLevelIds(new long[] { 5, 3, 1, 3 }));
         Assert.Equal(new long[] { 1, 2 }, SchoolSettingService.ParseGradeLevelIds("1, 2, invalid, 2"));
+    }
+
+    [Fact]
+    public void SchoolBrandingService_Falls_Back_To_Default_Logo()
+    {
+        using var db = CreateDb();
+        Factory.SeedCoreData(db);
+
+        var branding = new SchoolBrandingService().GetCurrentBranding();
+
+        Assert.Equal("SMS Academy", branding.SchoolName);
+        Assert.EndsWith("Logo.jpg", branding.LogoAbsolutePath, StringComparison.OrdinalIgnoreCase);
+        Assert.NotNull(branding.LogoImage);
+    }
+
+    [Fact]
+    public void FileStorageService_Saves_And_Deletes_School_Logo()
+    {
+        var sourceDir = Path.Combine(Path.GetTempPath(), "sms-branding-tests");
+        Directory.CreateDirectory(sourceDir);
+        var sourcePath = Path.Combine(sourceDir, $"{Guid.NewGuid():N}.jpg");
+        File.WriteAllBytes(sourcePath, new byte[] { 1, 2, 3, 4, 5 });
+
+        var storedPath = FileStorageService.SaveSchoolLogo(sourcePath);
+        var absolutePath = FileStorageService.GetSchoolLogoAbsolutePath(storedPath);
+
+        Assert.False(string.IsNullOrWhiteSpace(storedPath));
+        Assert.Contains("storage", storedPath!, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("branding", storedPath!, StringComparison.OrdinalIgnoreCase);
+        Assert.True(File.Exists(absolutePath));
+
+        FileStorageService.DeleteSchoolLogo(storedPath);
+
+        Assert.False(File.Exists(absolutePath));
     }
 
     [Fact]

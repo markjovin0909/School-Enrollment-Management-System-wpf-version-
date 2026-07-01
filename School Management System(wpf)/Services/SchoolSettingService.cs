@@ -61,6 +61,7 @@ namespace School_Management_System.Services
                 PrincipalName = string.Empty,
                 GradingSetup = "K-12 quarter system",
                 EnrollmentConfiguration = "Open",
+                SchoolLogoPath = null,
                 StudentNumberPrefix = "S",
                 NextStudentNumber = 1,
                 DefaultSectionCapacity = 45,

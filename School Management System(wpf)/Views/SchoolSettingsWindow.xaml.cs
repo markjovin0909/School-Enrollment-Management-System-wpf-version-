@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using Microsoft.Win32;
 using School_Management_System.Models;
 using School_Management_System.Services;
 
@@ -11,8 +12,12 @@ namespace School_Management_System.Views
     {
         private readonly SchoolSettingService _settingService = new();
         private readonly GradeLevelService _gradeLevelService = new();
+        private readonly SchoolBrandingService _brandingService = new();
 
         private long? _settingId;
+        private string? _selectedLogoSourcePath;
+        private string? _existingLogoPath;
+        private bool _clearLogoRequested;
 
         public SchoolSettingsWindow()
         {
@@ -20,6 +25,8 @@ namespace School_Management_System.Views
 
             btnReload.Click += (_, _) => LoadData();
             btnSave.Click += (_, _) => SaveSettings();
+            btnBrowseLogo.Click += (_, _) => BrowseLogo();
+            btnClearLogo.Click += (_, _) => ClearLogo();
 
             LoadData();
         }
@@ -30,6 +37,9 @@ namespace School_Management_System.Views
             if (setting == null)
             {
                 _settingId = null;
+                _existingLogoPath = null;
+                _selectedLogoSourcePath = null;
+                _clearLogoRequested = false;
                 txtSchoolName.Text = "School Management System";
                 txtSchoolCode.Clear();
                 txtAddress.Clear();
@@ -47,10 +57,14 @@ namespace School_Management_System.Views
                 txtNextStudentNo.Text = "1";
                 txtDefaultCapacity.Text = "45";
                 txtDefaultGradeLevels.Text = string.Empty;
+                RefreshLogoPreview(null);
             }
             else
             {
                 _settingId = setting.Id;
+                _existingLogoPath = setting.SchoolLogoPath;
+                _selectedLogoSourcePath = null;
+                _clearLogoRequested = false;
                 txtSchoolName.Text = setting.SchoolName;
                 txtSchoolCode.Text = setting.SchoolCode;
                 txtAddress.Text = setting.SchoolAddress;
@@ -72,6 +86,7 @@ namespace School_Management_System.Views
                 txtNextStudentNo.Text = (setting.NextStudentNumber > 0 ? setting.NextStudentNumber : 1).ToString();
                 txtDefaultCapacity.Text = (setting.DefaultSectionCapacity > 0 ? setting.DefaultSectionCapacity : 45).ToString();
                 txtDefaultGradeLevels.Text = FormatDefaultGradeLevels(setting.DefaultGradeLevelIds);
+                RefreshLogoPreview(setting.SchoolLogoPath);
             }
 
             txtStatus.Text = "Loaded.";
@@ -115,6 +130,7 @@ namespace School_Management_System.Views
             }
 
             var now = DateTime.UtcNow;
+            string? previousLogoPath = null;
             SchoolSetting entity;
             if (_settingId.HasValue)
             {
@@ -123,6 +139,8 @@ namespace School_Management_System.Views
                 {
                     entity.CreatedAt = now;
                 }
+
+                previousLogoPath = entity.SchoolLogoPath;
             }
             else
             {
@@ -131,6 +149,8 @@ namespace School_Management_System.Views
                     CreatedAt = now
                 };
             }
+
+            var updatedLogoPath = ResolveLogoPathForSave(entity.SchoolLogoPath);
 
             entity.SchoolName = txtSchoolName.Text.Trim();
             entity.SchoolCode = txtSchoolCode.Text.Trim();
@@ -142,6 +162,7 @@ namespace School_Management_System.Views
             entity.EnrollmentCloseDate = chkEnrollmentClose.IsChecked == true ? (dpEnrollmentClose.SelectedDate ?? DateTime.Today).Date : null;
             entity.PrintHeaderLine1 = string.IsNullOrWhiteSpace(txtPrintHeader1.Text) ? txtSchoolName.Text.Trim() : txtPrintHeader1.Text.Trim();
             entity.PrintHeaderLine2 = string.IsNullOrWhiteSpace(txtPrintHeader2.Text) ? txtAddress.Text.Trim() : txtPrintHeader2.Text.Trim();
+            entity.SchoolLogoPath = updatedLogoPath;
             entity.StudentNumberPrefix = ResolveStudentNumberPrefix(txtStudentPrefix.Text.Trim(), entity.StudentNumberPrefix ?? string.Empty);
             entity.NextStudentNumber = nextStudentNo;
             entity.DefaultSectionCapacity = defaultCapacity;
@@ -160,8 +181,61 @@ namespace School_Management_System.Views
                 AuditTrailService.Log("UPDATE", "school_settings", entity.Id, null, entity);
             }
 
+            DeleteSupersededLogo(previousLogoPath, entity.SchoolLogoPath);
+            _existingLogoPath = entity.SchoolLogoPath;
+            _selectedLogoSourcePath = null;
+            _clearLogoRequested = false;
+            RefreshLogoPreview(entity.SchoolLogoPath);
+
             txtStatus.Text = $"Saved at {DateTime.Now:HH:mm:ss}";
             MessageBox.Show("School settings saved.", "School Settings", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void BrowseLogo()
+        {
+            var dialog = new OpenFileDialog
+            {
+                Title = "Select School Logo",
+                Filter = "Image Files|*.png;*.jpg;*.jpeg;*.bmp;*.gif|All Files|*.*",
+                CheckFileExists = true,
+                Multiselect = false
+            };
+
+            var dialogOwner = Application.Current?.MainWindow;
+            var selected = dialogOwner != null
+                ? dialog.ShowDialog(dialogOwner)
+                : dialog.ShowDialog();
+
+            if (selected != true)
+            {
+                return;
+            }
+
+            try
+            {
+                _selectedLogoSourcePath = dialog.FileName;
+                _clearLogoRequested = false;
+                txtLogoStatus.Text = $"Pending custom logo: {System.IO.Path.GetFileName(dialog.FileName)}";
+            }
+            catch (Exception ex)
+            {
+                _selectedLogoSourcePath = null;
+                _clearLogoRequested = false;
+                RefreshLogoPreview(_existingLogoPath);
+                MessageBox.Show(
+                    $"The selected file could not be used as a logo.{Environment.NewLine}{Environment.NewLine}{ex.Message}",
+                    "School Settings",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+            }
+        }
+
+        private void ClearLogo()
+        {
+            _selectedLogoSourcePath = null;
+            _clearLogoRequested = true;
+            RefreshLogoPreview(null);
+            txtLogoStatus.Text = "Custom logo will be cleared on save. Default logo will be used.";
         }
 
         private string FormatDefaultGradeLevels(string? rawIds)
@@ -255,5 +329,54 @@ namespace School_Management_System.Views
 
             return "S";
         }
+
+        private string? ResolveLogoPathForSave(string? existingLogoPath)
+        {
+            if (_clearLogoRequested)
+            {
+                return null;
+            }
+
+            if (!string.IsNullOrWhiteSpace(_selectedLogoSourcePath))
+            {
+                var storedPath = FileStorageService.SaveSchoolLogo(_selectedLogoSourcePath);
+                if (string.IsNullOrWhiteSpace(storedPath))
+                {
+                    throw new InvalidOperationException("The selected logo could not be copied into the app branding folder.");
+                }
+
+                return storedPath;
+            }
+
+            return existingLogoPath;
+        }
+
+        private static void DeleteSupersededLogo(string? previousLogoPath, string? currentLogoPath)
+        {
+            if (string.IsNullOrWhiteSpace(previousLogoPath))
+            {
+                return;
+            }
+
+            if (string.Equals(previousLogoPath, currentLogoPath, StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            FileStorageService.DeleteSchoolLogo(previousLogoPath);
+        }
+
+        private void RefreshLogoPreview(string? logoPath)
+        {
+            imgSchoolLogo.Source = _brandingService.LoadLogoImage(logoPath);
+            if (string.IsNullOrWhiteSpace(logoPath))
+            {
+                txtLogoStatus.Text = "Using the default bundled logo.";
+                return;
+            }
+
+            txtLogoStatus.Text = "Using a saved custom logo.";
+        }
+
     }
 }

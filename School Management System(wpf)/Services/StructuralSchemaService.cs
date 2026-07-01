@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using School_Management_System.Data;
 
@@ -101,6 +102,23 @@ CREATE TABLE IF NOT EXISTS `exception_queue_items` (
     KEY `ix_exception_queue_items_correlation` (`correlation_id`),
     KEY `ix_exception_queue_items_updated` (`updated_at`)
 );");
+
+                var hasSchoolLogoPath = db.Database
+                    .SqlQueryRaw<int>(@"
+SELECT COUNT(*)
+FROM information_schema.columns
+WHERE table_schema = DATABASE()
+  AND table_name = 'school_settings'
+  AND column_name = 'school_logo_file_key';")
+                    .AsEnumerable()
+                    .FirstOrDefault() > 0;
+
+                if (!hasSchoolLogoPath)
+                {
+                    db.Database.ExecuteSqlRaw(@"
+ALTER TABLE `school_settings`
+ADD COLUMN `school_logo_file_key` LONGTEXT NULL;");
+                }
 
                 _initialized = true;
             }

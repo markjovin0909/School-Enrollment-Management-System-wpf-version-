@@ -2,10 +2,10 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Create Teacher"
-        Width="900"
-        Height="760"
-        MinWidth="760"
-        MinHeight="660"
+        Width="840"
+        Height="720"
+        MinWidth="720"
+        MinHeight="620"
         MaxHeight="{x:Static SystemParameters.MaximizedPrimaryScreenHeight}"
         MaxWidth="{x:Static SystemParameters.MaximizedPrimaryScreenWidth}"
         WindowStartupLocation="CenterOwner"
@@ -24,6 +24,19 @@
                 <ResourceDictionary Source="/Themes/Cards.xaml"/>
                 <ResourceDictionary Source="/Themes/Dialogs.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+            <Style x:Key="CompactField" TargetType="FrameworkElement">
+                <Setter Property="HorizontalAlignment" Value="Left"/>
+                <Setter Property="Width" Value="220"/>
+            </Style>
+            <Style x:Key="NarrowField" TargetType="FrameworkElement" BasedOn="{StaticResource CompactField}">
+                <Setter Property="Width" Value="180"/>
+            </Style>
+            <Style x:Key="MediumField" TargetType="FrameworkElement" BasedOn="{StaticResource CompactField}">
+                <Setter Property="Width" Value="280"/>
+            </Style>
+            <Style x:Key="WideField" TargetType="FrameworkElement" BasedOn="{StaticResource CompactField}">
+                <Setter Property="Width" Value="360"/>
+            </Style>
         </ResourceDictionary>
     </Window.Resources>
     <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -60,7 +73,9 @@
                     <TextBlock Text="Account" Style="{StaticResource Text.CaptionStrong}" Margin="0,0,0,8"/>
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
@@ -73,15 +88,14 @@
                         </Grid.RowDefinitions>
 
                         <Label Grid.Row="0" Grid.Column="0" Content="Employee Number"/>
-                        <Label Grid.Row="0" Grid.Column="1" Content="Account ID"/>
-                        <TextBox Grid.Row="1" Grid.Column="0" x:Name="txtTeacherEmployeeNo" Margin="0,0,8,12"/>
-                        <TextBox Grid.Row="1" Grid.Column="1" x:Name="txtTeacherUsername" Margin="8,0,0,12"/>
+                        <Label Grid.Row="0" Grid.Column="2" Content="Account ID"/>
+                        <TextBox Grid.Row="1" Grid.Column="0" x:Name="txtTeacherEmployeeNo" Style="{StaticResource CompactField}"/>
+                        <TextBox Grid.Row="1" Grid.Column="2" x:Name="txtTeacherUsername" Style="{StaticResource CompactField}"/>
 
-                        <Label Grid.Row="2" Grid.ColumnSpan="2" Content="Profile Image Path"/>
-                        <TextBox Grid.Row="3" Grid.ColumnSpan="2" x:Name="txtTeacherProfileImage" Margin="0,0,0,12"/>
-
-                        <Label Grid.Row="4" Grid.ColumnSpan="2" Content="Initial Password"/>
-                        <PasswordBox Grid.Row="5" Grid.ColumnSpan="2" x:Name="txtTeacherInitialPassword"/>
+                        <Label Grid.Row="2" Grid.Column="0" Content="Profile Image Path" Margin="0,12,0,0"/>
+                        <Label Grid.Row="2" Grid.Column="2" Content="Initial Password" Margin="0,12,0,0"/>
+                        <TextBox Grid.Row="3" Grid.Column="0" x:Name="txtTeacherProfileImage" Style="{StaticResource WideField}"/>
+                        <PasswordBox Grid.Row="3" Grid.Column="2" x:Name="txtTeacherInitialPassword" Style="{StaticResource CompactField}"/>
                     </Grid>
                 </StackPanel>
             </Border>
@@ -91,7 +105,11 @@
                     <TextBlock Text="Identity" Style="{StaticResource Text.CaptionStrong}" Margin="0,0,0,8"/>
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
@@ -104,17 +122,16 @@
                         </Grid.RowDefinitions>
 
                         <Label Grid.Row="0" Grid.Column="0" Content="First Name"/>
-                        <Label Grid.Row="0" Grid.Column="1" Content="Last Name"/>
-                        <TextBox Grid.Row="1" Grid.Column="0" x:Name="txtTeacherFirst" Margin="0,0,8,12"/>
-                        <TextBox Grid.Row="1" Grid.Column="1" x:Name="txtTeacherLast" Margin="8,0,0,12"/>
+                        <Label Grid.Row="0" Grid.Column="2" Content="Middle Name"/>
+                        <Label Grid.Row="0" Grid.Column="4" Content="Last Name"/>
+                        <TextBox Grid.Row="1" Grid.Column="0" x:Name="txtTeacherFirst" Style="{StaticResource CompactField}"/>
+                        <TextBox Grid.Row="1" Grid.Column="2" x:Name="txtTeacherMiddle" Style="{StaticResource CompactField}"/>
+                        <TextBox Grid.Row="1" Grid.Column="4" x:Name="txtTeacherLast" Style="{StaticResource CompactField}"/>
 
-                        <Label Grid.Row="2" Grid.ColumnSpan="2" Content="Middle Name"/>
-                        <TextBox Grid.Row="3" Grid.ColumnSpan="2" x:Name="txtTeacherMiddle" Margin="0,0,0,12"/>
-
-                        <Label Grid.Row="4" Grid.Column="0" Content="Email"/>
-                        <Label Grid.Row="4" Grid.Column="1" Content="Contact Number"/>
-                        <TextBox Grid.Row="5" Grid.Column="0" x:Name="txtTeacherEmail" Margin="0,0,8,0"/>
-                        <TextBox Grid.Row="5" Grid.Column="1" x:Name="txtTeacherContact" Margin="8,0,0,0"/>
+                        <Label Grid.Row="2" Grid.Column="0" Content="Email" Margin="0,12,0,0"/>
+                        <Label Grid.Row="2" Grid.Column="4" Content="Contact Number" Margin="0,12,0,0"/>
+                        <TextBox Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" x:Name="txtTeacherEmail" Style="{StaticResource WideField}"/>
+                        <TextBox Grid.Row="3" Grid.Column="4" x:Name="txtTeacherContact" Style="{StaticResource NarrowField}"/>
                     </Grid>
                 </StackPanel>
             </Border>
@@ -124,7 +141,11 @@
                     <TextBlock Text="Employment and Assignment" Style="{StaticResource Text.CaptionStrong}" Margin="0,0,0,8"/>
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
@@ -136,18 +157,17 @@
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
-                        <Label Grid.Row="0" Grid.ColumnSpan="2" Content="Specialization"/>
-                        <TextBox Grid.Row="1" Grid.ColumnSpan="2" x:Name="txtTeacherSpecialization" Margin="0,0,0,12"/>
+                        <Label Grid.Row="0" Grid.Column="0" Content="Specialization"/>
+                        <Label Grid.Row="0" Grid.Column="2" Content="Advisory Status"/>
+                        <Label Grid.Row="0" Grid.Column="4" Content="Employment Status"/>
+                        <TextBox Grid.Row="1" Grid.Column="0" x:Name="txtTeacherSpecialization" Style="{StaticResource MediumField}"/>
+                        <ComboBox Grid.Row="1" Grid.Column="2" x:Name="cboTeacherAdvisoryStatus" Style="{StaticResource CompactField}"/>
+                        <ComboBox Grid.Row="1" Grid.Column="4" x:Name="cboTeacherEmploymentStatus" Style="{StaticResource NarrowField}"/>
 
-                        <Label Grid.Row="2" Grid.Column="0" Content="Advisory Status"/>
-                        <Label Grid.Row="2" Grid.Column="1" Content="Employment Status"/>
-                        <ComboBox Grid.Row="3" Grid.Column="0" x:Name="cboTeacherAdvisoryStatus" Margin="0,0,8,12"/>
-                        <ComboBox Grid.Row="3" Grid.Column="1" x:Name="cboTeacherEmploymentStatus" Margin="8,0,0,12"/>
-
-                        <Label Grid.Row="4" Grid.Column="0" Content="Hire Date"/>
-                        <Label Grid.Row="4" Grid.Column="1" Content="Status"/>
-                        <DatePicker Grid.Row="5" Grid.Column="0" x:Name="dpTeacherHireDate" Margin="0,0,8,0"/>
-                        <ComboBox Grid.Row="5" Grid.Column="1" x:Name="cboTeacherStatus" Margin="8,0,0,0"/>
+                        <Label Grid.Row="2" Grid.Column="0" Content="Hire Date" Margin="0,12,0,0"/>
+                        <Label Grid.Row="2" Grid.Column="2" Content="Status" Margin="0,12,0,0"/>
+                        <DatePicker Grid.Row="3" Grid.Column="0" x:Name="dpTeacherHireDate" Style="{StaticResource CompactField}"/>
+                        <ComboBox Grid.Row="3" Grid.Column="2" x:Name="cboTeacherStatus" Style="{StaticResource CompactField}"/>
                     </Grid>
                 </StackPanel>
             </Border>

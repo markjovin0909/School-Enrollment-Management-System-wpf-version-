@@ -11,6 +11,7 @@ namespace School_Management_System.Views
     public partial class LoginWindow : Window
     {
         private const string RememberedUsernameKey = "login.remembered.username";
+        private readonly SchoolBrandingService _brandingService = new();
 
         public LoginWindow()
         {
@@ -21,7 +22,11 @@ namespace School_Management_System.Views
             btnTestDbConnection.Click += async (_, _) => await TestConnectionAsync();
             chkShowPassword.Checked += (_, _) => TogglePasswordVisibility(true);
             chkShowPassword.Unchecked += (_, _) => TogglePasswordVisibility(false);
-            Loaded += (_, _) => LoadRememberedUsername();
+            Loaded += (_, _) =>
+            {
+                ApplyBranding();
+                LoadRememberedUsername();
+            };
         }
 
         private void TogglePasswordVisibility(bool visible)
@@ -183,6 +188,15 @@ namespace School_Management_System.Views
             }
 
             Application.Current.Properties.Remove(RememberedUsernameKey);
+        }
+
+        private void ApplyBranding()
+        {
+            var branding = _brandingService.GetCurrentBranding();
+            Title = branding.SchoolName;
+            txtSchoolTitle.Text = branding.SchoolName;
+            imgPrimaryLogo.Source = branding.LogoImage;
+            imgWatermarkLogo.Source = branding.LogoImage;
         }
 
         private void SetStatus(string? title, string? message, string? statusType = "")

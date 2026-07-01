@@ -12,6 +12,16 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Themes/LegacyAdminTheme.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+            <Style x:Key="NarrowField" TargetType="FrameworkElement">
+                <Setter Property="HorizontalAlignment" Value="Left"/>
+                <Setter Property="Width" Value="150"/>
+            </Style>
+            <Style x:Key="CompactField" TargetType="FrameworkElement" BasedOn="{StaticResource NarrowField}">
+                <Setter Property="Width" Value="220"/>
+            </Style>
+            <Style x:Key="MediumField" TargetType="FrameworkElement" BasedOn="{StaticResource NarrowField}">
+                <Setter Property="Width" Value="280"/>
+            </Style>
         </ResourceDictionary>
     </Window.Resources>
     <Grid Margin="12">
@@ -67,30 +77,54 @@
                     <controls:SectionHeader Title="School Year Details" Subtitle="Definition dates and lifecycle controls" Margin="0,0,0,8"/>
 
                     <Label Content="Name"/>
-                    <TextBox x:Name="txtName"/>
+                    <TextBox x:Name="txtName" Style="{StaticResource MediumField}"/>
 
-                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                        <CheckBox x:Name="chkStart" Content="Start Date" VerticalAlignment="Center" Width="120"/>
-                        <DatePicker x:Name="dpStart" Width="170"/>
-                    </StackPanel>
+                    <Grid Margin="0,8,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <CheckBox x:Name="chkStart" Grid.Column="0" Content="Start Date" VerticalAlignment="Center" Width="120"/>
+                        <DatePicker x:Name="dpStart" Grid.Column="2" Width="170"/>
+                    </Grid>
 
-                    <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                        <CheckBox x:Name="chkEnd" Content="End Date" VerticalAlignment="Center" Width="120"/>
-                        <DatePicker x:Name="dpEnd" Width="170"/>
-                    </StackPanel>
+                    <Grid Margin="0,6,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <CheckBox x:Name="chkEnd" Grid.Column="0" Content="End Date" VerticalAlignment="Center" Width="120"/>
+                        <DatePicker x:Name="dpEnd" Grid.Column="2" Width="170"/>
+                    </Grid>
 
-                    <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                        <CheckBox x:Name="chkEnrollOpen" Content="Enrollment Open" VerticalAlignment="Center" Width="120"/>
-                        <DatePicker x:Name="dpEnrollOpen" Width="170"/>
-                    </StackPanel>
+                    <Grid Margin="0,6,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <CheckBox x:Name="chkEnrollOpen" Grid.Column="0" Content="Enrollment Open" VerticalAlignment="Center" Width="120"/>
+                        <DatePicker x:Name="dpEnrollOpen" Grid.Column="2" Width="170"/>
+                    </Grid>
 
-                    <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                        <CheckBox x:Name="chkEnrollClose" Content="Enrollment Close" VerticalAlignment="Center" Width="120"/>
-                        <DatePicker x:Name="dpEnrollClose" Width="170"/>
-                    </StackPanel>
+                    <Grid Margin="0,6,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <CheckBox x:Name="chkEnrollClose" Grid.Column="0" Content="Enrollment Close" VerticalAlignment="Center" Width="120"/>
+                        <DatePicker x:Name="dpEnrollClose" Grid.Column="2" Width="170"/>
+                    </Grid>
 
                     <Label Content="Status" Margin="0,8,0,0"/>
-                    <ComboBox x:Name="cboStatus" Width="170"/>
+                    <ComboBox x:Name="cboStatus" Style="{StaticResource NarrowField}"/>
 
                     <WrapPanel Margin="0,12,0,0">
                         <Button x:Name="btnAdd" Content="Create" Width="90"/>

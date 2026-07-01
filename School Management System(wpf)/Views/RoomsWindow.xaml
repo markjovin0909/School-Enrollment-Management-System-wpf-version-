@@ -12,6 +12,16 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Themes/LegacyAdminTheme.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+            <Style x:Key="NarrowField" TargetType="FrameworkElement">
+                <Setter Property="HorizontalAlignment" Value="Left"/>
+                <Setter Property="Width" Value="150"/>
+            </Style>
+            <Style x:Key="CompactField" TargetType="FrameworkElement" BasedOn="{StaticResource NarrowField}">
+                <Setter Property="Width" Value="220"/>
+            </Style>
+            <Style x:Key="MediumField" TargetType="FrameworkElement" BasedOn="{StaticResource NarrowField}">
+                <Setter Property="Width" Value="280"/>
+            </Style>
         </ResourceDictionary>
     </Window.Resources>
 
@@ -69,12 +79,27 @@
                     <controls:SectionHeader Title="Room Details"
                                             Subtitle="Edit a selected room or launch a dedicated create flow"
                                             Margin="0,0,0,10"/>
-                    <Label Content="Code"/>
-                    <TextBox x:Name="txtCode"/>
-                    <Label Content="Name" Margin="0,8,0,0"/>
-                    <TextBox x:Name="txtName"/>
-                    <Label Content="Capacity" Margin="0,8,0,0"/>
-                    <TextBox x:Name="txtCapacity"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <Label Grid.Row="0" Grid.Column="0" Content="Code"/>
+                        <Label Grid.Row="0" Grid.Column="2" Content="Name"/>
+                        <Label Grid.Row="0" Grid.Column="4" Content="Capacity"/>
+                        <TextBox Grid.Row="1" Grid.Column="0" x:Name="txtCode" Style="{StaticResource NarrowField}"/>
+                        <TextBox Grid.Row="1" Grid.Column="2" x:Name="txtName" Style="{StaticResource MediumField}"/>
+                        <TextBox Grid.Row="1" Grid.Column="4" x:Name="txtCapacity" Style="{StaticResource NarrowField}"/>
+                    </Grid>
 
                     <TextBlock Text="Record State" Style="{StaticResource Text.SectionTitle}" FontSize="16" Margin="0,14,0,0"/>
                     <CheckBox x:Name="chkActive" Content="Active room" Margin="2,8,2,0"/>

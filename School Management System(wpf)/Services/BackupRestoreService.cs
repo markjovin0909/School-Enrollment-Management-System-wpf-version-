@@ -19,6 +19,7 @@ namespace School_Management_System.Services
     internal sealed class BackupRestoreService
     {
         private const int MaxHistoryEntries = 200;
+        private const string BrandingAssetsFolderName = "branding-assets";
         private readonly PermissionBoundaryService _permissionBoundary = new();
         private readonly GovernedOperationLogService _operationLogService = new();
         private readonly ExceptionQueueService _exceptionQueueService = new();
@@ -182,6 +183,11 @@ namespace School_Management_System.Services
                     TryResolveMySqlTools(request.MySqlBinFolder, out _, out _, out var mysqlToolsMessage)
                         ? PreflightCheckResult.Pass("MYSQL_TOOLING", "MySQL tools resolved.")
                         : PreflightCheckResult.Warning("MYSQL_TOOLING", mysqlToolsMessage));
+
+                compatibilityChecks.Add(() =>
+                    string.Equals(extension, ".sql", StringComparison.OrdinalIgnoreCase)
+                        ? PreflightCheckResult.Warning("RESTORE_BRANDING_ASSETS", "Plain SQL backup selected. Branding assets restore only if a companion branding-assets folder exists beside the SQL file.")
+                        : PreflightCheckResult.Pass("RESTORE_BRANDING_ASSETS", "ZIP restore artifact can carry branding assets."));
 
                 var compatibility = _preflightPipeline.Evaluate("Restore", compatibilityChecks);
                 var checks = baseChecks.Checks.Concat(compatibility.Checks).ToList();
@@ -359,6 +365,8 @@ namespace School_Management_System.Services
                     return result;
                 }
 
+                details.AppendLine(BackupBrandingAssets(sqlPath, request.ZipCompression));
+
                 progress?.Report("Finalizing backup file...");
                 if (request.ZipCompression)
                 {
@@ -371,6 +379,7 @@ namespace School_Management_System.Services
                     using (var archive = ZipFile.Open(zipPath, ZipArchiveMode.Create))
                     {
                         archive.CreateEntryFromFile(sqlPath, Path.GetFileName(sqlPath), CompressionLevel.Optimal);
+                        AddBrandingAssetsToArchive(archive);
                     }
 
                     File.Delete(sqlPath);
@@ -488,6 +497,7 @@ namespace School_Management_System.Services
             var startedAt = DateTime.UtcNow;
             string? optionFilePath = null;
             string? extractedTempDir = null;
+            string? extractedBrandingDir = null;
             string sourcePath = request?.RestoreFilePath ?? string.Empty;
 
             try
@@ -537,6 +547,7 @@ namespace School_Management_System.Services
                     sqlPath = Directory.GetFiles(extractedTempDir, "*.sql", SearchOption.AllDirectories)
                         .OrderByDescending(File.GetLastWriteTimeUtc)
                         .FirstOrDefault() ?? string.Empty;
+                    extractedBrandingDir = Path.Combine(extractedTempDir, BrandingAssetsFolderName);
 
                     if (string.IsNullOrWhiteSpace(sqlPath))
                     {
@@ -614,6 +625,8 @@ namespace School_Management_System.Services
                     result.Summary = verifyResult.Message;
                     return result;
                 }
+
+                RestoreBrandingAssets(request.RestoreFilePath, extractedBrandingDir, details);
 
                 var sourceInfo = new FileInfo(sourcePath);
                 result.Success = true;
@@ -1502,6 +1515,106 @@ namespace School_Management_System.Services
         private static string GetHistoryFilePath()
         {
             return Path.Combine(GetAppDataDirectory(), "history.json");
+        }
+
+        private static string BackupBrandingAssets(string sqlPath, bool zipCompression)
+        {
+            var sourceDir = FileStorageService.GetBrandingStorageDirectory();
+            if (!Directory.Exists(sourceDir))
+            {
+                return "Branding assets: no custom logo files found.";
+            }
+
+            var files = Directory.GetFiles(sourceDir, "*", SearchOption.TopDirectoryOnly);
+            if (files.Length == 0)
+            {
+                return "Branding assets: no custom logo files found.";
+            }
+
+            if (zipCompression)
+            {
+                return $"Branding assets: {files.Length} file(s) queued for ZIP packaging.";
+            }
+
+            var targetDir = GetCompanionBrandingAssetsDirectory(sqlPath);
+            if (Directory.Exists(targetDir))
+            {
+                Directory.Delete(targetDir, recursive: true);
+            }
+
+            Directory.CreateDirectory(targetDir);
+            foreach (var file in files)
+            {
+                File.Copy(file, Path.Combine(targetDir, Path.GetFileName(file)), true);
+            }
+
+            return $"Branding assets: copied {files.Length} file(s) to companion folder '{targetDir}'.";
+        }
+
+        private static void AddBrandingAssetsToArchive(ZipArchive archive)
+        {
+            var sourceDir = FileStorageService.GetBrandingStorageDirectory();
+            if (!Directory.Exists(sourceDir))
+            {
+                return;
+            }
+
+            foreach (var file in Directory.GetFiles(sourceDir, "*", SearchOption.TopDirectoryOnly))
+            {
+                archive.CreateEntryFromFile(
+                    file,
+                    $"{BrandingAssetsFolderName}/{Path.GetFileName(file)}",
+                    CompressionLevel.Optimal);
+            }
+        }
+
+        private static void RestoreBrandingAssets(string restoreFilePath, string? extractedBrandingDir, StringBuilder details)
+        {
+            var sourceDir = ResolveRestoreBrandingAssetsDirectory(restoreFilePath, extractedBrandingDir);
+            var targetDir = FileStorageService.GetBrandingStorageDirectory();
+            Directory.CreateDirectory(targetDir);
+
+            if (string.IsNullOrWhiteSpace(sourceDir) || !Directory.Exists(sourceDir))
+            {
+                details.AppendLine("Branding assets: none found in restore artifact. Default logo fallback remains available.");
+                return;
+            }
+
+            var assetFiles = Directory.GetFiles(sourceDir, "*", SearchOption.TopDirectoryOnly);
+            foreach (var existing in Directory.GetFiles(targetDir, "*", SearchOption.TopDirectoryOnly))
+            {
+                File.Delete(existing);
+            }
+
+            foreach (var file in assetFiles)
+            {
+                File.Copy(file, Path.Combine(targetDir, Path.GetFileName(file)), true);
+            }
+
+            details.AppendLine($"Branding assets: restored {assetFiles.Length} file(s).");
+        }
+
+        private static string? ResolveRestoreBrandingAssetsDirectory(string restoreFilePath, string? extractedBrandingDir)
+        {
+            if (!string.IsNullOrWhiteSpace(extractedBrandingDir) && Directory.Exists(extractedBrandingDir))
+            {
+                return extractedBrandingDir;
+            }
+
+            if (!string.Equals(Path.GetExtension(restoreFilePath), ".sql", StringComparison.OrdinalIgnoreCase))
+            {
+                return null;
+            }
+
+            var companionDir = GetCompanionBrandingAssetsDirectory(restoreFilePath);
+            return Directory.Exists(companionDir) ? companionDir : null;
+        }
+
+        private static string GetCompanionBrandingAssetsDirectory(string sqlPath)
+        {
+            var folder = Path.GetDirectoryName(sqlPath) ?? string.Empty;
+            var fileName = Path.GetFileNameWithoutExtension(sqlPath);
+            return Path.Combine(folder, $"{fileName}.{BrandingAssetsFolderName}");
         }
 
         private sealed class DbConnectionSettings

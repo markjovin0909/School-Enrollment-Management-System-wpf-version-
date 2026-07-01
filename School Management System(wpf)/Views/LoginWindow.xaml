@@ -24,7 +24,7 @@
             <Border Grid.RowSpan="3" CornerRadius="18" Background="{StaticResource Brush.NavSurface}"/>
 
             <Image Grid.RowSpan="3"
-                   Source="/Assets/Logo.jpg"
+                   x:Name="imgWatermarkLogo"
                    Width="360"
                    Height="360"
                    Stretch="Uniform"
@@ -49,11 +49,11 @@
                         Padding="20"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center">
-                    <Image Source="/Assets/Logo.jpg" Stretch="Uniform"/>
+                    <Image x:Name="imgPrimaryLogo" Stretch="Uniform"/>
                 </Border>
 
                 <StackPanel Grid.Row="1" HorizontalAlignment="Center" Margin="0,18,0,0">
-                    <TextBlock Text="Enrollment Management System"
+                    <TextBlock x:Name="txtSchoolTitle"
                                Style="{StaticResource Text.PageTitle}"
                                FontSize="28"
                                Foreground="White"

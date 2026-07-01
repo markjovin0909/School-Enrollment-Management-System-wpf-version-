@@ -26,6 +26,7 @@ namespace School_Management_System
         private readonly StudentService _studentService = new();
         private readonly UserService _userService = new();
         private readonly SchoolSettingService _schoolSettingService = new();
+        private readonly SchoolBrandingService _schoolBrandingService = new();
         private readonly StudentAccountService _studentAccountService = new();
         private readonly StudentRequirementService _studentRequirementService = new();
         private readonly RequirementChecklistService _requirementChecklistService = new();
@@ -40,6 +41,7 @@ namespace School_Management_System
         private readonly ArchiveRecordService _archiveRecordService = new();
         private readonly AuditLogService _auditLogService = new();
         private readonly SchoolYearService _schoolYearService = new();
+        private readonly GradingPeriodService _gradingPeriodService = new();
         private readonly GradeLevelService _gradeLevelService = new();
         private readonly SectionService _sectionService = new();
         private readonly CurriculumService _curriculumService = new();
@@ -110,6 +112,7 @@ namespace School_Management_System
 
             InitializeComponent();
 
+            ApplyBranding();
             txtCurrentUser.Text = $"User: {_currentUser.Username}";
             txtCurrentEnvironment.Text = $"Environment: {DatabaseConfig.ActiveEnvironment}";
             txtTodayInfo.Text = DateTime.Today.ToString("dddd, MMMM dd, yyyy");
@@ -130,6 +133,16 @@ namespace School_Management_System
             InitializeEnrollmentDetailsTab();
 
             LoadDashboard();
+        }
+
+        private void ApplyBranding()
+        {
+            var branding = _schoolBrandingService.GetCurrentBranding();
+            Title = branding.SchoolName;
+            txtTopBarSchoolName.Text = branding.SchoolName;
+            txtDashboardSchoolName.Text = branding.SchoolName;
+            imgTopBarLogo.Source = branding.LogoImage;
+            imgDashboardHeaderLogo.Source = branding.LogoImage;
         }
 
         private void WireNavigation()
@@ -247,6 +260,8 @@ namespace School_Management_System
                 var archives = _archiveRecordService.GetAll().ToList();
                 var userLookup = _userService.GetAll().ToDictionary(x => x.Id, x => x.Username);
                 var metrics = _operationalMetricsDashboardService.BuildSnapshot();
+                var activeSchoolYear = _schoolYearService.GetActiveSchoolYear();
+                var currentGradingPeriod = GetCurrentDashboardGradingPeriod(activeSchoolYear?.Id);
 
                 var activeStudents = _students.Count(x => x.Status == UserStatus.ACTIVE);
                 var enrolledStudents = enrollments.Count(x => x.Status == EnrollmentStatus.ENROLLED);
@@ -292,6 +307,12 @@ namespace School_Management_System
                 txtDashboardReversalMetric.Text = $"{metrics.DecisionReversals.Title}: {metrics.DecisionReversals.Value}  |  {metrics.DecisionReversals.Trend}";
                 txtDashboardWaitlistMetric.Text = $"{metrics.WaitlistPressure.Title}: {metrics.WaitlistPressure.Value}  |  {metrics.WaitlistPressure.Trend}";
                 txtDashboardCriticalOpsMetric.Text = $"{metrics.FailedCriticalOps.Title}: {metrics.FailedCriticalOps.Value}  |  {metrics.FailedCriticalOps.Trend}";
+                txtDashboardSchoolYear.Text = activeSchoolYear != null
+                    ? $"School year: {BuildSchoolYearDashboardLabel(activeSchoolYear)}"
+                    : "School year: No active school year";
+                txtDashboardCurrentGrading.Text = currentGradingPeriod != null
+                    ? $"Current grading: {BuildGradingPeriodDashboardLabel(currentGradingPeriod)}"
+                    : "Current grading: No grading period configured";
 
                 var activityTable = new DataTable();
                 activityTable.Columns.Add("Date");
@@ -315,6 +336,56 @@ namespace School_Management_System
             {
                 MessageBox.Show($"Dashboard load failed: {ex.Message}", "Dashboard", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private GradingPeriod? GetCurrentDashboardGradingPeriod(long? schoolYearId)
+        {
+            if (!schoolYearId.HasValue)
+            {
+                return null;
+            }
+
+            var today = DateTime.Today;
+            var gradingPeriods = _gradingPeriodService.GetAll()
+                .Where(x => x.SchoolYearId == schoolYearId.Value)
+                .OrderBy(x => x.StartDate ?? DateTime.MaxValue)
+                .ThenBy(x => x.EndDate ?? DateTime.MaxValue)
+                .ThenBy(x => x.Id)
+                .ToList();
+
+            return gradingPeriods
+                .Where(x => x.Status == GradingPeriodStatus.OPEN)
+                .OrderBy(x => x.StartDate ?? DateTime.MinValue)
+                .LastOrDefault()
+                ?? gradingPeriods
+                    .Where(x => x.StartDate.HasValue && x.EndDate.HasValue && x.StartDate.Value.Date <= today && x.EndDate.Value.Date >= today)
+                    .OrderBy(x => x.StartDate ?? DateTime.MinValue)
+                    .LastOrDefault()
+                ?? gradingPeriods
+                    .Where(x => x.Status == GradingPeriodStatus.UPCOMING)
+                    .OrderBy(x => x.StartDate ?? DateTime.MaxValue)
+                    .FirstOrDefault()
+                ?? gradingPeriods
+                    .OrderByDescending(x => x.EndDate ?? DateTime.MinValue)
+                    .FirstOrDefault();
+        }
+
+        private static string BuildSchoolYearDashboardLabel(SchoolYear schoolYear)
+        {
+            var dateRange = schoolYear.StartDate.HasValue && schoolYear.EndDate.HasValue
+                ? $" ({schoolYear.StartDate.Value:MMM yyyy} - {schoolYear.EndDate.Value:MMM yyyy})"
+                : string.Empty;
+
+            return $"{schoolYear.Name}{dateRange} [{schoolYear.Status}]";
+        }
+
+        private static string BuildGradingPeriodDashboardLabel(GradingPeriod gradingPeriod)
+        {
+            var dateRange = gradingPeriod.StartDate.HasValue && gradingPeriod.EndDate.HasValue
+                ? $" ({gradingPeriod.StartDate.Value:MMM dd} - {gradingPeriod.EndDate.Value:MMM dd})"
+                : string.Empty;
+
+            return $"{gradingPeriod.Name}{dateRange} [{gradingPeriod.Status}]";
         }
 
         private void WireOperationsButtons()

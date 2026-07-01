@@ -12,6 +12,16 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Themes/LegacyAdminTheme.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+            <Style x:Key="NarrowField" TargetType="FrameworkElement">
+                <Setter Property="HorizontalAlignment" Value="Left"/>
+                <Setter Property="Width" Value="150"/>
+            </Style>
+            <Style x:Key="CompactField" TargetType="FrameworkElement" BasedOn="{StaticResource NarrowField}">
+                <Setter Property="Width" Value="220"/>
+            </Style>
+            <Style x:Key="MediumField" TargetType="FrameworkElement" BasedOn="{StaticResource NarrowField}">
+                <Setter Property="Width" Value="280"/>
+            </Style>
         </ResourceDictionary>
     </Window.Resources>
     <Grid Margin="12">
@@ -59,14 +69,28 @@
                     <TextBlock Text="Select an existing checklist item to edit, or use the create flow to add a new requirement for the chosen student."
                                TextWrapping="Wrap"/>
                 </Border>
-                <Label Content="Requirement"/>
-                <ComboBox x:Name="cboRequirement" IsEditable="True"/>
-                <Label Content="Checklist Status" Margin="0,8,0,0"/>
-                <ComboBox x:Name="cboRequirementStatus"/>
-                <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                    <TextBlock Text="Submitted Date" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                    <DatePicker x:Name="dpSubmitted" Width="160"/>
-                </StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Label Grid.Row="0" Grid.Column="0" Content="Requirement"/>
+                    <Label Grid.Row="0" Grid.Column="2" Content="Checklist Status"/>
+                    <ComboBox Grid.Row="1" Grid.Column="0" x:Name="cboRequirement" IsEditable="True" Style="{StaticResource MediumField}"/>
+                    <ComboBox Grid.Row="1" Grid.Column="2" x:Name="cboRequirementStatus" Style="{StaticResource CompactField}"/>
+
+                    <Label Grid.Row="2" Grid.Column="0" Content="Submitted Date" Margin="0,12,0,0"/>
+                    <DatePicker Grid.Row="3" Grid.Column="0" x:Name="dpSubmitted" Width="160" HorizontalAlignment="Left"/>
+                </Grid>
                 <Label Content="Notes" Margin="0,8,0,0"/>
                 <TextBox x:Name="txtNotes" Height="190" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"/>
                 <WrapPanel Margin="0,10,0,0">

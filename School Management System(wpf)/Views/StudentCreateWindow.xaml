@@ -2,10 +2,10 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Create Student"
-        Width="900"
-        Height="760"
-        MinWidth="760"
-        MinHeight="660"
+        Width="840"
+        Height="720"
+        MinWidth="720"
+        MinHeight="620"
         MaxHeight="{x:Static SystemParameters.MaximizedPrimaryScreenHeight}"
         MaxWidth="{x:Static SystemParameters.MaximizedPrimaryScreenWidth}"
         WindowStartupLocation="CenterOwner"
@@ -24,6 +24,19 @@
                 <ResourceDictionary Source="/Themes/Cards.xaml"/>
                 <ResourceDictionary Source="/Themes/Dialogs.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+            <Style x:Key="CompactField" TargetType="FrameworkElement">
+                <Setter Property="HorizontalAlignment" Value="Left"/>
+                <Setter Property="Width" Value="220"/>
+            </Style>
+            <Style x:Key="NarrowField" TargetType="FrameworkElement" BasedOn="{StaticResource CompactField}">
+                <Setter Property="Width" Value="180"/>
+            </Style>
+            <Style x:Key="MediumField" TargetType="FrameworkElement" BasedOn="{StaticResource CompactField}">
+                <Setter Property="Width" Value="280"/>
+            </Style>
+            <Style x:Key="WideField" TargetType="FrameworkElement" BasedOn="{StaticResource CompactField}">
+                <Setter Property="Width" Value="360"/>
+            </Style>
         </ResourceDictionary>
     </Window.Resources>
     <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -58,7 +71,9 @@
             <Border Grid.Row="2" Style="{StaticResource DialogSection}">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
@@ -70,14 +85,13 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <Label Grid.Row="0" Grid.ColumnSpan="2" Content="Student Number"/>
-                    <TextBox Grid.Row="1" Grid.ColumnSpan="2" x:Name="txtStudentNumber" IsReadOnly="True" Margin="0,0,0,12"/>
+                    <Label Grid.Row="0" Grid.Column="0" Content="Student Number"/>
+                    <Label Grid.Row="0" Grid.Column="2" Content="LRN"/>
+                    <TextBox Grid.Row="1" Grid.Column="0" x:Name="txtStudentNumber" IsReadOnly="True" Style="{StaticResource CompactField}"/>
+                    <TextBox Grid.Row="1" Grid.Column="2" x:Name="txtStudentLrn" Style="{StaticResource MediumField}"/>
 
-                    <Label Grid.Row="2" Grid.ColumnSpan="2" Content="LRN"/>
-                    <TextBox Grid.Row="3" Grid.ColumnSpan="2" x:Name="txtStudentLrn" Margin="0,0,0,12"/>
-
-                    <Label Grid.Row="4" Grid.ColumnSpan="2" Content="Profile Image Path"/>
-                    <TextBox Grid.Row="5" Grid.ColumnSpan="2" x:Name="txtStudentProfileImage"/>
+                    <Label Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Content="Profile Image Path" Margin="0,12,0,0"/>
+                    <TextBox Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" x:Name="txtStudentProfileImage" Style="{StaticResource WideField}"/>
                 </Grid>
             </Border>
 
@@ -86,7 +100,11 @@
                     <TextBlock Text="Basic Information" Style="{StaticResource Text.CaptionStrong}" Margin="0,0,0,8"/>
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
@@ -101,20 +119,18 @@
                         </Grid.RowDefinitions>
 
                         <Label Grid.Row="0" Grid.Column="0" Content="First Name"/>
-                        <Label Grid.Row="0" Grid.Column="1" Content="Last Name"/>
-                        <TextBox Grid.Row="1" Grid.Column="0" x:Name="txtStudentFirst" Margin="0,0,8,12"/>
-                        <TextBox Grid.Row="1" Grid.Column="1" x:Name="txtStudentLast" Margin="8,0,0,12"/>
+                        <Label Grid.Row="0" Grid.Column="2" Content="Middle Name"/>
+                        <Label Grid.Row="0" Grid.Column="4" Content="Last Name"/>
+                        <TextBox Grid.Row="1" Grid.Column="0" x:Name="txtStudentFirst" Style="{StaticResource CompactField}"/>
+                        <TextBox Grid.Row="1" Grid.Column="2" x:Name="txtStudentMiddle" Style="{StaticResource CompactField}"/>
+                        <TextBox Grid.Row="1" Grid.Column="4" x:Name="txtStudentLast" Style="{StaticResource CompactField}"/>
 
-                        <Label Grid.Row="2" Grid.ColumnSpan="2" Content="Middle Name"/>
-                        <TextBox Grid.Row="3" Grid.ColumnSpan="2" x:Name="txtStudentMiddle" Margin="0,0,0,12"/>
-
-                        <Label Grid.Row="4" Grid.Column="0" Content="Birthdate"/>
-                        <Label Grid.Row="4" Grid.Column="1" Content="Sex"/>
-                        <DatePicker Grid.Row="5" Grid.Column="0" x:Name="dpStudentBirthdate" Margin="0,0,8,12"/>
-                        <ComboBox Grid.Row="5" Grid.Column="1" x:Name="cboStudentSex" Margin="8,0,0,12"/>
-
-                        <Label Grid.Row="6" Grid.ColumnSpan="2" Content="Status"/>
-                        <ComboBox Grid.Row="7" Grid.ColumnSpan="2" x:Name="cboStudentStatus"/>
+                        <Label Grid.Row="2" Grid.Column="0" Content="Birthdate" Margin="0,12,0,0"/>
+                        <Label Grid.Row="2" Grid.Column="2" Content="Sex" Margin="0,12,0,0"/>
+                        <Label Grid.Row="2" Grid.Column="4" Content="Status" Margin="0,12,0,0"/>
+                        <DatePicker Grid.Row="3" Grid.Column="0" x:Name="dpStudentBirthdate" Style="{StaticResource CompactField}"/>
+                        <ComboBox Grid.Row="3" Grid.Column="2" x:Name="cboStudentSex" Style="{StaticResource NarrowField}"/>
+                        <ComboBox Grid.Row="3" Grid.Column="4" x:Name="cboStudentStatus" Width="150" HorizontalAlignment="Left"/>
                     </Grid>
                 </StackPanel>
             </Border>
@@ -124,7 +140,11 @@
                     <TextBlock Text="Contact, Guardian, and Academic Preference" Style="{StaticResource Text.CaptionStrong}" Margin="0,0,0,8"/>
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
@@ -139,22 +159,21 @@
                         </Grid.RowDefinitions>
 
                         <Label Grid.Row="0" Grid.Column="0" Content="Address"/>
-                        <Label Grid.Row="0" Grid.Column="1" Content="Contact Number"/>
-                        <TextBox Grid.Row="1" Grid.Column="0" x:Name="txtStudentAddress" Margin="0,0,8,12"/>
-                        <TextBox Grid.Row="1" Grid.Column="1" x:Name="txtStudentContactNo" Margin="8,0,0,12"/>
+                        <Label Grid.Row="0" Grid.Column="4" Content="Contact Number"/>
+                        <TextBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" x:Name="txtStudentAddress" Style="{StaticResource WideField}"/>
+                        <TextBox Grid.Row="1" Grid.Column="4" x:Name="txtStudentContactNo" Style="{StaticResource NarrowField}"/>
 
-                        <Label Grid.Row="2" Grid.Column="0" Content="Guardian Name"/>
-                        <Label Grid.Row="2" Grid.Column="1" Content="Guardian Contact"/>
-                        <TextBox Grid.Row="3" Grid.Column="0" x:Name="txtStudentGuardianName" Margin="0,0,8,12"/>
-                        <TextBox Grid.Row="3" Grid.Column="1" x:Name="txtStudentGuardianContact" Margin="8,0,0,12"/>
+                        <Label Grid.Row="2" Grid.Column="0" Content="Guardian Name" Margin="0,12,0,0"/>
+                        <Label Grid.Row="2" Grid.Column="4" Content="Guardian Contact" Margin="0,12,0,0"/>
+                        <TextBox Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" x:Name="txtStudentGuardianName" Style="{StaticResource WideField}"/>
+                        <TextBox Grid.Row="3" Grid.Column="4" x:Name="txtStudentGuardianContact" Style="{StaticResource NarrowField}"/>
 
-                        <Label Grid.Row="4" Grid.ColumnSpan="2" Content="Previous School"/>
-                        <TextBox Grid.Row="5" Grid.ColumnSpan="2" x:Name="txtStudentPreviousSchool" Margin="0,0,0,12"/>
-
-                        <Label Grid.Row="6" Grid.Column="0" Content="Preferred Grade Level"/>
-                        <Label Grid.Row="6" Grid.Column="1" Content="Preferred Curriculum"/>
-                        <ComboBox Grid.Row="7" Grid.Column="0" x:Name="cboStudentPreferredGrade" Margin="0,0,8,0"/>
-                        <ComboBox Grid.Row="7" Grid.Column="1" x:Name="cboStudentPreferredCurriculum" Margin="8,0,0,0"/>
+                        <Label Grid.Row="4" Grid.Column="0" Content="Previous School" Margin="0,12,0,0"/>
+                        <Label Grid.Row="4" Grid.Column="2" Content="Preferred Grade Level" Margin="0,12,0,0"/>
+                        <Label Grid.Row="4" Grid.Column="4" Content="Preferred Curriculum" Margin="0,12,0,0"/>
+                        <TextBox Grid.Row="5" Grid.Column="0" x:Name="txtStudentPreviousSchool" Style="{StaticResource MediumField}"/>
+                        <ComboBox Grid.Row="5" Grid.Column="2" x:Name="cboStudentPreferredGrade" Style="{StaticResource CompactField}"/>
+                        <ComboBox Grid.Row="5" Grid.Column="4" x:Name="cboStudentPreferredCurriculum" Style="{StaticResource NarrowField}"/>
                     </Grid>
                 </StackPanel>
             </Border>

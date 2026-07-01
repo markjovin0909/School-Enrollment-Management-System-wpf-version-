@@ -10,7 +10,7 @@
         FontFamily="{DynamicResource FontFamily.Base}"
         FontSize="13"
         ResizeMode="NoResize">
-    <Window.Resources>
+        <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Themes/Colors.xaml"/>
@@ -20,6 +20,13 @@
                 <ResourceDictionary Source="/Themes/Cards.xaml"/>
                 <ResourceDictionary Source="/Themes/Dialogs.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+            <Style x:Key="NarrowField" TargetType="FrameworkElement">
+                <Setter Property="HorizontalAlignment" Value="Left"/>
+                <Setter Property="Width" Value="150"/>
+            </Style>
+            <Style x:Key="CompactField" TargetType="FrameworkElement" BasedOn="{StaticResource NarrowField}">
+                <Setter Property="Width" Value="220"/>
+            </Style>
         </ResourceDictionary>
     </Window.Resources>
 
@@ -109,7 +116,9 @@
 
                     <Grid Grid.Row="1" Margin="0,0,0,12">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
@@ -118,14 +127,16 @@
                         </Grid.RowDefinitions>
 
                         <Label Grid.Row="0" Grid.Column="0" Content="School Year"/>
-                        <Label Grid.Row="0" Grid.Column="1" Content="Curriculum"/>
-                        <ComboBox Grid.Row="1" Grid.Column="0" x:Name="cboSchoolYear" Margin="0,0,6,8"/>
-                        <ComboBox Grid.Row="1" Grid.Column="1" x:Name="cboCurriculum" Margin="6,0,0,8"/>
+                        <Label Grid.Row="0" Grid.Column="2" Content="Curriculum"/>
+                        <ComboBox Grid.Row="1" Grid.Column="0" x:Name="cboSchoolYear" Style="{StaticResource CompactField}"/>
+                        <ComboBox Grid.Row="1" Grid.Column="2" x:Name="cboCurriculum" Style="{StaticResource CompactField}"/>
                     </Grid>
 
                     <Grid Grid.Row="2" Margin="0,0,0,12">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
@@ -134,9 +145,9 @@
                         </Grid.RowDefinitions>
 
                         <Label Grid.Row="0" Grid.Column="0" Content="Grade Level"/>
-                        <Label Grid.Row="0" Grid.Column="1" Content="Section"/>
-                        <ComboBox Grid.Row="1" Grid.Column="0" x:Name="cboGradeLevel" Margin="0,0,6,0"/>
-                        <ComboBox Grid.Row="1" Grid.Column="1" x:Name="cboSection" Margin="6,0,0,0"/>
+                        <Label Grid.Row="0" Grid.Column="2" Content="Section"/>
+                        <ComboBox Grid.Row="1" Grid.Column="0" x:Name="cboGradeLevel" Style="{StaticResource CompactField}"/>
+                        <ComboBox Grid.Row="1" Grid.Column="2" x:Name="cboSection" Style="{StaticResource CompactField}"/>
                     </Grid>
 
                     <Border Grid.Row="3"

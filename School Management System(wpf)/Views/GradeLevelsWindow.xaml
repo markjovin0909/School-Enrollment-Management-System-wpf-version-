@@ -12,6 +12,16 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Themes/LegacyAdminTheme.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+            <Style x:Key="NarrowField" TargetType="FrameworkElement">
+                <Setter Property="HorizontalAlignment" Value="Left"/>
+                <Setter Property="Width" Value="150"/>
+            </Style>
+            <Style x:Key="CompactField" TargetType="FrameworkElement" BasedOn="{StaticResource NarrowField}">
+                <Setter Property="Width" Value="220"/>
+            </Style>
+            <Style x:Key="MediumField" TargetType="FrameworkElement" BasedOn="{StaticResource NarrowField}">
+                <Setter Property="Width" Value="280"/>
+            </Style>
         </ResourceDictionary>
     </Window.Resources>
     <Grid Margin="12">
@@ -65,10 +75,23 @@
             <Border Style="{StaticResource CardPanel}">
                 <StackPanel>
                     <controls:SectionHeader Title="Grade Level Details" Subtitle="Create and maintain grade code and title" Margin="0,0,0,8"/>
-                    <Label Content="Code"/>
-                    <TextBox x:Name="txtCode"/>
-                    <Label Content="Name" Margin="0,8,0,0"/>
-                    <TextBox x:Name="txtName"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <Label Grid.Row="0" Grid.Column="0" Content="Code"/>
+                        <Label Grid.Row="0" Grid.Column="2" Content="Name"/>
+                        <TextBox Grid.Row="1" Grid.Column="0" x:Name="txtCode" Style="{StaticResource NarrowField}"/>
+                        <TextBox Grid.Row="1" Grid.Column="2" x:Name="txtName" Style="{StaticResource MediumField}"/>
+                    </Grid>
 
                     <WrapPanel Margin="0,12,0,0">
                         <Button x:Name="btnAdd" Content="Create" Width="90"/>
