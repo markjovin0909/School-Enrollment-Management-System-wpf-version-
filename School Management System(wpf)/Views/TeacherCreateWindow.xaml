@@ -2,10 +2,10 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Create Teacher"
-        Width="840"
-        Height="720"
-        MinWidth="720"
-        MinHeight="620"
+        Width="860"
+        Height="740"
+        MinWidth="740"
+        MinHeight="640"
         MaxHeight="{x:Static SystemParameters.MaximizedPrimaryScreenHeight}"
         MaxWidth="{x:Static SystemParameters.MaximizedPrimaryScreenWidth}"
         WindowStartupLocation="CenterOwner"
@@ -24,19 +24,6 @@
                 <ResourceDictionary Source="/Themes/Cards.xaml"/>
                 <ResourceDictionary Source="/Themes/Dialogs.xaml"/>
             </ResourceDictionary.MergedDictionaries>
-            <Style x:Key="CompactField" TargetType="FrameworkElement">
-                <Setter Property="HorizontalAlignment" Value="Left"/>
-                <Setter Property="Width" Value="220"/>
-            </Style>
-            <Style x:Key="NarrowField" TargetType="FrameworkElement" BasedOn="{StaticResource CompactField}">
-                <Setter Property="Width" Value="180"/>
-            </Style>
-            <Style x:Key="MediumField" TargetType="FrameworkElement" BasedOn="{StaticResource CompactField}">
-                <Setter Property="Width" Value="280"/>
-            </Style>
-            <Style x:Key="WideField" TargetType="FrameworkElement" BasedOn="{StaticResource CompactField}">
-                <Setter Property="Width" Value="360"/>
-            </Style>
         </ResourceDictionary>
     </Window.Resources>
     <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -50,12 +37,22 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <Border Grid.Row="0" Style="{StaticResource DialogShell}">
-                <StackPanel>
-                    <TextBlock x:Name="txtDialogTitle" Text="Create Teacher" Style="{StaticResource DialogHeaderTitle}"/>
-                    <TextBlock x:Name="txtDialogSubtitle" Text="Create a teacher profile and linked managed account in a dedicated form, keeping creation separate from later editing."
-                               Style="{StaticResource DialogHeaderSubtitle}"/>
-                </StackPanel>
+            <Border Grid.Row="0" Style="{StaticResource DialogShell}" Margin="0,0,0,12">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Style="{StaticResource PersonAvatarRing}" Margin="0,0,14,0" Width="56" Height="56" CornerRadius="28">
+                        <TextBlock x:Name="txtDialogInitials" Text="TC" Style="{StaticResource PersonAvatarInitials}" FontSize="18"/>
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock x:Name="txtDialogTitle" Text="Create Teacher" Style="{StaticResource DialogHeaderTitle}"/>
+                        <TextBlock x:Name="txtDialogSubtitle"
+                                   Text="Enter personal and employment details. A managed account is linked automatically."
+                                   Style="{StaticResource DialogHeaderSubtitle}"/>
+                    </StackPanel>
+                </Grid>
             </Border>
 
             <Border x:Name="validationSummaryHost"
@@ -68,106 +65,127 @@
                            TextWrapping="Wrap"/>
             </Border>
 
-            <Border Grid.Row="2" Style="{StaticResource DialogSection}">
+            <!-- Account -->
+            <Border Grid.Row="2" Style="{StaticResource PersonFormSection}">
                 <StackPanel>
-                    <TextBlock Text="Account" Style="{StaticResource Text.CaptionStrong}" Margin="0,0,0,8"/>
+                    <TextBlock Text="Account" Style="{StaticResource PersonFormSectionTitle}"/>
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="16"/>
-                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="12"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-
-                        <Label Grid.Row="0" Grid.Column="0" Content="Employee Number"/>
-                        <Label Grid.Row="0" Grid.Column="2" Content="Account ID"/>
-                        <TextBox Grid.Row="1" Grid.Column="0" x:Name="txtTeacherEmployeeNo" Style="{StaticResource CompactField}"/>
-                        <TextBox Grid.Row="1" Grid.Column="2" x:Name="txtTeacherUsername" Style="{StaticResource CompactField}"/>
-
-                        <Label Grid.Row="2" Grid.Column="0" Content="Profile Image Path" Margin="0,12,0,0"/>
-                        <Label Grid.Row="2" Grid.Column="2" Content="Initial Password" Margin="0,12,0,0"/>
-                        <TextBox Grid.Row="3" Grid.Column="0" x:Name="txtTeacherProfileImage" Style="{StaticResource WideField}"/>
-                        <PasswordBox Grid.Row="3" Grid.Column="2" x:Name="txtTeacherInitialPassword" Style="{StaticResource CompactField}"/>
+                        <StackPanel Grid.Column="0" Style="{StaticResource PersonFieldGroup}">
+                            <TextBlock Text="Employee Number" Style="{StaticResource PersonFieldLabel}"/>
+                            <TextBox x:Name="txtTeacherEmployeeNo"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" Style="{StaticResource PersonFieldGroup}">
+                            <TextBlock Text="Account ID" Style="{StaticResource PersonFieldLabel}"/>
+                            <TextBox x:Name="txtTeacherUsername"/>
+                        </StackPanel>
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Profile Image Path" Style="{StaticResource PersonFieldLabel}"/>
+                            <TextBox x:Name="txtTeacherProfileImage"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Initial Password" Style="{StaticResource PersonFieldLabel}"/>
+                            <PasswordBox x:Name="txtTeacherInitialPassword"/>
+                        </StackPanel>
                     </Grid>
                 </StackPanel>
             </Border>
 
-            <Border Grid.Row="3" Style="{StaticResource DialogSection}">
+            <!-- Personal Information -->
+            <Border Grid.Row="3" Style="{StaticResource PersonFormSection}">
                 <StackPanel>
-                    <TextBlock Text="Identity" Style="{StaticResource Text.CaptionStrong}" Margin="0,0,0,8"/>
+                    <TextBlock Text="Personal Information" Style="{StaticResource PersonFormSectionTitle}"/>
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="16"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="16"/>
-                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="12"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-
-                        <Label Grid.Row="0" Grid.Column="0" Content="First Name"/>
-                        <Label Grid.Row="0" Grid.Column="2" Content="Middle Name"/>
-                        <Label Grid.Row="0" Grid.Column="4" Content="Last Name"/>
-                        <TextBox Grid.Row="1" Grid.Column="0" x:Name="txtTeacherFirst" Style="{StaticResource CompactField}"/>
-                        <TextBox Grid.Row="1" Grid.Column="2" x:Name="txtTeacherMiddle" Style="{StaticResource CompactField}"/>
-                        <TextBox Grid.Row="1" Grid.Column="4" x:Name="txtTeacherLast" Style="{StaticResource CompactField}"/>
-
-                        <Label Grid.Row="2" Grid.Column="0" Content="Email" Margin="0,12,0,0"/>
-                        <Label Grid.Row="2" Grid.Column="4" Content="Contact Number" Margin="0,12,0,0"/>
-                        <TextBox Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" x:Name="txtTeacherEmail" Style="{StaticResource WideField}"/>
-                        <TextBox Grid.Row="3" Grid.Column="4" x:Name="txtTeacherContact" Style="{StaticResource NarrowField}"/>
+                        <StackPanel Grid.Column="0" Style="{StaticResource PersonFieldGroup}">
+                            <TextBlock Text="First Name" Style="{StaticResource PersonFieldLabel}"/>
+                            <TextBox x:Name="txtTeacherFirst"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" Style="{StaticResource PersonFieldGroup}">
+                            <TextBlock Text="Middle Name" Style="{StaticResource PersonFieldLabel}"/>
+                            <TextBox x:Name="txtTeacherMiddle"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="4" Style="{StaticResource PersonFieldGroup}">
+                            <TextBlock Text="Last Name" Style="{StaticResource PersonFieldLabel}"/>
+                            <TextBox x:Name="txtTeacherLast"/>
+                        </StackPanel>
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Email" Style="{StaticResource PersonFieldLabel}"/>
+                            <TextBox x:Name="txtTeacherEmail"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Contact Number" Style="{StaticResource PersonFieldLabel}"/>
+                            <TextBox x:Name="txtTeacherContact"/>
+                        </StackPanel>
                     </Grid>
                 </StackPanel>
             </Border>
 
-            <Border Grid.Row="4" Style="{StaticResource DialogSection}">
+            <!-- Employment -->
+            <Border Grid.Row="4" Style="{StaticResource PersonFormSection}">
                 <StackPanel>
-                    <TextBlock Text="Employment and Assignment" Style="{StaticResource Text.CaptionStrong}" Margin="0,0,0,8"/>
+                    <TextBlock Text="Employment &amp; Assignment" Style="{StaticResource PersonFormSectionTitle}"/>
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="16"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="16"/>
-                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="12"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-
-                        <Label Grid.Row="0" Grid.Column="0" Content="Specialization"/>
-                        <Label Grid.Row="0" Grid.Column="2" Content="Advisory Status"/>
-                        <Label Grid.Row="0" Grid.Column="4" Content="Employment Status"/>
-                        <TextBox Grid.Row="1" Grid.Column="0" x:Name="txtTeacherSpecialization" Style="{StaticResource MediumField}"/>
-                        <ComboBox Grid.Row="1" Grid.Column="2" x:Name="cboTeacherAdvisoryStatus" Style="{StaticResource CompactField}"/>
-                        <ComboBox Grid.Row="1" Grid.Column="4" x:Name="cboTeacherEmploymentStatus" Style="{StaticResource NarrowField}"/>
-
-                        <Label Grid.Row="2" Grid.Column="0" Content="Hire Date" Margin="0,12,0,0"/>
-                        <Label Grid.Row="2" Grid.Column="2" Content="Status" Margin="0,12,0,0"/>
-                        <DatePicker Grid.Row="3" Grid.Column="0" x:Name="dpTeacherHireDate" Style="{StaticResource CompactField}"/>
-                        <ComboBox Grid.Row="3" Grid.Column="2" x:Name="cboTeacherStatus" Style="{StaticResource CompactField}"/>
+                        <StackPanel Grid.Column="0" Style="{StaticResource PersonFieldGroup}">
+                            <TextBlock Text="Specialization" Style="{StaticResource PersonFieldLabel}"/>
+                            <TextBox x:Name="txtTeacherSpecialization"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" Style="{StaticResource PersonFieldGroup}">
+                            <TextBlock Text="Advisory Status" Style="{StaticResource PersonFieldLabel}"/>
+                            <ComboBox x:Name="cboTeacherAdvisoryStatus"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="4" Style="{StaticResource PersonFieldGroup}">
+                            <TextBlock Text="Employment Status" Style="{StaticResource PersonFieldLabel}"/>
+                            <ComboBox x:Name="cboTeacherEmploymentStatus"/>
+                        </StackPanel>
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Hire Date" Style="{StaticResource PersonFieldLabel}"/>
+                            <DatePicker x:Name="dpTeacherHireDate"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Status" Style="{StaticResource PersonFieldLabel}"/>
+                            <ComboBox x:Name="cboTeacherStatus"/>
+                        </StackPanel>
                     </Grid>
                 </StackPanel>
             </Border>

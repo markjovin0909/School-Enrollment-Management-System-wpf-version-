@@ -338,6 +338,7 @@ namespace School_Management_System
             {
                 _selectedStudentId = null;
                 btnStudentArchiveRestore.Content = "Archive/Restore";
+                UpdateStudentProfileHeader(null);
                 UpdateStudentsWorkspaceInfo();
                 return;
             }
@@ -380,8 +381,33 @@ namespace School_Management_System
             cboStudentPreferredCurriculum.SelectedValue = student.PreferredCurriculumId ?? 0L;
             cboStudentStatus.SelectedItem = student.Status;
             btnStudentArchiveRestore.Content = student.Status == UserStatus.INACTIVE ? "Restore" : "Archive";
+            UpdateStudentProfileHeader(student);
             _suppressStudentEvents = false;
             UpdateStudentsWorkspaceInfo();
+        }
+
+        private void UpdateStudentProfileHeader(Student? student)
+        {
+            if (student == null)
+            {
+                txtStudentProfileInitials.Text = "ST";
+                txtStudentProfileName.Text = "Select a student";
+                txtStudentProfileMeta.Text = "Choose a row to view personal information";
+                return;
+            }
+
+            var fullName = $"{student.LastName}, {student.FirstName}{(string.IsNullOrWhiteSpace(student.MiddleName) ? "" : $" {student.MiddleName}")}";
+            txtStudentProfileInitials.Text = BuildPersonInitials(student.FirstName, student.LastName);
+            txtStudentProfileName.Text = fullName;
+            txtStudentProfileMeta.Text = $"Student No: {student.StudentNumber}  ·  LRN: {student.Lrn}";
+        }
+
+        private static string BuildPersonInitials(string? firstName, string? lastName)
+        {
+            var first = string.IsNullOrWhiteSpace(firstName) ? string.Empty : firstName.Trim()[0].ToString().ToUpperInvariant();
+            var last = string.IsNullOrWhiteSpace(lastName) ? string.Empty : lastName.Trim()[0].ToString().ToUpperInvariant();
+            var initials = $"{first}{last}";
+            return string.IsNullOrWhiteSpace(initials) ? "??" : initials;
         }
 
         private void ArchiveOrRestoreStudent()
@@ -575,6 +601,7 @@ namespace School_Management_System
             cboStudentStatus.SelectedItem = UserStatus.ACTIVE;
             gridStudents.SelectedItem = null;
             btnStudentArchiveRestore.Content = "Archive/Restore";
+            UpdateStudentProfileHeader(null);
             UpdateStudentsWorkspaceInfo();
         }
 

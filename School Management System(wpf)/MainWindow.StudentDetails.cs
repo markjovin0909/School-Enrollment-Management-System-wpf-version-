@@ -77,6 +77,9 @@ namespace School_Management_System
             var fullName = $"{_studentDetailRecord.LastName}, {_studentDetailRecord.FirstName}{(string.IsNullOrWhiteSpace(_studentDetailRecord.MiddleName) ? "" : $" {_studentDetailRecord.MiddleName}")}";
             sectionStudentDetailHeader.Title = fullName;
             sectionStudentDetailHeader.Subtitle = $"LRN: {_studentDetailRecord.Lrn}  |  Student No: {_studentDetailRecord.StudentNumber}";
+            txtSDProfileInitials.Text = BuildPersonInitials(_studentDetailRecord.FirstName, _studentDetailRecord.LastName);
+            txtSDProfileName.Text = fullName;
+            txtSDProfileMeta.Text = $"Student No: {_studentDetailRecord.StudentNumber}  ·  LRN: {_studentDetailRecord.Lrn}";
 
             SetStudentDetailFieldsEditable(false);
             studentDetailEditBanner.Visibility = Visibility.Collapsed;
@@ -173,10 +176,12 @@ namespace School_Management_System
                 }).ToList();
 
                 gridSDGrades.ItemsSource = gradeRows;
+                emptySDGrades.Visibility = gradeRows.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
             }
             catch (Exception ex)
             {
                 gridSDGrades.ItemsSource = null;
+                emptySDGrades.Visibility = Visibility.Visible;
                 System.Diagnostics.Debug.WriteLine($"Load grades failed: {ex.Message}");
             }
         }
@@ -237,10 +242,12 @@ namespace School_Management_System
                 }).ToList();
 
                 gridSDSubjects.ItemsSource = subjectRows;
+                emptySDSubjects.Visibility = subjectRows.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
             }
             catch (Exception ex)
             {
                 gridSDSubjects.ItemsSource = null;
+                emptySDSubjects.Visibility = Visibility.Visible;
                 System.Diagnostics.Debug.WriteLine($"Load subjects failed: {ex.Message}");
             }
         }

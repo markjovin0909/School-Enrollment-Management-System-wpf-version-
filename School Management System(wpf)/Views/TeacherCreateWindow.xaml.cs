@@ -91,7 +91,8 @@ namespace School_Management_System.Views
         {
             Title = "Create Teacher";
             txtDialogTitle.Text = "Create Teacher";
-            txtDialogSubtitle.Text = "Create a teacher profile and linked managed account in a dedicated form, keeping creation separate from later editing.";
+            txtDialogSubtitle.Text = "Enter personal and employment details. A managed account is linked automatically.";
+            txtDialogInitials.Text = "TC";
             btnCreate.Content = "Create Teacher";
             btnClear.Visibility = Visibility.Visible;
             txtTeacherInitialPassword.Visibility = Visibility.Visible;
@@ -102,7 +103,7 @@ namespace School_Management_System.Views
         {
             Title = "Edit Teacher";
             txtDialogTitle.Text = "Edit Teacher";
-            txtDialogSubtitle.Text = "Update the teacher profile in one modal flow and keep the linked account synchronized in the same save path.";
+            txtDialogSubtitle.Text = "Update personal information and keep the linked account synchronized.";
             btnCreate.Content = "Save Changes";
             btnClear.Visibility = Visibility.Collapsed;
             txtTeacherInitialPassword.Visibility = Visibility.Collapsed;
@@ -414,6 +415,17 @@ namespace School_Management_System.Views
             var user = _userService.GetById(teacher.UserId);
             txtTeacherUsername.Text = user?.Username ?? string.Empty;
             txtTeacherInitialPassword.Password = string.Empty;
+            txtDialogInitials.Text = BuildInitials(teacher.FirstName, teacher.LastName);
+            txtDialogTitle.Text = $"{teacher.LastName}, {teacher.FirstName}";
+            txtDialogSubtitle.Text = $"Employee No: {teacher.EmployeeNo ?? "N/A"}  ·  Edit personal information";
+        }
+
+        private static string BuildInitials(string? firstName, string? lastName)
+        {
+            var first = string.IsNullOrWhiteSpace(firstName) ? string.Empty : firstName.Trim()[0].ToString().ToUpperInvariant();
+            var last = string.IsNullOrWhiteSpace(lastName) ? string.Empty : lastName.Trim()[0].ToString().ToUpperInvariant();
+            var initials = $"{first}{last}";
+            return string.IsNullOrWhiteSpace(initials) ? "??" : initials;
         }
 
         private void ResetEditor()

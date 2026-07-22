@@ -112,7 +112,8 @@ namespace School_Management_System.Views
         {
             Title = "Create Student";
             txtDialogTitle.Text = "Create Student";
-            txtDialogSubtitle.Text = "Create a new student record in a dedicated form, then let the managed account be generated automatically in the background.";
+            txtDialogSubtitle.Text = "Enter personal information. A managed account is created automatically.";
+            txtDialogInitials.Text = "ST";
             btnCreate.Content = "Create Student";
             btnClear.Visibility = Visibility.Visible;
             ResetEditor();
@@ -122,7 +123,7 @@ namespace School_Management_System.Views
         {
             Title = "Edit Student";
             txtDialogTitle.Text = "Edit Student";
-            txtDialogSubtitle.Text = "Update the student record in one modal flow and keep the linked account synchronized after save.";
+            txtDialogSubtitle.Text = "Update personal information and keep the linked account synchronized.";
             btnCreate.Content = "Save Changes";
             btnClear.Visibility = Visibility.Collapsed;
             LoadStudentForEdit();
@@ -416,9 +417,20 @@ namespace School_Management_System.Views
             txtStudentGuardianName.Text = student.GuardianName ?? string.Empty;
             txtStudentGuardianContact.Text = student.GuardianContact ?? string.Empty;
             txtStudentPreviousSchool.Text = student.PreviousSchool ?? string.Empty;
+            txtDialogInitials.Text = BuildInitials(student.FirstName, student.LastName);
+            txtDialogTitle.Text = $"{student.LastName}, {student.FirstName}";
+            txtDialogSubtitle.Text = $"Student No: {student.StudentNumber}  ·  LRN: {student.Lrn}";
             cboStudentPreferredGrade.SelectedValue = student.PreferredGradeLevelId ?? 0L;
             cboStudentPreferredCurriculum.SelectedValue = student.PreferredCurriculumId ?? 0L;
             cboStudentStatus.SelectedItem = student.Status;
+        }
+
+        private static string BuildInitials(string? firstName, string? lastName)
+        {
+            var first = string.IsNullOrWhiteSpace(firstName) ? string.Empty : firstName.Trim()[0].ToString().ToUpperInvariant();
+            var last = string.IsNullOrWhiteSpace(lastName) ? string.Empty : lastName.Trim()[0].ToString().ToUpperInvariant();
+            var initials = $"{first}{last}";
+            return string.IsNullOrWhiteSpace(initials) ? "??" : initials;
         }
 
         private void ResetEditor()

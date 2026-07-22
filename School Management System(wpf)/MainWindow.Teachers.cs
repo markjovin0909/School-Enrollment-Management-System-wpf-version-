@@ -270,6 +270,7 @@ namespace School_Management_System
             {
                 _selectedTeacherId = null;
                 btnTeacherArchiveRestore.Content = "Archive/Restore";
+                UpdateTeacherProfileHeader(null);
                 UpdateTeachersWorkspaceInfo();
                 return;
             }
@@ -303,8 +304,27 @@ namespace School_Management_System
             dpTeacherHireDate.SelectedDate = teacher.HireDate?.Date;
             cboTeacherStatus.SelectedItem = teacher.Status;
             btnTeacherArchiveRestore.Content = teacher.Status == UserStatus.INACTIVE ? "Restore" : "Archive";
+            UpdateTeacherProfileHeader(teacher);
             _suppressTeacherEvents = false;
             UpdateTeachersWorkspaceInfo();
+        }
+
+        private void UpdateTeacherProfileHeader(Teacher? teacher)
+        {
+            if (teacher == null)
+            {
+                txtTeacherProfileInitials.Text = "TC";
+                txtTeacherProfileName.Text = "Select a teacher";
+                txtTeacherProfileMeta.Text = "Choose a row to view personal information";
+                return;
+            }
+
+            var fullName = $"{teacher.LastName}, {teacher.FirstName}{(string.IsNullOrWhiteSpace(teacher.MiddleName) ? "" : $" {teacher.MiddleName}")}";
+            txtTeacherProfileInitials.Text = BuildPersonInitials(teacher.FirstName, teacher.LastName);
+            txtTeacherProfileName.Text = fullName;
+            var employee = string.IsNullOrWhiteSpace(teacher.EmployeeNo) ? "N/A" : teacher.EmployeeNo;
+            var specialization = string.IsNullOrWhiteSpace(teacher.Specialization) ? "No specialization" : teacher.Specialization;
+            txtTeacherProfileMeta.Text = $"Employee No: {employee}  ·  {specialization}";
         }
 
         private void ArchiveOrRestoreTeacher()
@@ -452,6 +472,7 @@ namespace School_Management_System
             txtTeacherInitialPassword.Password = "ChangeMe123!";
             gridTeachers.SelectedItem = null;
             btnTeacherArchiveRestore.Content = "Archive/Restore";
+            UpdateTeacherProfileHeader(null);
             _suppressTeacherEvents = false;
             _lastAutoTeacherUsername = string.Empty;
             UpdateTeachersWorkspaceInfo();

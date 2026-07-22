@@ -71,6 +71,9 @@ namespace School_Management_System
             var fullName = $"{_teacherDetailRecord.LastName}, {_teacherDetailRecord.FirstName}{(string.IsNullOrWhiteSpace(_teacherDetailRecord.MiddleName) ? "" : $" {_teacherDetailRecord.MiddleName}")}";
             sectionTDHeader.Title = fullName;
             sectionTDHeader.Subtitle = $"Employee No: {_teacherDetailRecord.EmployeeNo ?? "N/A"}  |  {_teacherDetailRecord.Specialization ?? "No specialization"}";
+            txtTDProfileInitials.Text = BuildPersonInitials(_teacherDetailRecord.FirstName, _teacherDetailRecord.LastName);
+            txtTDProfileName.Text = fullName;
+            txtTDProfileMeta.Text = sectionTDHeader.Subtitle;
 
             SetTeacherDetailFieldsEditable(false);
             tdEditBanner.Visibility = Visibility.Collapsed;
