@@ -28,7 +28,7 @@
 
         <controls:SectionHeader Grid.Row="0" Grid.ColumnSpan="2"
                                 Title="Archive Center"
-                                Subtitle="Inspect archived records, review restore impact, and recover safe entities"
+                                Subtitle="Archived records"
                                 Margin="0,0,0,10"/>
 
         <Border Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource CardPanel}" Margin="0,0,0,8" Padding="10">
@@ -66,7 +66,7 @@
         <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource CardPanel}" Margin="8,0,0,0">
             <StackPanel>
                 <controls:SectionHeader Title="Restore Details"
-                                        Subtitle="Selected archive record and restore readiness"
+                                        Subtitle=""
                                         Margin="0,0,0,8"/>
                 <Border Style="{StaticResource WarningBanner}" Margin="0,0,0,12">
                     <TextBlock Text="Always review restore impact before recovering records with dependencies."

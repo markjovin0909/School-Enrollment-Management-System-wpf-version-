@@ -37,7 +37,7 @@
 
         <controls:SectionHeader Grid.Row="0" Grid.ColumnSpan="2"
                                 Title="Grade Levels"
-                                Subtitle="Manage grade level master records for enrollment and reporting"
+                                Subtitle="Grade codes and titles"
                                 Margin="0,0,0,10"/>
 
         <Border x:Name="searchPanel" Grid.Row="1" Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,8,8" Padding="10">
@@ -74,7 +74,7 @@
         <ScrollViewer x:Name="editorPanel" Grid.Row="1" Grid.RowSpan="2" Grid.Column="1" Margin="8,0,0,0" VerticalScrollBarVisibility="Auto">
             <Border Style="{StaticResource CardPanel}">
                 <StackPanel>
-                    <controls:SectionHeader Title="Grade Level Details" Subtitle="Create and maintain grade code and title" Margin="0,0,0,8"/>
+                    <controls:SectionHeader Title="Grade Level Details" Subtitle="" Margin="0,0,0,8"/>
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>

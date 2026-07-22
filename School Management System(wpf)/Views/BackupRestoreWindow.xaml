@@ -27,7 +27,7 @@
 
         <controls:SectionHeader Grid.Row="0" Grid.ColumnSpan="2"
                                 Title="Backup and Restore"
-                                Subtitle="Manage backup destinations, execute backup/restore, and review operation history"
+                                Subtitle="Backup and restore"
                                 Margin="0,0,0,10"/>
 
         <Border Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource CardPanel}" Margin="0,0,0,10">
@@ -75,7 +75,7 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
-                        <controls:SectionHeader Grid.Row="0" Title="Backup Controls" Subtitle="Protect the current database state and store recoverable snapshots" Margin="0,0,0,8"/>
+                        <controls:SectionHeader Grid.Row="0" Title="Backup Controls" Subtitle="" Margin="0,0,0,8"/>
                         <WrapPanel Grid.Row="1" Margin="0,0,0,8">
                             <Button x:Name="btnBackupNow" Content="Backup Now" Width="120"/>
                             <Button x:Name="btnOpenBackupFolder" Content="Open Backup Folder" Width="150" Style="{StaticResource GhostButton}"/>
@@ -115,7 +115,7 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <controls:SectionHeader Grid.Row="0" Title="Restore Controls" Subtitle="High-risk recovery flow with preflight and typed confirmation" Margin="0,0,0,8"/>
+                    <controls:SectionHeader Grid.Row="0" Title="Restore Controls" Subtitle="" Margin="0,0,0,8"/>
                     <Border Grid.Row="1" Style="{StaticResource WarningBanner}" Margin="0,0,0,10">
                         <TextBlock Text="Restore overwrites target database data. Only proceed after validating the backup source and confirming downtime impact."
                                    TextWrapping="Wrap"/>

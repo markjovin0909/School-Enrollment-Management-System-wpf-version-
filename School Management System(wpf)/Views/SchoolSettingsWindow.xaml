@@ -23,7 +23,7 @@
 
         <controls:SectionHeader Grid.Row="0"
                                 Title="School Settings"
-                                Subtitle="Configure institutional defaults, enrollment windows, and numbering policy"
+                                Subtitle="School identity and defaults"
                                 Margin="0,0,0,10"/>
 
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
@@ -40,7 +40,7 @@
                 <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,8,8">
                     <StackPanel>
                         <controls:SectionHeader Title="School Profile"
-                                                Subtitle="Institution identity and printed header information"
+                                                Subtitle=""
                                                 Margin="0,0,0,10"/>
 
                         <Grid Margin="0,0,0,12">
@@ -118,7 +118,7 @@
                 <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource CardPanel}" Margin="8,0,0,8">
                     <StackPanel>
                         <controls:SectionHeader Title="Enrollment Defaults"
-                                                Subtitle="Calendar controls and workflow guidance"
+                                                Subtitle=""
                                                 Margin="0,0,0,10"/>
 
                         <Label Content="Enrollment Configuration"/>
@@ -165,7 +165,7 @@
 
                         <StackPanel Grid.Column="0" Margin="0,0,10,0">
                             <controls:SectionHeader Title="Student Numbering"
-                                                    Subtitle="Prefix and running-number settings"
+                                                    Subtitle=""
                                                     Margin="0,0,0,10"/>
                             <Label Content="Student Number Prefix"/>
                             <TextBox x:Name="txtStudentPrefix" MaxWidth="220" HorizontalAlignment="Left"/>
@@ -175,7 +175,7 @@
 
                         <StackPanel Grid.Column="1" Margin="10,0">
                             <controls:SectionHeader Title="Section Defaults"
-                                                    Subtitle="Default capacity for newly created sections"
+                                                    Subtitle=""
                                                     Margin="0,0,0,10"/>
                             <Label Content="Default Section Capacity"/>
                             <TextBox x:Name="txtDefaultCapacity" MaxWidth="220" HorizontalAlignment="Left"/>
@@ -183,7 +183,7 @@
 
                         <StackPanel Grid.Column="2" Margin="10,0,0,0">
                             <controls:SectionHeader Title="Default Grade Scope"
-                                                    Subtitle="Comma-separated grade codes, names, or numeric IDs"
+                                                    Subtitle="e.g. G7, G8, G9"
                                                     Margin="0,0,0,10"/>
                             <Label Content="Default Grade Levels"/>
                             <TextBox x:Name="txtDefaultGradeLevels"

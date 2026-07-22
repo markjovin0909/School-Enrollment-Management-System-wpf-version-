@@ -27,7 +27,7 @@
 
         <controls:SectionHeader Grid.Row="0" Grid.ColumnSpan="2"
                                 Title="Year-End Rollover"
-                                Subtitle="Preview and execute school-year data rollover with safety options"
+                                Subtitle="Year-end data rollover"
                                 Margin="0,0,0,10"/>
 
         <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,10,10">
@@ -78,7 +78,7 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <controls:SectionHeader Grid.Row="0" Title="Preview and Result Log" Subtitle="Review projected promotions, skips, and execution output" Margin="0,0,0,8"/>
+                <controls:SectionHeader Grid.Row="0" Title="Preview and Result Log" Subtitle="" Margin="0,0,0,8"/>
                 <Border Grid.Row="1" Style="{StaticResource InfoBanner}" Margin="0,0,0,10">
                     <TextBlock Text="Preview first, review blockers, then execute only after typed confirmation passes."
                                TextWrapping="Wrap"/>

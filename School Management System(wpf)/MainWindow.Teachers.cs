@@ -491,18 +491,18 @@ namespace School_Management_System
             var visible = _teachersTable?.Rows?.Count ?? 0;
             if (!_selectedTeacherId.HasValue)
             {
-                txtTeachersWorkspaceInfo.Text = $"Showing {visible} of {total} teacher records. Use specialization and employment filters to narrow the browse table, then select a row to review details or launch the edit modal.";
+                txtTeachersWorkspaceInfo.Text = $"{visible} of {total}";
                 return;
             }
 
             var selected = _teachers.FirstOrDefault(x => x.Id == _selectedTeacherId.Value);
             if (selected == null)
             {
-                txtTeachersWorkspaceInfo.Text = $"Showing {visible} of {total} teacher records.";
+                txtTeachersWorkspaceInfo.Text = $"{visible} of {total}";
                 return;
             }
 
-            txtTeachersWorkspaceInfo.Text = $"Showing {visible} of {total}. Selected: {selected.LastName}, {selected.FirstName} ({selected.EmployeeNo})";
+            txtTeachersWorkspaceInfo.Text = $"{visible} of {total} · {selected.LastName}, {selected.FirstName}";
         }
     }
 }

@@ -38,7 +38,7 @@
 
         <controls:SectionHeader Grid.Row="0" Grid.ColumnSpan="2"
                                 Title="Curriculum"
-                                Subtitle="Manage curriculum master records and subject-to-grade mappings"
+                                Subtitle="Curricula and subject maps"
                                 Margin="0,0,0,10"/>
 
         <Border x:Name="searchPanel" Grid.Row="1" Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,8,8" Padding="10">
@@ -74,7 +74,7 @@
 
         <Border x:Name="editorPanel" Grid.Row="1" Grid.Column="1" Style="{StaticResource CardPanel}" Margin="8,0,0,8">
             <StackPanel>
-                <controls:SectionHeader Title="Curriculum Details" Subtitle="Master record management" Margin="0,0,0,8"/>
+                <controls:SectionHeader Title="Curriculum Details" Subtitle="" Margin="0,0,0,8"/>
                 <Label Content="Name"/>
                 <TextBox x:Name="txtName" Style="{StaticResource MediumField}"/>
                 <Label Content="Description" Margin="0,8,0,0"/>
@@ -104,7 +104,7 @@
 
                 <controls:SectionHeader Grid.Row="0" Grid.ColumnSpan="3"
                                         Title="Subject Mapping"
-                                        Subtitle="Review the selected mapping here, then use dedicated modals for add and edit."
+                                        Subtitle=""
                                         Margin="0,0,0,10"/>
 
                 <ComboBox Grid.Row="1" Grid.Column="0" x:Name="cboMapGrade" Margin="0,0,8,8" DisplayMemberPath="Code" SelectedValuePath="Id" IsEnabled="False"/>

@@ -37,7 +37,7 @@
 
         <controls:SectionHeader Grid.Row="0" Grid.ColumnSpan="2"
                                 Title="Schedules"
-                                Subtitle="Assign offering, room, and timeslot details per teaching day"
+                                Subtitle="Class schedules"
                                 Margin="0,0,0,10"/>
 
         <Border x:Name="searchPanel" Grid.Row="1" Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,8,8" Padding="10">
@@ -84,7 +84,7 @@
         <ScrollViewer x:Name="editorPanel" Grid.Row="1" Grid.RowSpan="2" Grid.Column="1" Margin="8,0,0,0" VerticalScrollBarVisibility="Auto">
             <Border Style="{StaticResource CardPanel}">
                 <StackPanel>
-                    <controls:SectionHeader Title="Schedule Details" Subtitle="Control schedule assignment and export workflow" Margin="0,0,0,8"/>
+                    <controls:SectionHeader Title="Schedule Details" Subtitle="" Margin="0,0,0,8"/>
                     <Border x:Name="scheduleWarningPanel" Style="{StaticResource WarningBanner}" Margin="0,0,0,12" Visibility="Collapsed">
                         <TextBlock x:Name="txtScheduleWarnings" TextWrapping="Wrap"/>
                     </Border>

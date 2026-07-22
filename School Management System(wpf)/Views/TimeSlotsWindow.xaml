@@ -34,7 +34,7 @@
 
         <controls:SectionHeader Grid.Row="0" Grid.ColumnSpan="2"
                                 Title="Time Slots"
-                                Subtitle="Define bell periods, intervals, and schedule ordering"
+                                Subtitle="Bell periods and order"
                                 Margin="0,0,0,10"/>
 
         <Border x:Name="searchPanel" Grid.Row="1" Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,8,8" Padding="10">
@@ -71,7 +71,7 @@
         <ScrollViewer x:Name="editorPanel" Grid.Row="1" Grid.RowSpan="2" Grid.Column="1" Margin="8,0,0,0" VerticalScrollBarVisibility="Auto">
             <Border Style="{StaticResource CardPanel}">
                 <StackPanel>
-                    <controls:SectionHeader Title="Time Slot Details" Subtitle="Start/end windows, ordering, and period flags" Margin="0,0,0,8"/>
+                    <controls:SectionHeader Title="Time Slot Details" Subtitle="" Margin="0,0,0,8"/>
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>

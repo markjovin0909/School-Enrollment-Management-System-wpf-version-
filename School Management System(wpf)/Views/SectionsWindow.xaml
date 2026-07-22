@@ -37,7 +37,7 @@
 
         <controls:SectionHeader Grid.Row="0" Grid.ColumnSpan="2"
                                 Title="Sections"
-                                Subtitle="Manage section grouping, adviser assignment, and capacity"
+                                Subtitle="Sections and capacity"
                                 Margin="0,0,0,10"/>
 
         <Border x:Name="searchPanel" Grid.Row="1" Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,8,8" Padding="10">

@@ -37,7 +37,7 @@
 
         <controls:SectionHeader Grid.Row="0" Grid.ColumnSpan="2"
                                 Title="School Years"
-                                Subtitle="Configure school-year windows, status, and enrollment opening dates"
+                                Subtitle="Years, status, and enrollment dates"
                                 Margin="0,0,0,10"/>
 
         <Border x:Name="searchPanel" Grid.Row="1" Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,8,8" Padding="10">
@@ -74,7 +74,7 @@
         <ScrollViewer x:Name="editorPanel" Grid.Row="1" Grid.RowSpan="2" Grid.Column="1" Margin="8,0,0,0" VerticalScrollBarVisibility="Auto">
             <Border Style="{StaticResource CardPanel}">
                 <StackPanel>
-                    <controls:SectionHeader Title="School Year Details" Subtitle="Definition dates and lifecycle controls" Margin="0,0,0,8"/>
+                    <controls:SectionHeader Title="School Year Details" Subtitle="" Margin="0,0,0,8"/>
 
                     <Label Content="Name"/>
                     <TextBox x:Name="txtName" Style="{StaticResource MediumField}"/>

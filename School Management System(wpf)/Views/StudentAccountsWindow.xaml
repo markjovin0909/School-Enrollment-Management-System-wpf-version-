@@ -28,7 +28,7 @@
 
         <controls:SectionHeader Grid.Row="0" Grid.ColumnSpan="2"
                                 Title="Student Accounts"
-                                Subtitle="Account synchronization, lifecycle actions, and history review"
+                                Subtitle="Student accounts"
                                 Margin="0,0,0,10"/>
 
         <Border Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource CardPanel}" Margin="0,0,0,8" Padding="10">
@@ -71,7 +71,7 @@
         <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource CardPanel}" Margin="8,0,0,0">
             <StackPanel>
                 <controls:SectionHeader Title="Account Details"
-                                        Subtitle="Selected account state, login posture, and recovery context"
+                                        Subtitle=""
                                         Margin="0,0,0,8"/>
                 <Border Style="{StaticResource InfoBanner}" Margin="0,0,0,12">
                     <TextBlock x:Name="txtHint"

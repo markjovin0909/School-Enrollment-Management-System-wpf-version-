@@ -25,7 +25,7 @@
         <DockPanel Grid.Row="0" Margin="0,0,0,10">
             <Button x:Name="btnClose" Content="Close" Width="80" Style="{StaticResource CancelActionButton}" DockPanel.Dock="Right"/>
             <controls:SectionHeader Title="Subject Enrollees"
-                                    Subtitle="View students enrolled in a selected subject offering"/>
+                                    Subtitle="Subject enrollees"/>
         </DockPanel>
 
         <Border Grid.Row="1" Style="{StaticResource CardPanel}" Margin="0,0,0,8" Padding="10">

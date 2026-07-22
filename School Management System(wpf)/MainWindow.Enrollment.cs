@@ -565,57 +565,11 @@ namespace School_Management_System
                 }
             }
 
-            var queueSummary =
-                $"School Year: {schoolYear?.Name ?? "-"} | Not Enrolled: {total} | Ready: {ready} | Pending Requirements: {pendingRequirements}";
-            var settingsSuffix = BuildEnrollmentSettingsSuffix(schoolYear);
-            txtEnrollmentQueueInfo.Text = string.IsNullOrWhiteSpace(settingsSuffix)
-                ? queueSummary
-                : $"{queueSummary} | {settingsSuffix}";
+            // Keep the queue summary short and actionable.
+            txtEnrollmentQueueInfo.Text = $"{schoolYear?.Name ?? "No year"} · {total} waiting · {ready} ready · {pendingRequirements} pending docs";
             txtEnrollTopEnrolled.Text = schoolYear == null
                 ? "0"
                 : _cachedEnrollments.Count(x => x.SchoolYearId == schoolYear.Id && x.Status == EnrollmentStatus.ENROLLED).ToString();
-        }
-
-        private string BuildEnrollmentSettingsSuffix(SchoolYear? schoolYear)
-        {
-            try
-            {
-                var setting = _schoolSettingService.GetLatest();
-                var guidance = _schoolSettingService.GetEnrollmentConfiguration();
-                var openDate = schoolYear?.EnrollmentOpenDate?.Date ?? setting?.EnrollmentOpenDate?.Date;
-                var closeDate = schoolYear?.EnrollmentCloseDate?.Date ?? setting?.EnrollmentCloseDate?.Date;
-
-                var parts = new List<string>();
-                if (!string.IsNullOrWhiteSpace(guidance))
-                {
-                    parts.Add(guidance);
-                }
-
-                if (openDate.HasValue || closeDate.HasValue)
-                {
-                    var source = schoolYear?.EnrollmentOpenDate.HasValue == true || schoolYear?.EnrollmentCloseDate.HasValue == true
-                        ? "school year"
-                        : "system settings";
-                    if (openDate.HasValue && closeDate.HasValue)
-                    {
-                        parts.Add($"Window ({source}): {openDate.Value:yyyy-MM-dd} to {closeDate.Value:yyyy-MM-dd}");
-                    }
-                    else if (openDate.HasValue)
-                    {
-                        parts.Add($"Opens ({source}): {openDate.Value:yyyy-MM-dd}");
-                    }
-                    else
-                    {
-                        parts.Add($"Closes ({source}): {closeDate!.Value:yyyy-MM-dd}");
-                    }
-                }
-
-                return string.Join(" | ", parts);
-            }
-            catch
-            {
-                return string.Empty;
-            }
         }
 
         private void UpdateEnrollmentReviewContext(Enrollment? enrollment)

@@ -38,7 +38,7 @@
 
         <controls:SectionHeader Grid.Row="0" Grid.ColumnSpan="2"
                                 Title="Rooms"
-                                Subtitle="Manage classroom records, capacity, and operational availability"
+                                Subtitle="Rooms and capacity"
                                 Margin="0,0,0,10"/>
 
         <Border x:Name="searchPanel" Grid.Row="1" Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,8,8" Padding="10">
@@ -77,7 +77,7 @@
             <Border Style="{StaticResource CardPanel}">
                 <StackPanel>
                     <controls:SectionHeader Title="Room Details"
-                                            Subtitle="Edit a selected room or launch a dedicated create flow"
+                                            Subtitle=""
                                             Margin="0,0,0,10"/>
                     <Grid>
                         <Grid.ColumnDefinitions>

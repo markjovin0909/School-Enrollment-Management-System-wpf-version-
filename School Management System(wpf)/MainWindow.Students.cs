@@ -617,18 +617,18 @@ namespace School_Management_System
             var visible = _studentsTable?.Rows?.Count ?? 0;
             if (!_selectedStudentId.HasValue)
             {
-                txtStudentsWorkspaceInfo.Text = $"Showing {visible} of {total} student records. Use grade and status filters to narrow the browse table, then select a row to review details or launch the edit modal.";
+                txtStudentsWorkspaceInfo.Text = $"{visible} of {total}";
                 return;
             }
 
             var selected = _students.FirstOrDefault(x => x.Id == _selectedStudentId.Value);
             if (selected == null)
             {
-                txtStudentsWorkspaceInfo.Text = $"Showing {visible} of {total} student records.";
+                txtStudentsWorkspaceInfo.Text = $"{visible} of {total}";
                 return;
             }
 
-            txtStudentsWorkspaceInfo.Text = $"Showing {visible} of {total}. Selected: {selected.LastName}, {selected.FirstName} ({selected.Lrn})";
+            txtStudentsWorkspaceInfo.Text = $"{visible} of {total} · {selected.LastName}, {selected.FirstName}";
         }
 
         private static long? GetSelectedLookupId(ComboBox comboBox)

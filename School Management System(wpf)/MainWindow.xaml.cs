@@ -618,18 +618,16 @@ namespace School_Management_System
                 return;
             }
 
-            var sectionLabel = ResolveOperationsSectionLabel(section);
-            var moduleCount = _opsButtonSections.Count(x => x.Value == section);
             if (selectedButton == null)
             {
-                info.Text = $"{sectionLabel}: {moduleCount} module(s) available. Choose one from the left sidebar to open its workspace.";
+                info.Text = string.Empty;
                 return;
             }
 
             var label = _opsButtonLabels.TryGetValue(selectedButton, out var mapped)
                 ? mapped
                 : selectedButton.Content?.ToString() ?? "Module";
-            info.Text = $"{sectionLabel} active module: {label}. Use the left sidebar to switch modules without leaving this page.";
+            info.Text = label;
         }
 
         private void OpenStudentSearchModal()
