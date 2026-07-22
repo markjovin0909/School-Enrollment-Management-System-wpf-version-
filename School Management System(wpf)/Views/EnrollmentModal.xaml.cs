@@ -131,14 +131,23 @@ namespace School_Management_System.Views
             cboCurriculum.ItemsSource = curricula;
             cboCurriculum.SelectedIndex = curricula.Count > 0 ? 0 : -1;
 
-            var gradeLevels = _gradeLevelService.GetAll()
-                .OrderBy(g => g.Name)
+            var settingService = new SchoolSettingService();
+            var orderedGrades = settingService.OrderGradeLevelsByDefaultScope(_gradeLevelService.GetAll());
+            var gradeLevels = orderedGrades
                 .Select(g => new LookupItem(g.Id, string.IsNullOrWhiteSpace(g.Code) ? g.Name : $"{g.Code} - {g.Name}"))
                 .ToList();
             cboGradeLevel.DisplayMemberPath = nameof(LookupItem.Label);
             cboGradeLevel.SelectedValuePath = nameof(LookupItem.Id);
             cboGradeLevel.ItemsSource = gradeLevels;
-            cboGradeLevel.SelectedIndex = gradeLevels.Count > 0 ? 0 : -1;
+            var preferredGradeId = settingService.GetPrimaryDefaultGradeLevelId();
+            if (preferredGradeId.HasValue && gradeLevels.Any(x => x.Id == preferredGradeId.Value))
+            {
+                cboGradeLevel.SelectedValue = preferredGradeId.Value;
+            }
+            else
+            {
+                cboGradeLevel.SelectedIndex = gradeLevels.Count > 0 ? 0 : -1;
+            }
 
             LoadSections();
         }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using School_Management_System.Data;
@@ -43,6 +44,15 @@ namespace School_Management_System.Services
             repo.Delete(id);
         }
 
+        /// <summary>
+        /// Latest school settings row, or null when none has been saved yet.
+        /// </summary>
+        public SchoolSetting? GetLatest()
+        {
+            using var db = new AppDbContext();
+            return db.SchoolSettings.OrderByDescending(x => x.Id).FirstOrDefault();
+        }
+
         public SchoolSetting GetOrCreateDefault()
         {
             using var db = new AppDbContext();
@@ -52,7 +62,7 @@ namespace School_Management_System.Services
                 return latest;
             }
 
-            var now = System.DateTime.UtcNow;
+            var now = DateTime.UtcNow;
             var setting = new SchoolSetting
             {
                 SchoolName = "School Management System",
@@ -74,6 +84,32 @@ namespace School_Management_System.Services
             return setting;
         }
 
+        public int GetDefaultSectionCapacity()
+        {
+            var setting = GetLatest();
+            return setting != null && setting.DefaultSectionCapacity > 0
+                ? setting.DefaultSectionCapacity
+                : 45;
+        }
+
+        public string GetEnrollmentConfiguration()
+        {
+            var setting = GetLatest();
+            if (setting == null)
+            {
+                return string.Empty;
+            }
+
+            if (!string.IsNullOrWhiteSpace(setting.EnrollmentConfiguration))
+            {
+                return setting.EnrollmentConfiguration.Trim();
+            }
+
+            return string.IsNullOrWhiteSpace(setting.GradingSetup)
+                ? string.Empty
+                : setting.GradingSetup.Trim();
+        }
+
         public IReadOnlyList<long> GetDefaultGradeLevelIds()
         {
             using var db = new AppDbContext();
@@ -85,6 +121,51 @@ namespace School_Management_System.Services
             return ParseGradeLevelIds(raw);
         }
 
+        public long? GetPrimaryDefaultGradeLevelId()
+        {
+            var ids = GetDefaultGradeLevelIds();
+            return ids.Count > 0 ? ids[0] : null;
+        }
+
+        /// <summary>
+        /// Orders grade levels so configured default-scope grades appear first.
+        /// </summary>
+        public List<GradeLevel> OrderGradeLevelsByDefaultScope(IEnumerable<GradeLevel> gradeLevels)
+        {
+            var defaults = GetDefaultGradeLevelIds().ToHashSet();
+            return gradeLevels
+                .OrderBy(g => defaults.Contains(g.Id) ? 0 : 1)
+                .ThenBy(g => g.Code ?? string.Empty, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(g => g.Name ?? string.Empty, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(g => g.Id)
+                .ToList();
+        }
+
+        public SchoolPrintIdentity GetPrintIdentity()
+        {
+            var setting = GetLatest();
+            var schoolName = string.IsNullOrWhiteSpace(setting?.SchoolName)
+                ? "School Management System"
+                : setting!.SchoolName.Trim();
+            var schoolCode = setting?.SchoolCode?.Trim() ?? string.Empty;
+            var schoolAddress = setting?.SchoolAddress?.Trim() ?? string.Empty;
+            var principalName = setting?.PrincipalName?.Trim() ?? string.Empty;
+            var printHeader1 = string.IsNullOrWhiteSpace(setting?.PrintHeaderLine1)
+                ? schoolName
+                : setting!.PrintHeaderLine1!.Trim();
+            var printHeader2 = string.IsNullOrWhiteSpace(setting?.PrintHeaderLine2)
+                ? schoolAddress
+                : setting!.PrintHeaderLine2!.Trim();
+
+            return new SchoolPrintIdentity(
+                schoolName,
+                schoolCode,
+                schoolAddress,
+                principalName,
+                printHeader1,
+                printHeader2);
+        }
+
         public static IReadOnlyList<long> ParseGradeLevelIds(string? rawValue)
         {
             if (string.IsNullOrWhiteSpace(rawValue))
@@ -93,7 +174,7 @@ namespace School_Management_System.Services
             }
 
             return rawValue
-                .Split(',', System.StringSplitOptions.RemoveEmptyEntries)
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
                 .Select(x => x.Trim())
                 .Where(x => long.TryParse(x, out _))
                 .Select(long.Parse)
@@ -109,6 +190,48 @@ namespace School_Management_System.Services
                 .OrderBy(x => x));
         }
 
+        /// <summary>
+        /// Normalizes a student-number prefix. Empty input falls back to school code, then existing, then "S".
+        /// </summary>
+        public static string NormalizeStudentNumberPrefix(string? requestedPrefix, string? schoolCode, string? existingPrefix = null)
+        {
+            var cleanedRequested = CleanPrefixToken(requestedPrefix);
+            if (!string.IsNullOrWhiteSpace(cleanedRequested))
+            {
+                return cleanedRequested;
+            }
+
+            var cleanedCode = CleanPrefixToken(schoolCode);
+            if (!string.IsNullOrWhiteSpace(cleanedCode))
+            {
+                return cleanedCode.Length <= 3 ? cleanedCode : cleanedCode.Substring(0, 3);
+            }
+
+            var cleanedExisting = CleanPrefixToken(existingPrefix);
+            if (!string.IsNullOrWhiteSpace(cleanedExisting))
+            {
+                return cleanedExisting;
+            }
+
+            return "S";
+        }
+
+        private static string CleanPrefixToken(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return string.Empty;
+            }
+
+            var cleaned = new string(value.Where(char.IsLetterOrDigit).ToArray()).ToUpperInvariant();
+            if (cleaned.Length > 12)
+            {
+                cleaned = cleaned.Substring(0, 12);
+            }
+
+            return cleaned;
+        }
+
         public string ReserveNextStudentNumber()
         {
             using var db = new AppDbContext();
@@ -118,14 +241,13 @@ namespace School_Management_System.Services
                 setting = GetOrCreateDefault();
             }
 
-            var prefix = string.IsNullOrWhiteSpace(setting.StudentNumberPrefix)
-                ? "S"
-                : setting.StudentNumberPrefix.Trim().ToUpperInvariant();
+            var prefix = NormalizeStudentNumberPrefix(setting.StudentNumberPrefix, setting.SchoolCode);
             var number = setting.NextStudentNumber <= 0 ? 1 : setting.NextStudentNumber;
             var studentNumber = $"{prefix}-{number:000000}";
 
+            setting.StudentNumberPrefix = prefix;
             setting.NextStudentNumber = number + 1;
-            setting.UpdatedAt = System.DateTime.UtcNow;
+            setting.UpdatedAt = DateTime.UtcNow;
             db.SchoolSettings.Update(setting);
             db.SaveChanges();
 
@@ -141,11 +263,17 @@ namespace School_Management_System.Services
                 setting = GetOrCreateDefault();
             }
 
-            var prefix = string.IsNullOrWhiteSpace(setting.StudentNumberPrefix)
-                ? "S"
-                : setting.StudentNumberPrefix.Trim().ToUpperInvariant();
+            var prefix = NormalizeStudentNumberPrefix(setting.StudentNumberPrefix, setting.SchoolCode);
             var number = setting.NextStudentNumber <= 0 ? 1 : setting.NextStudentNumber;
             return $"{prefix}-{number:000000}";
         }
     }
+
+    internal sealed record SchoolPrintIdentity(
+        string SchoolName,
+        string SchoolCode,
+        string SchoolAddress,
+        string PrincipalName,
+        string PrintHeaderLine1,
+        string PrintHeaderLine2);
 }

@@ -15,6 +15,7 @@ namespace School_Management_System.Views
         private readonly SchoolYearService _schoolYearService = new();
         private readonly GradeLevelService _gradeLevelService = new();
         private readonly TeacherService _teacherService = new();
+        private readonly SchoolSettingService _schoolSettingService = new();
 
         private DataTable _table = new();
         private long? _selectedId;
@@ -220,7 +221,7 @@ namespace School_Management_System.Views
         private void LoadLookups()
         {
             _schoolYears = _schoolYearService.GetAll().ToList();
-            _gradeLevels = _gradeLevelService.GetAll().ToList();
+            _gradeLevels = _schoolSettingService.OrderGradeLevelsByDefaultScope(_gradeLevelService.GetAll());
             _teachers = _teacherService.GetAll().ToList();
 
             _teacherOptions = new List<TeacherOption>
@@ -243,7 +244,15 @@ namespace School_Management_System.Views
             }
 
             cboGradeLevel.ItemsSource = _gradeLevels;
-            cboGradeLevel.SelectedIndex = _gradeLevels.Count > 0 ? 0 : -1;
+            var preferredGradeId = _schoolSettingService.GetPrimaryDefaultGradeLevelId();
+            if (preferredGradeId.HasValue && _gradeLevels.Any(x => x.Id == preferredGradeId.Value))
+            {
+                cboGradeLevel.SelectedValue = preferredGradeId.Value;
+            }
+            else
+            {
+                cboGradeLevel.SelectedIndex = _gradeLevels.Count > 0 ? 0 : -1;
+            }
 
             cboAdviser.ItemsSource = _teacherOptions;
             cboAdviser.SelectedValue = 0L;
@@ -253,6 +262,11 @@ namespace School_Management_System.Views
 
             cboFilterGrade.ItemsSource = _gradeLevels;
             cboFilterGrade.SelectedIndex = -1;
+
+            if (string.IsNullOrWhiteSpace(txtCapacity.Text))
+            {
+                txtCapacity.Text = _schoolSettingService.GetDefaultSectionCapacity().ToString();
+            }
 
             _suppressEvents = false;
         }
@@ -582,13 +596,23 @@ namespace School_Management_System.Views
         {
             _selectedId = null;
             txtName.Clear();
-            txtCapacity.Clear();
+            txtCapacity.Text = _schoolSettingService.GetDefaultSectionCapacity().ToString();
             cboSchoolYear.SelectedValue = SchoolYearSelectionHelper.ResolveActiveId(_schoolYears, _schoolYearService);
             if (cboSchoolYear.SelectedValue == null)
             {
                 cboSchoolYear.SelectedIndex = _schoolYears.Count > 0 ? 0 : -1;
             }
-            cboGradeLevel.SelectedIndex = _gradeLevels.Count > 0 ? 0 : -1;
+
+            var preferredGradeId = _schoolSettingService.GetPrimaryDefaultGradeLevelId();
+            if (preferredGradeId.HasValue && _gradeLevels.Any(x => x.Id == preferredGradeId.Value))
+            {
+                cboGradeLevel.SelectedValue = preferredGradeId.Value;
+            }
+            else
+            {
+                cboGradeLevel.SelectedIndex = _gradeLevels.Count > 0 ? 0 : -1;
+            }
+
             cboAdviser.SelectedValue = 0L;
             gridSections.SelectedItem = null;
         }

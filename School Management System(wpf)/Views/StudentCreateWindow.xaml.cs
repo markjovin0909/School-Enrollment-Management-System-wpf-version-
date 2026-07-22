@@ -74,9 +74,7 @@ namespace School_Management_System.Views
         private void LoadLookups()
         {
             var defaultGradeLevelIds = _schoolSettingService.GetDefaultGradeLevelIds().ToHashSet();
-            var gradeItems = _gradeLevelService.GetAll()
-                .OrderBy(g => defaultGradeLevelIds.Contains(g.Id) ? 0 : 1)
-                .ThenBy(g => g.Name)
+            var gradeItems = _schoolSettingService.OrderGradeLevelsByDefaultScope(_gradeLevelService.GetAll())
                 .Select(g => new LookupChoice(
                     g.Id,
                     string.IsNullOrWhiteSpace(g.Code)
@@ -90,9 +88,12 @@ namespace School_Management_System.Views
             cboStudentPreferredGrade.DisplayMemberPath = nameof(LookupChoice.Label);
             cboStudentPreferredGrade.SelectedValuePath = nameof(LookupChoice.Id);
             cboStudentPreferredGrade.ItemsSource = gradeItems;
-            cboStudentPreferredGrade.SelectedValue = defaultGradeLevelIds.Count > 0
-                ? gradeItems.FirstOrDefault(x => defaultGradeLevelIds.Contains(x.Id))?.Id ?? 0L
-                : 0L;
+            var primaryDefault = _schoolSettingService.GetPrimaryDefaultGradeLevelId();
+            cboStudentPreferredGrade.SelectedValue = primaryDefault.HasValue
+                ? gradeItems.FirstOrDefault(x => x.Id == primaryDefault.Value)?.Id ?? 0L
+                : defaultGradeLevelIds.Count > 0
+                    ? gradeItems.FirstOrDefault(x => defaultGradeLevelIds.Contains(x.Id))?.Id ?? 0L
+                    : 0L;
 
             var curriculumItems = _curriculumService.GetAll()
                 .Where(c => c.IsActive)

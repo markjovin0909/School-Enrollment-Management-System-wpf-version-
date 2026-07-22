@@ -53,7 +53,7 @@ namespace School_Management_System.Views
 
                 txtPrintHeader1.Text = txtSchoolName.Text;
                 txtPrintHeader2.Clear();
-                txtStudentPrefix.Text = "SMS";
+                txtStudentPrefix.Text = SchoolSettingService.NormalizeStudentNumberPrefix("SMS", string.Empty);
                 txtNextStudentNo.Text = "1";
                 txtDefaultCapacity.Text = "45";
                 txtDefaultGradeLevels.Text = string.Empty;
@@ -80,9 +80,9 @@ namespace School_Management_System.Views
 
                 txtPrintHeader1.Text = string.IsNullOrWhiteSpace(setting.PrintHeaderLine1) ? setting.SchoolName : setting.PrintHeaderLine1;
                 txtPrintHeader2.Text = string.IsNullOrWhiteSpace(setting.PrintHeaderLine2) ? setting.SchoolAddress : setting.PrintHeaderLine2;
-                txtStudentPrefix.Text = string.IsNullOrWhiteSpace(setting.StudentNumberPrefix)
-                    ? ResolveStudentNumberPrefix(setting.SchoolCode, setting.StudentNumberPrefix ?? string.Empty)
-                    : setting.StudentNumberPrefix;
+                txtStudentPrefix.Text = SchoolSettingService.NormalizeStudentNumberPrefix(
+                    setting.StudentNumberPrefix,
+                    setting.SchoolCode);
                 txtNextStudentNo.Text = (setting.NextStudentNumber > 0 ? setting.NextStudentNumber : 1).ToString();
                 txtDefaultCapacity.Text = (setting.DefaultSectionCapacity > 0 ? setting.DefaultSectionCapacity : 45).ToString();
                 txtDefaultGradeLevels.Text = FormatDefaultGradeLevels(setting.DefaultGradeLevelIds);
@@ -156,14 +156,21 @@ namespace School_Management_System.Views
             entity.SchoolCode = txtSchoolCode.Text.Trim();
             entity.SchoolAddress = txtAddress.Text.Trim();
             entity.PrincipalName = txtPrincipal.Text.Trim();
-            entity.GradingSetup = txtEnrollmentConfiguration.Text.Trim();
+            // Keep GradingSetup for legacy readers; enrollment guidance is the primary UI field.
+            if (string.IsNullOrWhiteSpace(entity.GradingSetup))
+            {
+                entity.GradingSetup = txtEnrollmentConfiguration.Text.Trim();
+            }
             entity.EnrollmentConfiguration = txtEnrollmentConfiguration.Text.Trim();
             entity.EnrollmentOpenDate = chkEnrollmentOpen.IsChecked == true ? (dpEnrollmentOpen.SelectedDate ?? DateTime.Today).Date : null;
             entity.EnrollmentCloseDate = chkEnrollmentClose.IsChecked == true ? (dpEnrollmentClose.SelectedDate ?? DateTime.Today).Date : null;
             entity.PrintHeaderLine1 = string.IsNullOrWhiteSpace(txtPrintHeader1.Text) ? txtSchoolName.Text.Trim() : txtPrintHeader1.Text.Trim();
             entity.PrintHeaderLine2 = string.IsNullOrWhiteSpace(txtPrintHeader2.Text) ? txtAddress.Text.Trim() : txtPrintHeader2.Text.Trim();
             entity.SchoolLogoPath = updatedLogoPath;
-            entity.StudentNumberPrefix = ResolveStudentNumberPrefix(txtStudentPrefix.Text.Trim(), entity.StudentNumberPrefix ?? string.Empty);
+            entity.StudentNumberPrefix = SchoolSettingService.NormalizeStudentNumberPrefix(
+                txtStudentPrefix.Text,
+                entity.SchoolCode,
+                entity.StudentNumberPrefix);
             entity.NextStudentNumber = nextStudentNo;
             entity.DefaultSectionCapacity = defaultCapacity;
             entity.DefaultGradeLevelIds = normalizedGradeLevelIds;
@@ -186,9 +193,20 @@ namespace School_Management_System.Views
             _selectedLogoSourcePath = null;
             _clearLogoRequested = false;
             RefreshLogoPreview(entity.SchoolLogoPath);
+            txtStudentPrefix.Text = entity.StudentNumberPrefix;
+
+            // Push settings effects into the live main shell (branding, labels, etc.).
+            if (Application.Current?.MainWindow is School_Management_System.MainWindow mainWindow)
+            {
+                mainWindow.RefreshSchoolSettingsEffects();
+            }
 
             txtStatus.Text = $"Saved at {DateTime.Now:HH:mm:ss}";
-            MessageBox.Show("School settings saved.", "School Settings", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show(
+                "School settings saved. Branding, enrollment defaults, numbering, section capacity, and grade scope are now active across the system.",
+                "School Settings",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
         }
 
         private void BrowseLogo()
@@ -309,25 +327,6 @@ namespace School_Management_System.Views
                 ? null
                 : SchoolSettingService.NormalizeGradeLevelIds(resolvedIds);
             return true;
-        }
-
-        private static string ResolveStudentNumberPrefix(string schoolCode, string existingPrefix)
-        {
-            if (!string.IsNullOrWhiteSpace(schoolCode))
-            {
-                var cleaned = new string(schoolCode.Where(char.IsLetterOrDigit).ToArray()).ToUpperInvariant();
-                if (!string.IsNullOrWhiteSpace(cleaned))
-                {
-                    return cleaned.Length <= 3 ? cleaned : cleaned.Substring(0, 3);
-                }
-            }
-
-            if (!string.IsNullOrWhiteSpace(existingPrefix))
-            {
-                return existingPrefix.Trim().ToUpperInvariant();
-            }
-
-            return "S";
         }
 
         private string? ResolveLogoPathForSave(string? existingLogoPath)

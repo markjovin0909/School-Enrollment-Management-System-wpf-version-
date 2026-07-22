@@ -990,27 +990,7 @@ namespace School_Management_System.Services
                 return OperationResult.Fail($"Enrollment is closed for {schoolYear.Name} because its status is {schoolYear.Status}.");
             }
 
-            // Only query SchoolSettings when the school year itself has no enrollment dates configured
-            if (schoolYear.EnrollmentOpenDate.HasValue && schoolYear.EnrollmentCloseDate.HasValue)
-            {
-                var today = DateTime.Today;
-                var open = schoolYear.EnrollmentOpenDate.Value.Date;
-                var close = schoolYear.EnrollmentCloseDate.Value.Date;
-                if (open > close)
-                {
-                    return OperationResult.Fail("Enrollment period configuration is invalid: open date is later than close date.");
-                }
-                if (today < open)
-                {
-                    return OperationResult.Fail($"Enrollment opens on {open:yyyy-MM-dd}.");
-                }
-                if (today > close)
-                {
-                    return OperationResult.Fail($"Enrollment closed on {close:yyyy-MM-dd}.");
-                }
-                return OperationResult.Ok();
-            }
-
+            // School-year dates take priority; missing sides fall back to system settings defaults.
             var settings = db.SchoolSettings.OrderByDescending(x => x.Id).FirstOrDefault();
             if (settings == null && !schoolYear.EnrollmentOpenDate.HasValue && !schoolYear.EnrollmentCloseDate.HasValue)
             {
@@ -1030,6 +1010,7 @@ namespace School_Management_System.Services
             {
                 return OperationResult.Fail($"Enrollment opens on {openDate.Value:yyyy-MM-dd}.");
             }
+
             if (closeDate.HasValue && todayDate > closeDate.Value)
             {
                 return OperationResult.Fail($"Enrollment closed on {closeDate.Value:yyyy-MM-dd}.");

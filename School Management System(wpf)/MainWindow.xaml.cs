@@ -165,6 +165,23 @@ namespace School_Management_System
             imgDashboardHeaderLogo.Source = branding.LogoImage;
         }
 
+        /// <summary>
+        /// Re-applies school settings that affect the live shell (branding, dashboard labels).
+        /// Called after School Settings are saved.
+        /// </summary>
+        public void RefreshSchoolSettingsEffects()
+        {
+            try
+            {
+                ApplyBranding();
+                LoadDashboard();
+            }
+            catch
+            {
+                // Settings refresh must not crash the main shell.
+            }
+        }
+
         private void WireNavigation()
         {
             btnTopDashboard.Click += (_, _) => NavigateMainTab(0);
@@ -273,6 +290,8 @@ namespace School_Management_System
         {
             try
             {
+                ApplyBranding();
+
                 _students = _studentService.GetAll().ToList();
                 _teachers = _teacherService.GetAll().ToList();
                 _sections = _sectionService.GetAll().ToList();
@@ -282,6 +301,7 @@ namespace School_Management_System
                 var metrics = _operationalMetricsDashboardService.BuildSnapshot();
                 var activeSchoolYear = _schoolYearService.GetActiveSchoolYear();
                 var currentGradingPeriod = GetCurrentDashboardGradingPeriod(activeSchoolYear?.Id);
+                var schoolSettings = _schoolSettingService.GetLatest();
 
                 var activeStudents = _students.Count(x => x.Status == UserStatus.ACTIVE);
                 var enrolledStudents = enrollments.Count(x => x.Status == EnrollmentStatus.ENROLLED);
@@ -333,6 +353,13 @@ namespace School_Management_System
                 txtDashboardCurrentGrading.Text = currentGradingPeriod != null
                     ? $"Current grading: {BuildGradingPeriodDashboardLabel(currentGradingPeriod)}"
                     : "Current grading: No grading period configured";
+
+                // Surface system enrollment window defaults when school-year dates are not set.
+                var enrollmentWindowLabel = BuildEnrollmentWindowDashboardLabel(activeSchoolYear, schoolSettings);
+                if (!string.IsNullOrWhiteSpace(enrollmentWindowLabel))
+                {
+                    txtDashboardCurrentGrading.Text = $"{txtDashboardCurrentGrading.Text}  |  {enrollmentWindowLabel}";
+                }
 
                 var activityTable = new DataTable();
                 activityTable.Columns.Add("Date");
@@ -406,6 +433,32 @@ namespace School_Management_System
                 : string.Empty;
 
             return $"{gradingPeriod.Name}{dateRange} [{gradingPeriod.Status}]";
+        }
+
+        private static string BuildEnrollmentWindowDashboardLabel(SchoolYear? activeSchoolYear, SchoolSetting? schoolSettings)
+        {
+            var openDate = activeSchoolYear?.EnrollmentOpenDate?.Date ?? schoolSettings?.EnrollmentOpenDate?.Date;
+            var closeDate = activeSchoolYear?.EnrollmentCloseDate?.Date ?? schoolSettings?.EnrollmentCloseDate?.Date;
+            if (!openDate.HasValue && !closeDate.HasValue)
+            {
+                return string.Empty;
+            }
+
+            var source = activeSchoolYear?.EnrollmentOpenDate.HasValue == true || activeSchoolYear?.EnrollmentCloseDate.HasValue == true
+                ? "school year"
+                : "system settings";
+
+            if (openDate.HasValue && closeDate.HasValue)
+            {
+                return $"Enrollment window ({source}): {openDate.Value:yyyy-MM-dd} to {closeDate.Value:yyyy-MM-dd}";
+            }
+
+            if (openDate.HasValue)
+            {
+                return $"Enrollment opens ({source}): {openDate.Value:yyyy-MM-dd}";
+            }
+
+            return $"Enrollment closes ({source}): {closeDate!.Value:yyyy-MM-dd}";
         }
 
         private void WireOperationsButtons()

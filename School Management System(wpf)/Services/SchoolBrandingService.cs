@@ -14,7 +14,7 @@ namespace School_Management_System.Services
 
         public SchoolBrandingSnapshot GetCurrentBranding()
         {
-            var setting = _schoolSettingService.GetAll().OrderByDescending(x => x.Id).FirstOrDefault();
+            var setting = _schoolSettingService.GetLatest();
             var schoolName = string.IsNullOrWhiteSpace(setting?.SchoolName)
                 ? "School Management System"
                 : setting!.SchoolName.Trim();
@@ -23,6 +23,8 @@ namespace School_Management_System.Services
             return new SchoolBrandingSnapshot(
                 schoolName,
                 setting?.SchoolCode?.Trim() ?? string.Empty,
+                setting?.SchoolAddress?.Trim() ?? string.Empty,
+                setting?.PrincipalName?.Trim() ?? string.Empty,
                 logoPath,
                 LoadImage(logoPath));
         }
@@ -82,6 +84,8 @@ namespace School_Management_System.Services
     internal sealed record SchoolBrandingSnapshot(
         string SchoolName,
         string SchoolCode,
+        string SchoolAddress,
+        string PrincipalName,
         string LogoAbsolutePath,
         ImageSource LogoImage);
 }

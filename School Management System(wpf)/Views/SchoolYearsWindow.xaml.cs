@@ -11,6 +11,7 @@ namespace School_Management_System.Views
     public partial class SchoolYearsWindow : Window
     {
         private readonly SchoolYearService _schoolYearService = new();
+        private readonly SchoolSettingService _schoolSettingService = new();
         private readonly EditorMode _mode;
         private DataTable _table = new();
         private long? _selectedId;
@@ -451,8 +452,31 @@ namespace School_Management_System.Views
             txtName.Clear();
             chkStart.IsChecked = false;
             chkEnd.IsChecked = false;
-            chkEnrollOpen.IsChecked = false;
-            chkEnrollClose.IsChecked = false;
+
+            // Prefill enrollment window from system settings so new school years inherit defaults.
+            var settings = _schoolSettingService.GetLatest();
+            if (settings?.EnrollmentOpenDate.HasValue == true)
+            {
+                chkEnrollOpen.IsChecked = true;
+                dpEnrollOpen.SelectedDate = settings.EnrollmentOpenDate.Value.Date;
+            }
+            else
+            {
+                chkEnrollOpen.IsChecked = false;
+                dpEnrollOpen.SelectedDate = DateTime.Today;
+            }
+
+            if (settings?.EnrollmentCloseDate.HasValue == true)
+            {
+                chkEnrollClose.IsChecked = true;
+                dpEnrollClose.SelectedDate = settings.EnrollmentCloseDate.Value.Date;
+            }
+            else
+            {
+                chkEnrollClose.IsChecked = false;
+                dpEnrollClose.SelectedDate = DateTime.Today;
+            }
+
             cboStatus.SelectedItem = SchoolYearStatus.PLANNING;
             gridSchoolYears.SelectedItem = null;
         }

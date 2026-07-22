@@ -102,10 +102,8 @@ namespace School_Management_System
         private void LoadStudentPreferenceLookups()
         {
             var defaultGradeLevelIds = _schoolSettingService.GetDefaultGradeLevelIds().ToHashSet();
-            _gradeLevels = _gradeLevelService.GetAll().OrderBy(g => g.Name).ToList();
+            _gradeLevels = _schoolSettingService.OrderGradeLevelsByDefaultScope(_gradeLevelService.GetAll());
             var gradeItems = _gradeLevels
-                .OrderBy(g => defaultGradeLevelIds.Contains(g.Id) ? 0 : 1)
-                .ThenBy(g => g.Name)
                 .Select(g => new LookupChoice(
                     g.Id,
                     string.IsNullOrWhiteSpace(g.Code)
@@ -120,7 +118,12 @@ namespace School_Management_System
             cboStudentPreferredGrade.SelectedValuePath = nameof(LookupChoice.Id);
             cboStudentPreferredGrade.ItemsSource = gradeItems;
 
-            if (defaultGradeLevelIds.Count > 0)
+            var primaryDefault = _schoolSettingService.GetPrimaryDefaultGradeLevelId();
+            if (primaryDefault.HasValue)
+            {
+                cboStudentPreferredGrade.SelectedValue = gradeItems.FirstOrDefault(x => x.Id == primaryDefault.Value)?.Id ?? 0L;
+            }
+            else if (defaultGradeLevelIds.Count > 0)
             {
                 cboStudentPreferredGrade.SelectedValue = gradeItems.FirstOrDefault(x => defaultGradeLevelIds.Contains(x.Id))?.Id ?? 0L;
             }

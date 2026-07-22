@@ -765,15 +765,14 @@ namespace School_Management_System
             var schoolYear = _schoolYears.FirstOrDefault(x => x.Id == enrollment.SchoolYearId);
             var grade = _gradeLevels.FirstOrDefault(x => x.Id == enrollment.GradeLevelId);
             var section = _sections.FirstOrDefault(x => x.Id == enrollment.SectionId);
-            var school = _schoolSettingService.GetAll().OrderByDescending(x => x.Id).FirstOrDefault();
+            var identity = _schoolSettingService.GetPrintIdentity();
 
-            var printHeader1 = string.IsNullOrWhiteSpace(school?.PrintHeaderLine1) ? school?.SchoolName ?? "School Management System" : school.PrintHeaderLine1;
-            var printHeader2 = string.IsNullOrWhiteSpace(school?.PrintHeaderLine2) ? school?.SchoolAddress ?? string.Empty : school.PrintHeaderLine2;
-
-            table.Rows.Add("Print Header 1", printHeader1);
-            table.Rows.Add("Print Header 2", printHeader2);
-            table.Rows.Add("School Name", school?.SchoolName ?? "School Management System");
-            table.Rows.Add("School ID", school?.SchoolCode ?? string.Empty);
+            table.Rows.Add("Print Header 1", identity.PrintHeaderLine1);
+            table.Rows.Add("Print Header 2", identity.PrintHeaderLine2);
+            table.Rows.Add("School Name", identity.SchoolName);
+            table.Rows.Add("School ID", identity.SchoolCode);
+            table.Rows.Add("School Address", identity.SchoolAddress);
+            table.Rows.Add("Principal", identity.PrincipalName);
             table.Rows.Add("Student Name", student == null ? string.Empty : $"{student.LastName}, {student.FirstName}");
             table.Rows.Add("Student Number", student?.StudentNumber ?? string.Empty);
             table.Rows.Add("LRN", student?.Lrn ?? string.Empty);

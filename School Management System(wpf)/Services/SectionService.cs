@@ -36,6 +36,7 @@ namespace School_Management_System.Services
                     .OrderByDescending(x => x.Id)
                     .Select(x => x.DefaultSectionCapacity)
                     .FirstOrDefault();
+                // Fallback matches SchoolSettingService.GetDefaultSectionCapacity().
                 entity.Capacity = defaultCapacity > 0 ? defaultCapacity : 45;
             }
 
