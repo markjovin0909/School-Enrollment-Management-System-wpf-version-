@@ -153,7 +153,7 @@
                                             BorderThickness="3">
                                         <Grid>
                                             <Grid.RowDefinitions>
-                                                <RowDefinition Height="68"/>
+                                                <RowDefinition Height="72"/>
                                                 <RowDefinition Height="126"/>
                                                 <RowDefinition Height="140"/>
                                                 <RowDefinition Height="142"/>
@@ -164,17 +164,18 @@
                                             <Border Grid.Row="0" Background="#194F96">
                                                 <Grid Margin="26,0,26,0">
                                                     <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="280"/>
                                                         <ColumnDefinition Width="*"/>
-                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="280"/>
                                                     </Grid.ColumnDefinitions>
 
+                                                    <!-- Left: product mark -->
                                                     <StackPanel Grid.Column="0"
                                                                 Orientation="Horizontal"
                                                                 VerticalAlignment="Center">
                                                         <Grid Width="54"
                                                               Height="54"
-                                                              Margin="0,0,16,0">
+                                                              Margin="0,0,14,0">
                                                             <Ellipse Fill="#0E376F"
                                                                      Stroke="#A3D8FF"
                                                                      StrokeThickness="1"/>
@@ -190,11 +191,12 @@
                                                         </Grid>
                                                         <StackPanel VerticalAlignment="Center">
                                                             <TextBlock Text="eTinun-an" FontSize="13" FontWeight="Bold" Foreground="#CFEAFF"/>
-                                                            <TextBlock Text="Digital Learners" FontSize="22" FontWeight="Bold" Foreground="White"/>
-                                                            <TextBlock Text="Management System" FontSize="16" FontWeight="SemiBold" Foreground="#D7F0FF"/>
+                                                            <TextBlock Text="Digital Learners" FontSize="20" FontWeight="Bold" Foreground="White"/>
+                                                            <TextBlock Text="Management System" FontSize="14" FontWeight="SemiBold" Foreground="#D7F0FF"/>
                                                         </StackPanel>
                                                     </StackPanel>
 
+                                                    <!-- Center: school name only -->
                                                     <TextBlock x:Name="txtDashboardSchoolName"
                                                                Grid.Column="1"
                                                                FontSize="30"
@@ -202,27 +204,28 @@
                                                                FontWeight="Bold"
                                                                Foreground="White"
                                                                HorizontalAlignment="Center"
-                                                               VerticalAlignment="Center"/>
+                                                               VerticalAlignment="Center"
+                                                               TextTrimming="CharacterEllipsis"/>
 
+                                                    <!-- Right: compact tagline -->
                                                     <StackPanel Grid.Column="2"
                                                                 VerticalAlignment="Center"
                                                                 HorizontalAlignment="Right">
-                                                        <TextBlock Text="eTinun-an"
-                                                                   FontSize="17"
+                                                        <TextBlock Text="Digital Learners"
+                                                                   FontSize="15"
                                                                    FontWeight="SemiBold"
                                                                    Foreground="White"
                                                                    TextAlignment="Right"/>
-                                                        <TextBlock Text="Digital Learners Management System"
+                                                        <TextBlock Text="Management System"
                                                                    FontSize="13"
-                                                                   FontWeight="SemiBold"
                                                                    Foreground="#D7F0FF"
                                                                    TextAlignment="Right"
-                                                                   TextWrapping="Wrap"
-                                                                   MaxWidth="220"/>
+                                                                   Margin="0,2,0,0"/>
                                                     </StackPanel>
                                                 </Grid>
                                             </Border>
 
+                                            <!-- Geometric band: school year / grading / enrollment live here -->
                                             <Grid Grid.Row="1" Background="#205F72">
                                                 <UniformGrid Columns="12">
                                                     <Border Background="#2E7486" BorderBrush="#2A6476" BorderThickness="1"/>
@@ -276,6 +279,40 @@
                                                     </Border>
                                                     <Border Background="#00000000"/>
                                                 </UniformGrid>
+
+                                                <!-- Academic period info centered in the geometric band -->
+                                                <Border VerticalAlignment="Center"
+                                                        HorizontalAlignment="Center"
+                                                        Background="#CC0F3A48"
+                                                        CornerRadius="12"
+                                                        Padding="28,16"
+                                                        BorderBrush="#66FFFFFF"
+                                                        BorderThickness="1">
+                                                    <StackPanel HorizontalAlignment="Center">
+                                                        <TextBlock x:Name="txtDashboardHeaderSchoolYear"
+                                                                   FontSize="16"
+                                                                   FontWeight="SemiBold"
+                                                                   Foreground="White"
+                                                                   HorizontalAlignment="Center"
+                                                                   TextAlignment="Center"
+                                                                   Text="School year: —"/>
+                                                        <TextBlock x:Name="txtDashboardHeaderGrading"
+                                                                   FontSize="14"
+                                                                   Foreground="#D7F0FF"
+                                                                   HorizontalAlignment="Center"
+                                                                   TextAlignment="Center"
+                                                                   Margin="0,6,0,0"
+                                                                   Text="Current grading: —"/>
+                                                        <TextBlock x:Name="txtDashboardHeaderEnrollment"
+                                                                   FontSize="13"
+                                                                   Foreground="#B6EBFF"
+                                                                   HorizontalAlignment="Center"
+                                                                   TextAlignment="Center"
+                                                                   Margin="0,6,0,0"
+                                                                   Visibility="Collapsed"
+                                                                   Text=""/>
+                                                    </StackPanel>
+                                                </Border>
                                             </Grid>
 
                                             <Grid Grid.Row="2" Background="#124C49">
@@ -405,14 +442,6 @@
                                                         <TextBlock Text="Central dashboard for admissions, records, and daily school operations"
                                                                    FontSize="16"
                                                                    Foreground="#B9E8E3"/>
-                                                        <TextBlock x:Name="txtDashboardSchoolYear"
-                                                                   FontSize="14"
-                                                                   Foreground="#E6FFF9"
-                                                                   Margin="0,10,0,0"/>
-                                                        <TextBlock x:Name="txtDashboardCurrentGrading"
-                                                                   FontSize="14"
-                                                                   Foreground="#B6EBFF"
-                                                                   Margin="0,4,0,0"/>
                                                     </StackPanel>
                                                 </Border>
 

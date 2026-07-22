@@ -347,18 +347,24 @@ namespace School_Management_System
                 txtDashboardReversalMetric.Text = $"{metrics.DecisionReversals.Title}: {metrics.DecisionReversals.Value}  |  {metrics.DecisionReversals.Trend}";
                 txtDashboardWaitlistMetric.Text = $"{metrics.WaitlistPressure.Title}: {metrics.WaitlistPressure.Value}  |  {metrics.WaitlistPressure.Trend}";
                 txtDashboardCriticalOpsMetric.Text = $"{metrics.FailedCriticalOps.Title}: {metrics.FailedCriticalOps.Value}  |  {metrics.FailedCriticalOps.Trend}";
-                txtDashboardSchoolYear.Text = activeSchoolYear != null
+                // Single header block under school name — short lines, no side duplicates.
+                txtDashboardHeaderSchoolYear.Text = activeSchoolYear != null
                     ? $"School year: {BuildSchoolYearDashboardLabel(activeSchoolYear)}"
                     : "School year: No active school year";
-                txtDashboardCurrentGrading.Text = currentGradingPeriod != null
+                txtDashboardHeaderGrading.Text = currentGradingPeriod != null
                     ? $"Current grading: {BuildGradingPeriodDashboardLabel(currentGradingPeriod)}"
                     : "Current grading: No grading period configured";
 
-                // Surface system enrollment window defaults when school-year dates are not set.
                 var enrollmentWindowLabel = BuildEnrollmentWindowDashboardLabel(activeSchoolYear, schoolSettings);
-                if (!string.IsNullOrWhiteSpace(enrollmentWindowLabel))
+                if (string.IsNullOrWhiteSpace(enrollmentWindowLabel))
                 {
-                    txtDashboardCurrentGrading.Text = $"{txtDashboardCurrentGrading.Text}  |  {enrollmentWindowLabel}";
+                    txtDashboardHeaderEnrollment.Text = string.Empty;
+                    txtDashboardHeaderEnrollment.Visibility = Visibility.Collapsed;
+                }
+                else
+                {
+                    txtDashboardHeaderEnrollment.Text = enrollmentWindowLabel;
+                    txtDashboardHeaderEnrollment.Visibility = Visibility.Visible;
                 }
 
                 var activityTable = new DataTable();
@@ -444,21 +450,17 @@ namespace School_Management_System
                 return string.Empty;
             }
 
-            var source = activeSchoolYear?.EnrollmentOpenDate.HasValue == true || activeSchoolYear?.EnrollmentCloseDate.HasValue == true
-                ? "school year"
-                : "system settings";
-
             if (openDate.HasValue && closeDate.HasValue)
             {
-                return $"Enrollment window ({source}): {openDate.Value:yyyy-MM-dd} to {closeDate.Value:yyyy-MM-dd}";
+                return $"Enrollment: {openDate.Value:MMM dd, yyyy} – {closeDate.Value:MMM dd, yyyy}";
             }
 
             if (openDate.HasValue)
             {
-                return $"Enrollment opens ({source}): {openDate.Value:yyyy-MM-dd}";
+                return $"Enrollment opens: {openDate.Value:MMM dd, yyyy}";
             }
 
-            return $"Enrollment closes ({source}): {closeDate!.Value:yyyy-MM-dd}";
+            return $"Enrollment closes: {closeDate!.Value:MMM dd, yyyy}";
         }
 
         private void WireOperationsButtons()
