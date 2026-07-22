@@ -1499,13 +1499,10 @@
                                 </ResourceDictionary.MergedDictionaries>
                             </ResourceDictionary>
                         </TabItem.Resources>
-                        <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                      HorizontalScrollBarVisibility="Disabled"
-                                      CanContentScroll="False">
-                        <Grid>
+                        <Grid Margin="0,0,0,4">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*" MinHeight="560"/>
                             </Grid.RowDefinitions>
 
                             <controls:SectionHeader Grid.Row="0"
@@ -1514,54 +1511,72 @@
                                                     Margin="0,0,0,10"/>
 
                             <Grid Grid.Row="1">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="*"/>
-                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="248"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
 
-                                <Border Grid.Row="0" Style="{StaticResource CardPanel}" Margin="0,0,0,10">
-                                    <StackPanel>
-                                        <Border Style="{StaticResource InfoBanner}" Margin="0,0,0,10">
-                                            <TextBlock Text="Launch core academic setup modules from here. Select one module to open its workspace on this page."
+                                <!-- Left module sidebar -->
+                                <Border Grid.Column="0"
+                                        Style="{StaticResource CardPanel}"
+                                        Margin="0,0,12,0"
+                                        Padding="12">
+                                    <DockPanel LastChildFill="True">
+                                        <StackPanel DockPanel.Dock="Top" Margin="0,0,0,12">
+                                            <TextBlock Text="Modules"
+                                                       Style="{StaticResource Text.CaptionStrong}"
+                                                       FontSize="14"
+                                                       Foreground="#1E3A5F"/>
+                                            <TextBlock Text="School profile, years, grades, subjects, curriculum, and sections."
                                                        Style="{StaticResource Text.Caption}"
-                                                       TextWrapping="Wrap"/>
-                                        </Border>
-                                        <TextBlock Text="Module Navigation" Style="{StaticResource Text.CaptionStrong}"/>
-                                        <TextBlock Text="School profile, school years, grades, subjects, curriculum, and sections." Style="{StaticResource Text.Caption}" Margin="0,2,0,10"/>
-                                        <WrapPanel>
-                                            <Button x:Name="btnOpsSchoolSettings" Content="School Settings" Style="{StaticResource OpsModuleButton}"/>
-                                            <Button x:Name="btnOpsSchoolYears" Content="School Years" Style="{StaticResource OpsModuleButton}"/>
-                                            <Button x:Name="btnOpsGradeLevels" Content="Grade Levels" Style="{StaticResource OpsModuleButton}"/>
-                                            <Button x:Name="btnOpsSubjects" Content="Subjects" Style="{StaticResource OpsModuleButton}"/>
-                                            <Button x:Name="btnOpsCurriculum" Content="Curriculum" Style="{StaticResource OpsModuleButton}"/>
-                                            <Button x:Name="btnOpsSections" Content="Sections" Style="{StaticResource OpsModuleButton}" Margin="0,0,0,8"/>
-                                        </WrapPanel>
-                                    </StackPanel>
+                                                       TextWrapping="Wrap"
+                                                       Margin="0,4,0,10"
+                                                       Opacity="0.85"/>
+                                            <Border Style="{StaticResource InfoBanner}" Padding="8,7">
+                                                <TextBlock Text="Select a module to open its workspace on the right."
+                                                           Style="{StaticResource Text.Caption}"
+                                                           TextWrapping="Wrap"/>
+                                            </Border>
+                                        </StackPanel>
+                                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                                      HorizontalScrollBarVisibility="Disabled">
+                                            <StackPanel>
+                                                <Button x:Name="btnOpsSchoolSettings" Content="School Settings" Style="{StaticResource OpsModuleButton}"/>
+                                                <Button x:Name="btnOpsSchoolYears" Content="School Years" Style="{StaticResource OpsModuleButton}"/>
+                                                <Button x:Name="btnOpsGradeLevels" Content="Grade Levels" Style="{StaticResource OpsModuleButton}"/>
+                                                <Button x:Name="btnOpsSubjects" Content="Subjects" Style="{StaticResource OpsModuleButton}"/>
+                                                <Button x:Name="btnOpsCurriculum" Content="Curriculum" Style="{StaticResource OpsModuleButton}"/>
+                                                <Button x:Name="btnOpsSections" Content="Sections" Style="{StaticResource OpsModuleButton}" Margin="0"/>
+                                            </StackPanel>
+                                        </ScrollViewer>
+                                    </DockPanel>
                                 </Border>
 
-                                <Border Grid.Row="1" Style="{StaticResource CardPanel}" MinWidth="540">
+                                <!-- Right workspace -->
+                                <Border Grid.Column="1" Style="{StaticResource CardPanel}" MinWidth="480" Padding="12">
                                     <Grid>
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="*"/>
                                         </Grid.RowDefinitions>
 
-                                        <Border Grid.Row="0" Style="{StaticResource InfoBanner}" Margin="0,0,0,8">
+                                        <Border Grid.Row="0" Style="{StaticResource InfoBanner}" Margin="0,0,0,10">
                                             <TextBlock x:Name="txtMasterDataWorkspaceInfo" Style="{StaticResource Text.Caption}"/>
                                         </Border>
 
                                         <Grid Grid.Row="1">
                                             <ContentControl x:Name="hostMasterDataModule" Visibility="Collapsed"/>
                                             <TextBlock x:Name="txtMasterDataModulePlaceholder"
-                                                       Text="Select a module from the launch list to open its workspace here."
+                                                       Text="Select a module from the sidebar to open its workspace here."
                                                        Style="{StaticResource Text.Subtitle}"
-                                                       VerticalAlignment="Center"/>
+                                                       VerticalAlignment="Center"
+                                                       HorizontalAlignment="Center"
+                                                       TextAlignment="Center"/>
                                         </Grid>
                                     </Grid>
                                 </Border>
                             </Grid>
                         </Grid>
-                        </ScrollViewer>
                     </TabItem>
 
                     <!-- Scheduling -->
@@ -1573,13 +1588,10 @@
                                 </ResourceDictionary.MergedDictionaries>
                             </ResourceDictionary>
                         </TabItem.Resources>
-                        <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                      HorizontalScrollBarVisibility="Disabled"
-                                      CanContentScroll="False">
-                        <Grid>
+                        <Grid Margin="0,0,0,4">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*" MinHeight="560"/>
                             </Grid.RowDefinitions>
 
                             <controls:SectionHeader Grid.Row="0"
@@ -1588,54 +1600,70 @@
                                                     Margin="0,0,0,10"/>
 
                             <Grid Grid.Row="1">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="*"/>
-                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="248"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
 
-                                <Border Grid.Row="0" Style="{StaticResource CardPanel}" Margin="0,0,0,10">
-                                    <StackPanel>
-                                        <Border Style="{StaticResource InfoBanner}" Margin="0,0,0,10">
-                                            <TextBlock Text="Use scheduling tools only after school years, grade levels, curricula, sections, rooms, and time slots are configured."
+                                <Border Grid.Column="0"
+                                        Style="{StaticResource CardPanel}"
+                                        Margin="0,0,12,0"
+                                        Padding="12">
+                                    <DockPanel LastChildFill="True">
+                                        <StackPanel DockPanel.Dock="Top" Margin="0,0,0,12">
+                                            <TextBlock Text="Modules"
+                                                       Style="{StaticResource Text.CaptionStrong}"
+                                                       FontSize="14"
+                                                       Foreground="#1E3A5F"/>
+                                            <TextBlock Text="Offerings, enrollees, schedules, loads, rooms, and time slots."
                                                        Style="{StaticResource Text.Caption}"
-                                                       TextWrapping="Wrap"/>
-                                        </Border>
-                                        <TextBlock Text="Module Navigation" Style="{StaticResource Text.CaptionStrong}"/>
-                                        <TextBlock Text="Open scheduling components without leaving the tab." Style="{StaticResource Text.Caption}" Margin="0,2,0,10"/>
-                                        <WrapPanel>
-                                            <Button x:Name="btnOpsOfferings" Content="Class Offerings" Style="{StaticResource OpsModuleButton}"/>
-                                            <Button x:Name="btnOpsSubjectEnrollees" Content="Subject Enrollees" Style="{StaticResource OpsModuleButton}"/>
-                                            <Button x:Name="btnOpsSchedules" Content="Schedules" Style="{StaticResource OpsModuleButton}"/>
-                                            <Button x:Name="btnOpsTeacherLoads" Content="Teacher Loads" Style="{StaticResource OpsModuleButton}"/>
-                                            <Button x:Name="btnOpsRooms" Content="Rooms" Style="{StaticResource OpsModuleButton}"/>
-                                            <Button x:Name="btnOpsTimeSlots" Content="Time Slots" Style="{StaticResource OpsModuleButton}" Margin="0,0,0,8"/>
-                                        </WrapPanel>
-                                    </StackPanel>
+                                                       TextWrapping="Wrap"
+                                                       Margin="0,4,0,10"
+                                                       Opacity="0.85"/>
+                                            <Border Style="{StaticResource InfoBanner}" Padding="8,7">
+                                                <TextBlock Text="Configure master data first, then open scheduling tools here."
+                                                           Style="{StaticResource Text.Caption}"
+                                                           TextWrapping="Wrap"/>
+                                            </Border>
+                                        </StackPanel>
+                                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                                      HorizontalScrollBarVisibility="Disabled">
+                                            <StackPanel>
+                                                <Button x:Name="btnOpsOfferings" Content="Class Offerings" Style="{StaticResource OpsModuleButton}"/>
+                                                <Button x:Name="btnOpsSubjectEnrollees" Content="Subject Enrollees" Style="{StaticResource OpsModuleButton}"/>
+                                                <Button x:Name="btnOpsSchedules" Content="Schedules" Style="{StaticResource OpsModuleButton}"/>
+                                                <Button x:Name="btnOpsTeacherLoads" Content="Teacher Loads" Style="{StaticResource OpsModuleButton}"/>
+                                                <Button x:Name="btnOpsRooms" Content="Rooms" Style="{StaticResource OpsModuleButton}"/>
+                                                <Button x:Name="btnOpsTimeSlots" Content="Time Slots" Style="{StaticResource OpsModuleButton}" Margin="0"/>
+                                            </StackPanel>
+                                        </ScrollViewer>
+                                    </DockPanel>
                                 </Border>
 
-                                <Border Grid.Row="1" Style="{StaticResource CardPanel}" MinWidth="540">
+                                <Border Grid.Column="1" Style="{StaticResource CardPanel}" MinWidth="480" Padding="12">
                                     <Grid>
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="*"/>
                                         </Grid.RowDefinitions>
 
-                                        <Border Grid.Row="0" Style="{StaticResource InfoBanner}" Margin="0,0,0,8">
+                                        <Border Grid.Row="0" Style="{StaticResource InfoBanner}" Margin="0,0,0,10">
                                             <TextBlock x:Name="txtSchedulingWorkspaceInfo" Style="{StaticResource Text.Caption}"/>
                                         </Border>
 
                                         <Grid Grid.Row="1">
                                             <ContentControl x:Name="hostSchedulingModule" Visibility="Collapsed"/>
                                             <TextBlock x:Name="txtSchedulingModulePlaceholder"
-                                                       Text="Select a module from the launch list to open its workspace here."
+                                                       Text="Select a module from the sidebar to open its workspace here."
                                                        Style="{StaticResource Text.Subtitle}"
-                                                       VerticalAlignment="Center"/>
+                                                       VerticalAlignment="Center"
+                                                       HorizontalAlignment="Center"
+                                                       TextAlignment="Center"/>
                                         </Grid>
                                     </Grid>
                                 </Border>
                             </Grid>
                         </Grid>
-                        </ScrollViewer>
                     </TabItem>
 
                     <!-- Accounts & Compliance -->
@@ -1647,13 +1675,10 @@
                                 </ResourceDictionary.MergedDictionaries>
                             </ResourceDictionary>
                         </TabItem.Resources>
-                        <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                      HorizontalScrollBarVisibility="Disabled"
-                                      CanContentScroll="False">
-                        <Grid>
+                        <Grid Margin="0,0,0,4">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*" MinHeight="560"/>
                             </Grid.RowDefinitions>
 
                             <controls:SectionHeader Grid.Row="0"
@@ -1662,51 +1687,67 @@
                                                     Margin="0,0,0,10"/>
 
                             <Grid Grid.Row="1">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="*"/>
-                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="248"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
 
-                                <Border Grid.Row="0" Style="{StaticResource CardPanel}" Margin="0,0,0,10">
-                                    <StackPanel>
-                                        <Border Style="{StaticResource InfoBanner}" Margin="0,0,0,10">
-                                            <TextBlock Text="Monitor generated accounts, required documents, and archived records from one compliance surface."
+                                <Border Grid.Column="0"
+                                        Style="{StaticResource CardPanel}"
+                                        Margin="0,0,12,0"
+                                        Padding="12">
+                                    <DockPanel LastChildFill="True">
+                                        <StackPanel DockPanel.Dock="Top" Margin="0,0,0,12">
+                                            <TextBlock Text="Modules"
+                                                       Style="{StaticResource Text.CaptionStrong}"
+                                                       FontSize="14"
+                                                       Foreground="#1E3A5F"/>
+                                            <TextBlock Text="Accounts, requirements, and archive monitoring."
                                                        Style="{StaticResource Text.Caption}"
-                                                       TextWrapping="Wrap"/>
-                                        </Border>
-                                        <TextBlock Text="Module Navigation" Style="{StaticResource Text.CaptionStrong}"/>
-                                        <TextBlock Text="Student accounts, requirement tracking, and archive monitoring." Style="{StaticResource Text.Caption}" Margin="0,2,0,10"/>
-                                        <WrapPanel>
-                                            <Button x:Name="btnOpsStudentAccounts" Content="Student Accounts" Style="{StaticResource OpsModuleButton}"/>
-                                            <Button x:Name="btnOpsRequirements" Content="Student Requirements" Style="{StaticResource OpsModuleButton}"/>
-                                            <Button x:Name="btnOpsArchive" Content="Archive Center" Style="{StaticResource OpsModuleButton}" Margin="0,0,0,8"/>
-                                        </WrapPanel>
-                                    </StackPanel>
+                                                       TextWrapping="Wrap"
+                                                       Margin="0,4,0,10"
+                                                       Opacity="0.85"/>
+                                            <Border Style="{StaticResource InfoBanner}" Padding="8,7">
+                                                <TextBlock Text="Monitor generated accounts and compliance records here."
+                                                           Style="{StaticResource Text.Caption}"
+                                                           TextWrapping="Wrap"/>
+                                            </Border>
+                                        </StackPanel>
+                                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                                      HorizontalScrollBarVisibility="Disabled">
+                                            <StackPanel>
+                                                <Button x:Name="btnOpsStudentAccounts" Content="Student Accounts" Style="{StaticResource OpsModuleButton}"/>
+                                                <Button x:Name="btnOpsRequirements" Content="Student Requirements" Style="{StaticResource OpsModuleButton}"/>
+                                                <Button x:Name="btnOpsArchive" Content="Archive Center" Style="{StaticResource OpsModuleButton}" Margin="0"/>
+                                            </StackPanel>
+                                        </ScrollViewer>
+                                    </DockPanel>
                                 </Border>
 
-                                <Border Grid.Row="1" Style="{StaticResource CardPanel}" MinWidth="540">
+                                <Border Grid.Column="1" Style="{StaticResource CardPanel}" MinWidth="480" Padding="12">
                                     <Grid>
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="*"/>
                                         </Grid.RowDefinitions>
 
-                                        <Border Grid.Row="0" Style="{StaticResource InfoBanner}" Margin="0,0,0,8">
+                                        <Border Grid.Row="0" Style="{StaticResource InfoBanner}" Margin="0,0,0,10">
                                             <TextBlock x:Name="txtAccountsComplianceWorkspaceInfo" Style="{StaticResource Text.Caption}"/>
                                         </Border>
 
                                         <Grid Grid.Row="1">
                                             <ContentControl x:Name="hostAccountsComplianceModule" Visibility="Collapsed"/>
                                             <TextBlock x:Name="txtAccountsComplianceModulePlaceholder"
-                                                       Text="Select a module from the launch list to open its workspace here."
+                                                       Text="Select a module from the sidebar to open its workspace here."
                                                        Style="{StaticResource Text.Subtitle}"
-                                                       VerticalAlignment="Center"/>
+                                                       VerticalAlignment="Center"
+                                                       HorizontalAlignment="Center"
+                                                       TextAlignment="Center"/>
                                         </Grid>
                                     </Grid>
                                 </Border>
                             </Grid>
                         </Grid>
-                        </ScrollViewer>
                     </TabItem>
 
                     <!-- Maintenance -->
@@ -1718,13 +1759,10 @@
                                 </ResourceDictionary.MergedDictionaries>
                             </ResourceDictionary>
                         </TabItem.Resources>
-                        <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                      HorizontalScrollBarVisibility="Disabled"
-                                      CanContentScroll="False">
-                        <Grid>
+                        <Grid Margin="0,0,0,4">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*" MinHeight="560"/>
                             </Grid.RowDefinitions>
 
                             <controls:SectionHeader Grid.Row="0"
@@ -1733,50 +1771,66 @@
                                                     Margin="0,0,0,10"/>
 
                             <Grid Grid.Row="1">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="*"/>
-                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="248"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
 
-                                <Border Grid.Row="0" Style="{StaticResource CardPanel}" Margin="0,0,0,10">
-                                    <StackPanel>
-                                        <Border Style="{StaticResource WarningBanner}" Margin="0,0,0,10">
-                                            <TextBlock Text="Maintenance actions are high-impact. Use these modules only after reviewing preflight warnings and governance prompts."
+                                <Border Grid.Column="0"
+                                        Style="{StaticResource CardPanel}"
+                                        Margin="0,0,12,0"
+                                        Padding="12">
+                                    <DockPanel LastChildFill="True">
+                                        <StackPanel DockPanel.Dock="Top" Margin="0,0,0,12">
+                                            <TextBlock Text="Modules"
+                                                       Style="{StaticResource Text.CaptionStrong}"
+                                                       FontSize="14"
+                                                       Foreground="#1E3A5F"/>
+                                            <TextBlock Text="Backup, restore, and year-end administrative actions."
                                                        Style="{StaticResource Text.Caption}"
-                                                       TextWrapping="Wrap"/>
-                                        </Border>
-                                        <TextBlock Text="Module Navigation" Style="{StaticResource Text.CaptionStrong}"/>
-                                        <TextBlock Text="Backup, restore, and year-end administrative actions." Style="{StaticResource Text.Caption}" Margin="0,2,0,10"/>
-                                        <WrapPanel>
-                                            <Button x:Name="btnOpsBackup" Content="Backup / Restore" Style="{StaticResource OpsModuleButton}"/>
-                                            <Button x:Name="btnOpsYearEnd" Content="Year-End Rollover" Style="{StaticResource OpsModuleButton}" Margin="0,0,0,8"/>
-                                        </WrapPanel>
-                                    </StackPanel>
+                                                       TextWrapping="Wrap"
+                                                       Margin="0,4,0,10"
+                                                       Opacity="0.85"/>
+                                            <Border Style="{StaticResource WarningBanner}" Padding="8,7">
+                                                <TextBlock Text="High-impact actions. Review preflight warnings before continuing."
+                                                           Style="{StaticResource Text.Caption}"
+                                                           TextWrapping="Wrap"/>
+                                            </Border>
+                                        </StackPanel>
+                                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                                      HorizontalScrollBarVisibility="Disabled">
+                                            <StackPanel>
+                                                <Button x:Name="btnOpsBackup" Content="Backup / Restore" Style="{StaticResource OpsModuleButton}"/>
+                                                <Button x:Name="btnOpsYearEnd" Content="Year-End Rollover" Style="{StaticResource OpsModuleButton}" Margin="0"/>
+                                            </StackPanel>
+                                        </ScrollViewer>
+                                    </DockPanel>
                                 </Border>
 
-                                <Border Grid.Row="1" Style="{StaticResource CardPanel}" MinWidth="540">
+                                <Border Grid.Column="1" Style="{StaticResource CardPanel}" MinWidth="480" Padding="12">
                                     <Grid>
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="*"/>
                                         </Grid.RowDefinitions>
 
-                                        <Border Grid.Row="0" Style="{StaticResource InfoBanner}" Margin="0,0,0,8">
+                                        <Border Grid.Row="0" Style="{StaticResource InfoBanner}" Margin="0,0,0,10">
                                             <TextBlock x:Name="txtMaintenanceWorkspaceInfo" Style="{StaticResource Text.Caption}"/>
                                         </Border>
 
                                         <Grid Grid.Row="1">
                                             <ContentControl x:Name="hostMaintenanceModule" Visibility="Collapsed"/>
                                             <TextBlock x:Name="txtMaintenanceModulePlaceholder"
-                                                       Text="Select a module from the launch list to open its workspace here."
+                                                       Text="Select a module from the sidebar to open its workspace here."
                                                        Style="{StaticResource Text.Subtitle}"
-                                                       VerticalAlignment="Center"/>
+                                                       VerticalAlignment="Center"
+                                                       HorizontalAlignment="Center"
+                                                       TextAlignment="Center"/>
                                         </Grid>
                                     </Grid>
                                 </Border>
                             </Grid>
                         </Grid>
-                        </ScrollViewer>
                     </TabItem>
 
                     <!-- Student Details (navigated from modal) -->

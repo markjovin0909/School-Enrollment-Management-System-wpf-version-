@@ -590,13 +590,13 @@ namespace School_Management_System
 
         private void SetActiveOperationsButton(Button activeButton, OperationsSection section)
         {
-            var selectedBackground = (Brush)FindResource("Brush.SurfaceAlt");
-            var selectedBorder = (Brush)FindResource("Brush.Primary");
-            var selectedForeground = (Brush)FindResource("Brush.Primary");
+            var selectedBackground = new SolidColorBrush(Color.FromRgb(0xDB, 0xEA, 0xFE));
+            var selectedBorder = new SolidColorBrush(Color.FromRgb(0x25, 0x63, 0xEB));
+            var selectedForeground = new SolidColorBrush(Color.FromRgb(0x1E, 0x40, 0xAF));
 
-            var defaultBackground = (Brush)FindResource("Brush.Surface");
-            var defaultBorder = (Brush)FindResource("Brush.BorderStrong");
-            var defaultForeground = (Brush)FindResource("Brush.TextPrimary");
+            var defaultBackground = Brushes.White;
+            var defaultBorder = new SolidColorBrush(Color.FromRgb(0xD5, 0xDE, 0xE9));
+            var defaultForeground = new SolidColorBrush(Color.FromRgb(0x1E, 0x3A, 0x5F));
 
             foreach (var button in _opsSubMenuButtons)
             {
@@ -607,7 +607,7 @@ namespace School_Management_System
                 button.BorderBrush = isActive ? selectedBorder : defaultBorder;
                 button.Foreground = isActive ? selectedForeground : defaultForeground;
                 button.FontWeight = isActive ? FontWeights.Bold : FontWeights.SemiBold;
-                button.Opacity = isInActiveSection ? 1 : 0.8;
+                button.Opacity = isInActiveSection ? 1 : 0.85;
             }
         }
 
@@ -622,14 +622,14 @@ namespace School_Management_System
             var moduleCount = _opsButtonSections.Count(x => x.Value == section);
             if (selectedButton == null)
             {
-                info.Text = $"{sectionLabel}: {moduleCount} module(s) available. Select one from the launch list to open its workspace on this page.";
+                info.Text = $"{sectionLabel}: {moduleCount} module(s) available. Choose one from the left sidebar to open its workspace.";
                 return;
             }
 
             var label = _opsButtonLabels.TryGetValue(selectedButton, out var mapped)
                 ? mapped
                 : selectedButton.Content?.ToString() ?? "Module";
-            info.Text = $"{sectionLabel} active module: {label}. Use the launch list to switch context without leaving the page.";
+            info.Text = $"{sectionLabel} active module: {label}. Use the left sidebar to switch modules without leaving this page.";
         }
 
         private void OpenStudentSearchModal()

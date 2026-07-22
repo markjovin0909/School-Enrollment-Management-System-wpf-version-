@@ -293,9 +293,25 @@
     <Style x:Key="OpsModuleButton" TargetType="Button" BasedOn="{StaticResource SecondaryActionButton}">
         <Setter Property="HorizontalAlignment" Value="Stretch"/>
         <Setter Property="HorizontalContentAlignment" Value="Left"/>
-        <Setter Property="Padding" Value="12,8"/>
-        <Setter Property="MinHeight" Value="34"/>
+        <Setter Property="Padding" Value="12,9"/>
+        <Setter Property="MinHeight" Value="36"/>
         <Setter Property="Margin" Value="0,0,0,6"/>
+        <Setter Property="FontSize" Value="12.5"/>
+        <Setter Property="Background" Value="#FFFFFF"/>
+        <Setter Property="BorderBrush" Value="#D5DEE9"/>
+        <Setter Property="Foreground" Value="#1E3A5F"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#EFF6FF"/>
+                <Setter Property="BorderBrush" Value="#93C5FD"/>
+                <Setter Property="Foreground" Value="#1D4ED8"/>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="#DBEAFE"/>
+                <Setter Property="BorderBrush" Value="#60A5FA"/>
+                <Setter Property="Foreground" Value="#1E40AF"/>
+            </Trigger>
+        </Style.Triggers>
     </Style>
 
     <Style x:Key="WorkbenchPrimaryActionButton" TargetType="Button" BasedOn="{StaticResource PageActionButton}">
