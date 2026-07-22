@@ -303,38 +303,57 @@
                                                     <Border Background="#00000000"/>
                                                 </UniformGrid>
 
-                                                <!-- Academic period info centered in the geometric band -->
-                                                <Border VerticalAlignment="Center"
+                                                <!-- Academic period info centered in the geometric band (editable) -->
+                                                <Border x:Name="dashboardAcademicPeriodCard"
+                                                        VerticalAlignment="Center"
                                                         HorizontalAlignment="Center"
                                                         Background="#CC0F3A48"
                                                         CornerRadius="12"
                                                         Padding="28,16"
                                                         BorderBrush="#66FFFFFF"
-                                                        BorderThickness="1">
-                                                    <StackPanel HorizontalAlignment="Center">
-                                                        <TextBlock x:Name="txtDashboardHeaderSchoolYear"
-                                                                   FontSize="16"
-                                                                   FontWeight="SemiBold"
-                                                                   Foreground="White"
-                                                                   HorizontalAlignment="Center"
-                                                                   TextAlignment="Center"
-                                                                   Text="School year: —"/>
-                                                        <TextBlock x:Name="txtDashboardHeaderGrading"
-                                                                   FontSize="14"
-                                                                   Foreground="#D7F0FF"
-                                                                   HorizontalAlignment="Center"
-                                                                   TextAlignment="Center"
-                                                                   Margin="0,6,0,0"
-                                                                   Text="Current grading: —"/>
-                                                        <TextBlock x:Name="txtDashboardHeaderEnrollment"
-                                                                   FontSize="13"
-                                                                   Foreground="#B6EBFF"
-                                                                   HorizontalAlignment="Center"
-                                                                   TextAlignment="Center"
-                                                                   Margin="0,6,0,0"
-                                                                   Visibility="Collapsed"
-                                                                   Text=""/>
-                                                    </StackPanel>
+                                                        BorderThickness="1"
+                                                        Cursor="Hand"
+                                                        ToolTip="Click to edit school year, grading period, and enrollment window">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <StackPanel Grid.Column="0" HorizontalAlignment="Center" Margin="0,0,16,0">
+                                                            <TextBlock x:Name="txtDashboardHeaderSchoolYear"
+                                                                       FontSize="16"
+                                                                       FontWeight="SemiBold"
+                                                                       Foreground="White"
+                                                                       HorizontalAlignment="Center"
+                                                                       TextAlignment="Center"
+                                                                       Text="School year: —"/>
+                                                            <TextBlock x:Name="txtDashboardHeaderGrading"
+                                                                       FontSize="14"
+                                                                       Foreground="#D7F0FF"
+                                                                       HorizontalAlignment="Center"
+                                                                       TextAlignment="Center"
+                                                                       Margin="0,6,0,0"
+                                                                       Text="Current grading: —"/>
+                                                            <TextBlock x:Name="txtDashboardHeaderEnrollment"
+                                                                       FontSize="13"
+                                                                       Foreground="#B6EBFF"
+                                                                       HorizontalAlignment="Center"
+                                                                       TextAlignment="Center"
+                                                                       Margin="0,6,0,0"
+                                                                       Visibility="Collapsed"
+                                                                       Text=""/>
+                                                        </StackPanel>
+                                                        <Button x:Name="btnDashboardEditAcademicPeriod"
+                                                                Grid.Column="1"
+                                                                Content="Edit"
+                                                                Width="72"
+                                                                MinHeight="30"
+                                                                VerticalAlignment="Center"
+                                                                Background="#E8F4F8"
+                                                                Foreground="#0F3A48"
+                                                                BorderBrush="#A8D4E0"
+                                                                ToolTip="Edit academic period"/>
+                                                    </Grid>
                                                 </Border>
                                             </Grid>
 

@@ -1,0 +1,143 @@
+<Window x:Class="School_Management_System.Views.AcademicPeriodEditWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Edit Academic Period"
+        Width="560"
+        Height="620"
+        MinWidth="520"
+        MinHeight="560"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource Brush.Background}"
+        Foreground="{DynamicResource Brush.TextPrimary}"
+        FontFamily="{DynamicResource FontFamily.Base}"
+        FontSize="13"
+        ResizeMode="NoResize">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Themes/Colors.xaml"/>
+                <ResourceDictionary Source="/Themes/Typography.xaml"/>
+                <ResourceDictionary Source="/Themes/Buttons.xaml"/>
+                <ResourceDictionary Source="/Themes/Inputs.xaml"/>
+                <ResourceDictionary Source="/Themes/Cards.xaml"/>
+                <ResourceDictionary Source="/Themes/Dialogs.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Grid Style="{StaticResource DialogRootGrid}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Style="{StaticResource DialogShell}" Margin="0,0,0,12">
+            <StackPanel>
+                <TextBlock Text="Edit Academic Period" Style="{StaticResource DialogHeaderTitle}"/>
+                <TextBlock Text="Update the active school year, current grading period, and enrollment window. Dependent dropdowns across the app will refresh after save."
+                           Style="{StaticResource DialogHeaderSubtitle}"/>
+            </StackPanel>
+        </Border>
+
+        <Border x:Name="validationSummaryHost"
+                Grid.Row="1"
+                Style="{StaticResource ErrorBanner}"
+                Visibility="Collapsed"
+                Margin="0,0,0,12">
+            <TextBlock x:Name="txtValidationSummary"
+                       Foreground="{StaticResource Brush.Danger}"
+                       TextWrapping="Wrap"/>
+        </Border>
+
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <Border Style="{StaticResource PersonFormSection}">
+                    <StackPanel>
+                        <TextBlock Text="Active School Year" Style="{StaticResource PersonFormSectionTitle}"/>
+                        <StackPanel Style="{StaticResource PersonFieldGroup}">
+                            <TextBlock Text="School Year" Style="{StaticResource PersonFieldLabel}"/>
+                            <ComboBox x:Name="cboSchoolYear" DisplayMemberPath="Name"/>
+                        </StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Style="{StaticResource PersonFieldGroup}">
+                                <TextBlock Text="Start Date" Style="{StaticResource PersonFieldLabel}"/>
+                                <DatePicker x:Name="dpStart"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" Style="{StaticResource PersonFieldGroup}">
+                                <TextBlock Text="End Date" Style="{StaticResource PersonFieldLabel}"/>
+                                <DatePicker x:Name="dpEnd"/>
+                            </StackPanel>
+                        </Grid>
+                        <StackPanel>
+                            <TextBlock Text="Status after save" Style="{StaticResource PersonFieldLabel}"/>
+                            <TextBlock Text="ACTIVE (other active years become CLOSED)"
+                                       Style="{StaticResource Text.Caption}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource PersonFormSection}">
+                    <StackPanel>
+                        <TextBlock Text="Enrollment Window" Style="{StaticResource PersonFormSectionTitle}"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Enrollment Open" Style="{StaticResource PersonFieldLabel}"/>
+                                <DatePicker x:Name="dpEnrollmentOpen"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Enrollment Close" Style="{StaticResource PersonFieldLabel}"/>
+                                <DatePicker x:Name="dpEnrollmentClose"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource PersonFormSection}" Margin="0">
+                    <StackPanel>
+                        <TextBlock Text="Current Grading Period" Style="{StaticResource PersonFormSectionTitle}"/>
+                        <StackPanel Style="{StaticResource PersonFieldGroup}">
+                            <TextBlock Text="Grading Period" Style="{StaticResource PersonFieldLabel}"/>
+                            <ComboBox x:Name="cboGradingPeriod" DisplayMemberPath="Label"/>
+                        </StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Period Start" Style="{StaticResource PersonFieldLabel}"/>
+                                <DatePicker x:Name="dpGradingStart"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Period End" Style="{StaticResource PersonFieldLabel}"/>
+                                <DatePicker x:Name="dpGradingEnd"/>
+                            </StackPanel>
+                        </Grid>
+                        <TextBlock Text="Selected period becomes OPEN. Other OPEN periods for this school year become CLOSED."
+                                   Style="{StaticResource Text.Caption}"
+                                   Margin="0,8,0,0"
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <DockPanel Grid.Row="3" Style="{StaticResource DialogActionBar}" LastChildFill="False">
+            <Button x:Name="btnCancel" Content="Cancel" Width="90" Style="{StaticResource CancelActionButton}" DockPanel.Dock="Right" Margin="8,0,0,0"/>
+            <Button x:Name="btnSave" Content="Save Changes" Width="128" DockPanel.Dock="Right"/>
+        </DockPanel>
+    </Grid>
+</Window>

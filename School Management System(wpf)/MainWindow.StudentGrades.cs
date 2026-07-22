@@ -274,7 +274,22 @@ namespace School_Management_System
             cboSGGradingPeriod.ItemsSource = items;
             cboSGGradingPeriod.DisplayMemberPath = nameof(SGLookupItem.Name);
             cboSGGradingPeriod.SelectedValuePath = nameof(SGLookupItem.Id);
-            cboSGGradingPeriod.SelectedValue = items.Any(x => x.Id == selectedId) ? selectedId : items.FirstOrDefault()?.Id ?? 0L;
+
+            // Prefer currently OPEN period when previous selection is no longer valid.
+            long preferredId = selectedId;
+            if (!items.Any(x => x.Id == preferredId))
+            {
+                preferredId = _sgGradingPeriods
+                    .Where(x => (!schoolYearId.HasValue || x.SchoolYearId == schoolYearId.Value)
+                                && x.Status == GradingPeriodStatus.OPEN)
+                    .OrderBy(x => x.StartDate ?? DateTime.MinValue)
+                    .Select(x => x.Id)
+                    .LastOrDefault();
+            }
+
+            cboSGGradingPeriod.SelectedValue = items.Any(x => x.Id == preferredId)
+                ? preferredId
+                : items.FirstOrDefault()?.Id ?? 0L;
         }
 
         private void SGSyncFiltersFromOffering()

@@ -119,6 +119,7 @@ namespace School_Management_System
 
             WireNavigation();
             WireTopBar();
+            WireAcademicPeriodEditor();
             InitializeOperationsInlineHosts();
             WireOperationsButtons();
             StartSessionMonitoring();
@@ -230,6 +231,140 @@ namespace School_Management_System
                     Logout("WINDOW_CLOSED", reopenLogin: false, closeWindow: false);
                 }
             };
+        }
+
+        private void WireAcademicPeriodEditor()
+        {
+            btnDashboardEditAcademicPeriod.Click += (_, _) => OpenAcademicPeriodEditor();
+            dashboardAcademicPeriodCard.MouseLeftButtonUp += (_, e) =>
+            {
+                // Ignore clicks that originated on the Edit button (it handles itself).
+                if (e.OriginalSource is DependencyObject source
+                    && (ReferenceEquals(source, btnDashboardEditAcademicPeriod)
+                        || IsDescendantOf(source, btnDashboardEditAcademicPeriod)))
+                {
+                    return;
+                }
+
+                OpenAcademicPeriodEditor();
+            };
+        }
+
+        private static bool IsDescendantOf(DependencyObject source, DependencyObject ancestor)
+        {
+            var current = source;
+            while (current != null)
+            {
+                if (ReferenceEquals(current, ancestor))
+                {
+                    return true;
+                }
+
+                current = VisualTreeHelper.GetParent(current);
+            }
+
+            return false;
+        }
+
+        private void OpenAcademicPeriodEditor()
+        {
+            try
+            {
+                var dialog = new AcademicPeriodEditWindow { Owner = this };
+                if (dialog.ShowDialog() == true)
+                {
+                    // Prefer the newly active school year in session-backed filters.
+                    if (dialog.SavedSchoolYearId.HasValue)
+                    {
+                        SetSessionStateLong("enrollment.schoolYearId", dialog.SavedSchoolYearId.Value);
+                        SetSessionStateLong("reports.schoolYearId", dialog.SavedSchoolYearId.Value);
+                    }
+
+                    RefreshAcademicPeriodDependentUi(dialog.SavedSchoolYearId, dialog.SavedGradingPeriodId);
+                    AppFeedbackService.ShowSuccess(
+                        "Academic period updated. Dependent school year and grading filters were refreshed.",
+                        "Academic Period",
+                        this);
+                }
+            }
+            catch (Exception ex)
+            {
+                AppFeedbackService.ShowError("Open academic period editor failed.", ex, "Academic Period", this);
+            }
+        }
+
+        /// <summary>
+        /// Refresh dashboard labels and every in-shell dropdown that defaults to the active
+        /// school year / current grading period after those values change.
+        /// </summary>
+        private void RefreshAcademicPeriodDependentUi(long? schoolYearId, long? gradingPeriodId)
+        {
+            try
+            {
+                LoadDashboard();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Dashboard refresh after academic period edit failed: {ex.Message}");
+            }
+
+            try
+            {
+                RefreshEnrollmentTab();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Enrollment refresh after academic period edit failed: {ex.Message}");
+            }
+
+            try
+            {
+                LoadReportsLookups();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Reports refresh after academic period edit failed: {ex.Message}");
+            }
+
+            try
+            {
+                SGLoadLookups();
+                if (gradingPeriodId.HasValue && gradingPeriodId.Value > 0)
+                {
+                    cboSGGradingPeriod.SelectedValue = gradingPeriodId.Value;
+                }
+                else
+                {
+                    PreferOpenGradingPeriodInStudentGrades();
+                }
+
+                SGLoadRoster();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Student grades refresh after academic period edit failed: {ex.Message}");
+            }
+
+            // Hosted operations modules reopen with SchoolYearSelectionHelper, so no live host rebinding is required here.
+            _ = schoolYearId;
+        }
+
+        private void PreferOpenGradingPeriodInStudentGrades()
+        {
+            if (cboSGSchoolYear.SelectedValue is not long schoolYearId || schoolYearId <= 0)
+            {
+                return;
+            }
+
+            var openPeriod = _gradingPeriodService.GetAll()
+                .Where(x => x.SchoolYearId == schoolYearId && x.Status == GradingPeriodStatus.OPEN)
+                .OrderBy(x => x.StartDate ?? DateTime.MinValue)
+                .LastOrDefault();
+
+            if (openPeriod != null)
+            {
+                cboSGGradingPeriod.SelectedValue = openPeriod.Id;
+            }
         }
 
         private void StartSessionMonitoring()
