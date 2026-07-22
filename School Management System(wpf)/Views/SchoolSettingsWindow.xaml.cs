@@ -40,8 +40,8 @@ namespace School_Management_System.Views
                 _existingLogoPath = null;
                 _selectedLogoSourcePath = null;
                 _clearLogoRequested = false;
-                txtSchoolName.Text = "School Management System";
-                txtSchoolCode.Clear();
+                txtSchoolName.Text = AppBrandingDefaults.AppName;
+                txtSchoolCode.Text = AppBrandingDefaults.SchoolCode;
                 txtAddress.Clear();
                 txtPrincipal.Clear();
                 txtEnrollmentConfiguration.Text = "Standard enrollment workflow with manual review of submitted student requirements.";
@@ -51,9 +51,9 @@ namespace School_Management_System.Views
                 chkEnrollmentClose.IsChecked = false;
                 dpEnrollmentClose.SelectedDate = DateTime.Today;
 
-                txtPrintHeader1.Text = txtSchoolName.Text;
-                txtPrintHeader2.Clear();
-                txtStudentPrefix.Text = SchoolSettingService.NormalizeStudentNumberPrefix("SMS", string.Empty);
+                txtPrintHeader1.Text = AppBrandingDefaults.PrintHeaderLine1;
+                txtPrintHeader2.Text = AppBrandingDefaults.PrintHeaderLine2;
+                txtStudentPrefix.Text = AppBrandingDefaults.StudentNumberPrefix;
                 txtNextStudentNo.Text = "1";
                 txtDefaultCapacity.Text = "45";
                 txtDefaultGradeLevels.Text = string.Empty;

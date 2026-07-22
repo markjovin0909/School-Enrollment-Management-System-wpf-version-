@@ -66,9 +66,9 @@ INSERT INTO school_settings (
     default_section_capacity, default_grade_level_ids, created_at, updated_at
 )
 VALUES (
-    'School Management System', 'SMS-001', 'Main Campus, City', 'Dr. Elena Ramos', 'K-12 quarter system (WW 30%, PT 50%, QA 20%)',
+    'eTinun-an', 'ETN', 'Main Campus, City', 'Dr. Elena Ramos', 'K-12 quarter system (WW 30%, PT 50%, QA 20%)',
     'Approval Required', '2026-04-01', '2026-08-31',
-    'School Management System', 'Enrollment Services Office', 'STU', 1046,
+    'eTinun-an', 'Digital Learners Management System', 'ETN', 1046,
     45, NULL, UTC_TIMESTAMP(6), UTC_TIMESTAMP(6)
 );
 
@@ -505,7 +505,7 @@ VALUES
 INSERT INTO audit_logs (user_id, action, entity, entity_id, payload, created_at)
 VALUES
 (@admin_uid, 'SEED',   'database',       NULL,                                                '{"message":"Connected unenrolled seed executed"}', UTC_TIMESTAMP(6)),
-(@admin_uid, 'CREATE', 'school_settings', (SELECT Id FROM school_settings ORDER BY Id DESC LIMIT 1), '{"school":"School Management System","next_student_number":1046}', UTC_TIMESTAMP(6)),
+(@admin_uid, 'CREATE', 'school_settings', (SELECT Id FROM school_settings ORDER BY Id DESC LIMIT 1), '{"school":"eTinun-an","next_student_number":1046}', UTC_TIMESTAMP(6)),
 (@admin_uid, 'CREATE', 'school_years',   @sy_active,                                           '{"name":"2026-2027","status":"ACTIVE"}', UTC_TIMESTAMP(6)),
 (@admin_uid, 'CREATE', 'students',       (SELECT Id FROM students WHERE lrn = 'LRN-0001' LIMIT 1),  '{"lrn":"LRN-0001","preferred_grade":"G7","enrollment_state":"UNENROLLED"}', UTC_TIMESTAMP(6)),
 (@teacher1_uid, 'UPDATE', 'class_offerings', @off_eng7_emerald,                               '{"note":"seeded class offering finalized"}', UTC_TIMESTAMP(6));

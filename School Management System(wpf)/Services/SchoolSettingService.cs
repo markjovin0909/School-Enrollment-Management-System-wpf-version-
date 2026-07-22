@@ -65,14 +65,16 @@ namespace School_Management_System.Services
             var now = DateTime.UtcNow;
             var setting = new SchoolSetting
             {
-                SchoolName = "School Management System",
-                SchoolCode = "SMS-001",
+                SchoolName = AppBrandingDefaults.AppName,
+                SchoolCode = AppBrandingDefaults.SchoolCode,
                 SchoolAddress = string.Empty,
                 PrincipalName = string.Empty,
                 GradingSetup = "K-12 quarter system",
                 EnrollmentConfiguration = "Open",
+                PrintHeaderLine1 = AppBrandingDefaults.PrintHeaderLine1,
+                PrintHeaderLine2 = AppBrandingDefaults.PrintHeaderLine2,
                 SchoolLogoPath = null,
-                StudentNumberPrefix = "S",
+                StudentNumberPrefix = AppBrandingDefaults.StudentNumberPrefix,
                 NextStudentNumber = 1,
                 DefaultSectionCapacity = 45,
                 DefaultGradeLevelIds = null,
@@ -144,17 +146,18 @@ namespace School_Management_System.Services
         public SchoolPrintIdentity GetPrintIdentity()
         {
             var setting = GetLatest();
-            var schoolName = string.IsNullOrWhiteSpace(setting?.SchoolName)
-                ? "School Management System"
-                : setting!.SchoolName.Trim();
-            var schoolCode = setting?.SchoolCode?.Trim() ?? string.Empty;
+            var schoolName = AppBrandingDefaults.ResolveSchoolName(setting?.SchoolName);
+            var schoolCode = string.IsNullOrWhiteSpace(setting?.SchoolCode)
+                ? AppBrandingDefaults.SchoolCode
+                : setting!.SchoolCode.Trim();
             var schoolAddress = setting?.SchoolAddress?.Trim() ?? string.Empty;
             var principalName = setting?.PrincipalName?.Trim() ?? string.Empty;
             var printHeader1 = string.IsNullOrWhiteSpace(setting?.PrintHeaderLine1)
-                ? schoolName
+                || AppBrandingDefaults.IsUnsetOrLegacySchoolName(setting?.PrintHeaderLine1)
+                ? AppBrandingDefaults.PrintHeaderLine1
                 : setting!.PrintHeaderLine1!.Trim();
             var printHeader2 = string.IsNullOrWhiteSpace(setting?.PrintHeaderLine2)
-                ? schoolAddress
+                ? AppBrandingDefaults.PrintHeaderLine2
                 : setting!.PrintHeaderLine2!.Trim();
 
             return new SchoolPrintIdentity(
@@ -164,6 +167,71 @@ namespace School_Management_System.Services
                 principalName,
                 printHeader1,
                 printHeader2);
+        }
+
+        /// <summary>
+        /// Upgrades legacy product naming to the official eTinun-an branding when settings still use old defaults.
+        /// </summary>
+        public void EnsureProductBrandingDefaults()
+        {
+            try
+            {
+                using var db = new AppDbContext();
+                var setting = db.SchoolSettings.OrderByDescending(x => x.Id).FirstOrDefault();
+                if (setting == null)
+                {
+                    GetOrCreateDefault();
+                    return;
+                }
+
+                var changed = false;
+                if (AppBrandingDefaults.IsUnsetOrLegacySchoolName(setting.SchoolName))
+                {
+                    setting.SchoolName = AppBrandingDefaults.AppName;
+                    changed = true;
+                }
+
+                if (string.IsNullOrWhiteSpace(setting.SchoolCode)
+                    || string.Equals(setting.SchoolCode.Trim(), "SMS-001", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(setting.SchoolCode.Trim(), "SMS", StringComparison.OrdinalIgnoreCase))
+                {
+                    setting.SchoolCode = AppBrandingDefaults.SchoolCode;
+                    changed = true;
+                }
+
+                if (string.IsNullOrWhiteSpace(setting.PrintHeaderLine1)
+                    || AppBrandingDefaults.IsUnsetOrLegacySchoolName(setting.PrintHeaderLine1))
+                {
+                    setting.PrintHeaderLine1 = AppBrandingDefaults.PrintHeaderLine1;
+                    changed = true;
+                }
+
+                if (string.IsNullOrWhiteSpace(setting.PrintHeaderLine2)
+                    || string.Equals(setting.PrintHeaderLine2.Trim(), "Enrollment Services Office", StringComparison.OrdinalIgnoreCase))
+                {
+                    setting.PrintHeaderLine2 = AppBrandingDefaults.PrintHeaderLine2;
+                    changed = true;
+                }
+
+                if (string.IsNullOrWhiteSpace(setting.StudentNumberPrefix)
+                    || string.Equals(setting.StudentNumberPrefix.Trim(), "S", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(setting.StudentNumberPrefix.Trim(), "SMS", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(setting.StudentNumberPrefix.Trim(), "STU", StringComparison.OrdinalIgnoreCase))
+                {
+                    setting.StudentNumberPrefix = AppBrandingDefaults.StudentNumberPrefix;
+                    changed = true;
+                }
+
+                if (changed)
+                {
+                    setting.UpdatedAt = DateTime.UtcNow;
+                    db.SaveChanges();
+                }
+            }
+            catch
+            {
+                // Branding upgrade must never block startup.
+            }
         }
 
         public static IReadOnlyList<long> ParseGradeLevelIds(string? rawValue)

@@ -97,8 +97,8 @@ DROP PROCEDURE IF EXISTS `ensure_index`;
 
 INSERT INTO `school_settings` (`school_name`, `school_code`, `school_address`, `principal_name`, `grading_setup`, `created_at`, `updated_at`)
 SELECT
-    'School Management System',
-    'SMS-001',
+    'eTinun-an',
+    'ETN',
     '',
     '',
     'K-12 quarter system (WW 30%, PT 50%, QA 20%)',

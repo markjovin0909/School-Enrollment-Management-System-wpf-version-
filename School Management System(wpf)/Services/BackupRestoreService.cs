@@ -1474,7 +1474,7 @@ namespace School_Management_System.Services
             var productName = Application.ProductName;
             if (string.IsNullOrWhiteSpace(productName))
             {
-                productName = "School Management System";
+                productName = "eTinun-an";
             }
 
             return productName.Trim();

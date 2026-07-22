@@ -1,7 +1,7 @@
 ﻿<Window x:Class="School_Management_System.Views.LoginWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="School Management System"
+        Title="eTinun-an"
         Width="980"
         Height="640"
         MinWidth="820"
@@ -39,18 +39,24 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <Border Grid.Row="0"
-                        Width="266"
-                        Height="266"
-                        CornerRadius="40"
-                        Background="#0E2038"
-                        BorderBrush="#3B6298"
-                        BorderThickness="2"
-                        Padding="20"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center">
-                    <Image x:Name="imgPrimaryLogo" Stretch="Uniform"/>
-                </Border>
+                <Grid Grid.Row="0"
+                      Width="266"
+                      Height="266"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center">
+                    <Ellipse Fill="#0E2038"
+                             Stroke="#3B6298"
+                             StrokeThickness="2"/>
+                    <Image x:Name="imgPrimaryLogo"
+                           Width="266"
+                           Height="266"
+                           Stretch="UniformToFill"
+                           Margin="4">
+                        <Image.Clip>
+                            <EllipseGeometry Center="133,133" RadiusX="129" RadiusY="129"/>
+                        </Image.Clip>
+                    </Image>
+                </Grid>
 
                 <StackPanel Grid.Row="1" HorizontalAlignment="Center" Margin="0,18,0,0">
                     <TextBlock x:Name="txtSchoolTitle"
@@ -59,10 +65,15 @@
                                Foreground="White"
                                TextWrapping="Wrap"
                                TextAlignment="Center"/>
-                    <TextBlock Text="SUPERADMIN Control Portal"
+                    <TextBlock Text="Digital Learners Management System"
                                Style="{StaticResource Text.Subtitle}"
                                Foreground="#BFD0EE"
                                Margin="0,6,0,0"
+                               TextAlignment="Center"/>
+                    <TextBlock Text="SUPERADMIN Control Portal"
+                               Style="{StaticResource Text.Caption}"
+                               Foreground="#9FB4D6"
+                               Margin="0,4,0,0"
                                TextAlignment="Center"/>
                 </StackPanel>
             </Grid>

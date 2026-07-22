@@ -38,7 +38,11 @@ public sealed class BehaviorServiceCoverageTests : BackendTestBase
         var branding = new SchoolBrandingService().GetCurrentBranding();
 
         Assert.Equal("SMS Academy", branding.SchoolName);
-        Assert.EndsWith("Logo.jpg", branding.LogoAbsolutePath, StringComparison.OrdinalIgnoreCase);
+        Assert.True(
+            branding.LogoAbsolutePath.EndsWith("Logo.png", StringComparison.OrdinalIgnoreCase)
+            || branding.LogoAbsolutePath.EndsWith("Logo.jpg", StringComparison.OrdinalIgnoreCase)
+            || branding.LogoAbsolutePath.EndsWith("Logo.jpeg", StringComparison.OrdinalIgnoreCase),
+            $"Unexpected logo path: {branding.LogoAbsolutePath}");
         Assert.NotNull(branding.LogoImage);
     }
 

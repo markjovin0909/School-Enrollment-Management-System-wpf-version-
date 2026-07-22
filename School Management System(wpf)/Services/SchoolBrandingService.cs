@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -8,21 +9,20 @@ namespace School_Management_System.Services
 {
     internal sealed class SchoolBrandingService
     {
-        private const string DefaultLogoRelativePath = "Assets/Logo.jpg";
-        private const string WorkspaceLogoFileName = "Logo.jpg";
         private readonly SchoolSettingService _schoolSettingService = new();
 
         public SchoolBrandingSnapshot GetCurrentBranding()
         {
             var setting = _schoolSettingService.GetLatest();
-            var schoolName = string.IsNullOrWhiteSpace(setting?.SchoolName)
-                ? "School Management System"
-                : setting!.SchoolName.Trim();
+            var schoolName = AppBrandingDefaults.ResolveSchoolName(setting?.SchoolName);
+            var schoolCode = string.IsNullOrWhiteSpace(setting?.SchoolCode)
+                ? AppBrandingDefaults.SchoolCode
+                : setting!.SchoolCode.Trim();
 
             var logoPath = ResolveLogoAbsolutePath(setting?.SchoolLogoPath);
             return new SchoolBrandingSnapshot(
                 schoolName,
-                setting?.SchoolCode?.Trim() ?? string.Empty,
+                schoolCode,
                 setting?.SchoolAddress?.Trim() ?? string.Empty,
                 setting?.PrincipalName?.Trim() ?? string.Empty,
                 logoPath,
@@ -32,25 +32,39 @@ namespace School_Management_System.Services
         public string GetDefaultLogoAbsolutePath()
         {
             var baseDir = AppDomain.CurrentDomain.BaseDirectory;
-            var bundledPath = Path.Combine(baseDir, DefaultLogoRelativePath);
-            if (File.Exists(bundledPath))
+
+            foreach (var relative in AppBrandingDefaults.RelativeLogoPaths)
             {
-                return bundledPath;
+                var candidate = Path.Combine(baseDir, relative.Replace('/', Path.DirectorySeparatorChar));
+                if (File.Exists(candidate))
+                {
+                    return candidate;
+                }
             }
 
             var current = new DirectoryInfo(baseDir);
             while (current != null)
             {
-                var candidate = Path.Combine(current.FullName, WorkspaceLogoFileName);
-                if (File.Exists(candidate))
+                foreach (var fileName in AppBrandingDefaults.LogoFileNames)
                 {
-                    return candidate;
+                    var candidate = Path.Combine(current.FullName, fileName);
+                    if (File.Exists(candidate))
+                    {
+                        return candidate;
+                    }
+
+                    var assetsCandidate = Path.Combine(current.FullName, "Assets", fileName);
+                    if (File.Exists(assetsCandidate))
+                    {
+                        return assetsCandidate;
+                    }
                 }
 
                 current = current.Parent;
             }
 
-            return bundledPath;
+            // Last resort path used by callers for diagnostics; LoadImage also tries pack URI.
+            return Path.Combine(baseDir, "Assets", "Logo.png");
         }
 
         public string ResolveLogoAbsolutePath(string? logoPath)
@@ -71,13 +85,58 @@ namespace School_Management_System.Services
 
         private static ImageSource LoadImage(string absolutePath)
         {
-            var bitmap = new BitmapImage();
-            bitmap.BeginInit();
-            bitmap.CacheOption = BitmapCacheOption.OnLoad;
-            bitmap.UriSource = new Uri(absolutePath, UriKind.Absolute);
-            bitmap.EndInit();
-            bitmap.Freeze();
-            return bitmap;
+            if (!string.IsNullOrWhiteSpace(absolutePath) && File.Exists(absolutePath))
+            {
+                var fileBitmap = new BitmapImage();
+                fileBitmap.BeginInit();
+                fileBitmap.CacheOption = BitmapCacheOption.OnLoad;
+                fileBitmap.UriSource = new Uri(absolutePath, UriKind.Absolute);
+                fileBitmap.EndInit();
+                fileBitmap.Freeze();
+                return fileBitmap;
+            }
+
+            // Fallback: pack resource (WPF Resource item).
+            foreach (var relative in AppBrandingDefaults.RelativeLogoPaths)
+            {
+                try
+                {
+                    var packUri = new Uri($"pack://application:,,,/{relative.Replace('\\', '/')}", UriKind.Absolute);
+                    var resourceInfo = Application.GetResourceStream(packUri);
+                    if (resourceInfo?.Stream == null)
+                    {
+                        continue;
+                    }
+
+                    using (resourceInfo.Stream)
+                    {
+                        var packBitmap = new BitmapImage();
+                        packBitmap.BeginInit();
+                        packBitmap.CacheOption = BitmapCacheOption.OnLoad;
+                        packBitmap.StreamSource = resourceInfo.Stream;
+                        packBitmap.EndInit();
+                        packBitmap.Freeze();
+                        return packBitmap;
+                    }
+                }
+                catch
+                {
+                    // Try next candidate.
+                }
+            }
+
+            // Transparent 1x1 placeholder so UI never crashes if logo is missing.
+            var placeholder = BitmapSource.Create(
+                1,
+                1,
+                96,
+                96,
+                PixelFormats.Bgra32,
+                null,
+                new byte[] { 0, 0, 0, 0 },
+                4);
+            placeholder.Freeze();
+            return placeholder;
         }
     }
 

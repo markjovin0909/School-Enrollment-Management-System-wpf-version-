@@ -1,5 +1,6 @@
 using System;
 using System.Windows;
+using School_Management_System.Services;
 using School_Management_System.Views;
 
 namespace School_Management_System
@@ -17,6 +18,16 @@ namespace School_Management_System
 
             try
             {
+                // Apply official eTinun-an product branding when settings still use legacy defaults.
+                try
+                {
+                    new SchoolSettingService().EnsureProductBrandingDefaults();
+                }
+                catch
+                {
+                    // Database may not be reachable at first launch; branding still falls back in UI.
+                }
+
                 var login = new LoginWindow();
                 MainWindow = login;
                 ShutdownMode = ShutdownMode.OnMainWindowClose;

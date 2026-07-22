@@ -226,7 +226,7 @@ namespace School_Management_System.Configuration
         {
             var root = Path.Combine(
                 System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData),
-                "School Management System",
+                "eTinun-an",
                 "Config");
 
             return Path.Combine(root, "DatabaseOverrides.config");

@@ -212,7 +212,7 @@ namespace School_Management_System.Services
         private static string GetReportsDataDirectory()
         {
             var appName = string.IsNullOrWhiteSpace(Application.ProductName)
-                ? "School Management System"
+                ? "eTinun-an"
                 : Application.ProductName.Trim();
             var root = Path.Combine(
                 GetApplicationDataRoot(),

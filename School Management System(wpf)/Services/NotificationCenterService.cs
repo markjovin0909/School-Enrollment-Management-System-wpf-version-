@@ -204,7 +204,7 @@ namespace School_Management_System.Services
         private static string GetStoragePath()
         {
             var appName = string.IsNullOrWhiteSpace(Application.ProductName)
-                ? "School Management System"
+                ? "eTinun-an"
                 : Application.ProductName.Trim();
             var root = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),

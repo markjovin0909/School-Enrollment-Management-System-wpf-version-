@@ -49,16 +49,22 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
-                            <Border Width="120"
-                                    Height="120"
-                                    CornerRadius="18"
-                                    BorderBrush="{StaticResource BrushBorder}"
-                                    BorderThickness="1"
-                                    Background="#FFFFFF"
-                                    Padding="8"
-                                    Margin="0,0,14,0">
-                                <Image x:Name="imgSchoolLogo" Stretch="Uniform"/>
-                            </Border>
+                            <Grid Width="120"
+                                  Height="120"
+                                  Margin="0,0,14,0">
+                                <Ellipse Fill="#FFFFFF"
+                                         Stroke="{StaticResource BrushBorder}"
+                                         StrokeThickness="1"/>
+                                <Image x:Name="imgSchoolLogo"
+                                       Width="120"
+                                       Height="120"
+                                       Stretch="UniformToFill"
+                                       Margin="2">
+                                    <Image.Clip>
+                                        <EllipseGeometry Center="60,60" RadiusX="58" RadiusY="58"/>
+                                    </Image.Clip>
+                                </Image>
+                            </Grid>
 
                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                 <Label Content="School Logo" Padding="0"/>
