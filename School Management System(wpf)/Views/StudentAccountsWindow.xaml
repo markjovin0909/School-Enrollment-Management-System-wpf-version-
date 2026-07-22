@@ -45,7 +45,7 @@
                     <Button x:Name="btnSync" Content="Sync Account" Width="110" Style="{StaticResource GhostButton}"/>
                     <Button x:Name="btnReset" Content="Reset Account" Width="110" Style="{StaticResource GhostButton}"/>
                     <Button x:Name="btnHistory" Content="View History" Width="110" Style="{StaticResource GhostButton}"/>
-                    <Button x:Name="btnRefresh" Content="Refresh" Width="90" Style="{StaticResource GhostButton}"/>
+                    <Button x:Name="btnRefresh" Content="Refresh" Width="80" Style="{StaticResource RefreshActionButton}"/>
                 </StackPanel>
             </DockPanel>
         </Border>

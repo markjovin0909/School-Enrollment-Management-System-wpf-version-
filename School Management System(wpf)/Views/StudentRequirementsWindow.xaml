@@ -49,9 +49,9 @@
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
                     <TextBlock x:Name="txtSummary" VerticalAlignment="Center" Margin="0,0,12,0" Foreground="{StaticResource BrushMuted}"/>
-                    <Button x:Name="btnListEdit" Content="Edit Selected" Width="104" Margin="0,0,8,0" Style="{StaticResource GhostButton}"/>
-                    <Button x:Name="btnListDelete" Content="Delete Selected" Width="112" Margin="0,0,8,0" Style="{StaticResource GhostButton}"/>
-                    <Button x:Name="btnRefresh" Content="Refresh" Width="92" Style="{StaticResource GhostButton}"/>
+                    <Button x:Name="btnListEdit" Content="Edit Selected" Width="104" Margin="0,0,8,0" Style="{StaticResource EditActionButton}"/>
+                    <Button x:Name="btnListDelete" Content="Delete Selected" Width="112" Margin="0,0,8,0" Style="{StaticResource DeleteActionButton}"/>
+                    <Button x:Name="btnRefresh" Content="Refresh" Width="80" Style="{StaticResource RefreshActionButton}"/>
                 </StackPanel>
             </DockPanel>
         </Border>
@@ -96,7 +96,7 @@
                 <WrapPanel Margin="0,10,0,0">
                     <Button x:Name="btnAdd" Content="Create" Width="90"/>
                     <Button x:Name="btnSave" Content="Save" Width="90"/>
-                    <Button x:Name="btnDelete" Content="Delete" Width="90" Style="{StaticResource GhostButton}"/>
+                    <Button x:Name="btnDelete" Content="Delete" Width="80" Style="{StaticResource DeleteActionButton}"/>
                     <Button x:Name="btnCancel" Content="Cancel" Width="90" Style="{StaticResource GhostButton}" Visibility="Collapsed"/>
                 </WrapPanel>
             </StackPanel>

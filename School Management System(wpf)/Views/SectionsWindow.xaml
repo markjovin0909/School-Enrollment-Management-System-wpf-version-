@@ -52,12 +52,12 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <Button Grid.Column="0" x:Name="btnNew" Content="New Section" Width="108" Margin="0,0,8,0"/>
-                <Button Grid.Column="1" x:Name="btnListEdit" Content="Edit" Width="80" Margin="0,0,8,0"/>
-                <Button Grid.Column="2" x:Name="btnListDelete" Content="Archive/Restore" Width="120" Margin="0,0,8,0" Style="{StaticResource GhostButton}"/>
+                <Button Grid.Column="1" x:Name="btnListEdit" Content="Edit" Width="80" Margin="0,0,8,0" Style="{StaticResource EditActionButton}"/>
+                <Button Grid.Column="2" x:Name="btnListDelete" Content="Archive/Restore" Width="120" Margin="0,0,8,0" Style="{StaticResource ArchiveActionButton}"/>
                 <TextBox Grid.Column="3" x:Name="txtSearch" Margin="0,0,8,0"/>
                 <ComboBox Grid.Column="4" x:Name="cboFilterSchoolYear" Margin="0,0,8,0" DisplayMemberPath="Name" SelectedValuePath="Id"/>
                 <ComboBox Grid.Column="5" x:Name="cboFilterGrade" Margin="0,0,8,0" DisplayMemberPath="Code" SelectedValuePath="Id"/>
-                <Button Grid.Column="6" x:Name="btnRefresh" Content="Refresh" Width="90" Style="{StaticResource GhostButton}"/>
+                <Button Grid.Column="6" x:Name="btnRefresh" Content="Refresh" Width="80" Style="{StaticResource RefreshActionButton}"/>
             </Grid>
         </Border>
 
@@ -115,8 +115,8 @@
                     <WrapPanel Margin="0,12,0,0">
                         <Button x:Name="btnAdd" Content="Create" Width="90"/>
                         <Button x:Name="btnSave" Content="Save" Width="90"/>
-                        <Button x:Name="btnArchiveRestore" Content="Archive/Restore" Width="130" Style="{StaticResource GhostButton}"/>
-                        <Button x:Name="btnClear" Content="Clear" Width="90" Style="{StaticResource GhostButton}"/>
+                        <Button x:Name="btnArchiveRestore" Content="Archive/Restore" Width="120" Style="{StaticResource ArchiveActionButton}"/>
+                        <Button x:Name="btnClear" Content="Clear" Width="80" Style="{StaticResource CancelActionButton}"/>
                     </WrapPanel>
                 </StackPanel>
             </Border>

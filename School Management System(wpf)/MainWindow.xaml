@@ -1,4 +1,4 @@
-﻿<Window x:Class="School_Management_System.MainWindow"
+<Window x:Class="School_Management_System.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="clr-namespace:School_Management_System.Controls"
@@ -8,23 +8,44 @@
         WindowState="Maximized">
     <Window.Resources>
         <Style x:Key="MainShellButton" TargetType="Button" BasedOn="{StaticResource GhostButton}">
-            <Setter Property="MinHeight" Value="34"/>
-            <Setter Property="Padding" Value="14,7"/>
+            <Setter Property="MinHeight" Value="30"/>
+            <Setter Property="Padding" Value="12,5"/>
             <Setter Property="Margin" Value="0,0,6,0"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="Background" Value="#FFFFFF"/>
-            <Setter Property="BorderBrush" Value="#D7DFEA"/>
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Foreground" Value="#334155"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#F8FAFC"/>
+                    <Setter Property="BorderBrush" Value="#94A3B8"/>
+                </Trigger>
+            </Style.Triggers>
         </Style>
         <Style x:Key="MainShellPrimaryButton" TargetType="Button" BasedOn="{StaticResource MainShellButton}">
             <Setter Property="Background" Value="#2563EB"/>
             <Setter Property="BorderBrush" Value="#2563EB"/>
             <Setter Property="Foreground" Value="White"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#1D4ED8"/>
+                    <Setter Property="BorderBrush" Value="#1D4ED8"/>
+                    <Setter Property="Foreground" Value="White"/>
+                </Trigger>
+            </Style.Triggers>
         </Style>
         <Style x:Key="MainShellDangerButton" TargetType="Button" BasedOn="{StaticResource MainShellButton}">
             <Setter Property="Background" Value="#FEF2F2"/>
-            <Setter Property="BorderBrush" Value="#FECACA"/>
+            <Setter Property="BorderBrush" Value="#FCA5A5"/>
             <Setter Property="Foreground" Value="#B91C1C"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#FEE2E2"/>
+                    <Setter Property="BorderBrush" Value="#F87171"/>
+                    <Setter Property="Foreground" Value="#991B1B"/>
+                </Trigger>
+            </Style.Triggers>
         </Style>
         <Style x:Key="DashboardMetroTileButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
             <Setter Property="BorderThickness" Value="1"/>
@@ -32,6 +53,7 @@
             <Setter Property="Padding" Value="0"/>
             <Setter Property="Margin" Value="0"/>
             <Setter Property="MinHeight" Value="92"/>
+            <Setter Property="VerticalAlignment" Value="Stretch"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -40,16 +62,17 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4"
                                 SnapsToDevicePixels="True">
                             <ContentPresenter HorizontalAlignment="Stretch"
                                               VerticalAlignment="Stretch"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Root" Property="Opacity" Value="0.92"/>
+                                <Setter TargetName="Root" Property="Opacity" Value="0.93"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Root" Property="Opacity" Value="0.84"/>
+                                <Setter TargetName="Root" Property="Opacity" Value="0.86"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter TargetName="Root" Property="Opacity" Value="0.5"/>
@@ -634,8 +657,8 @@
                             </Grid.RowDefinitions>
 
                             <DockPanel Grid.Row="0" Margin="0,0,0,10">
-                                <Button x:Name="btnStudentsRefresh" Content="Refresh" Width="100" Style="{StaticResource GhostButton}" DockPanel.Dock="Right"/>
-                                <Button x:Name="btnStudentsNew" Content="New Student" Width="120" Style="{StaticResource SecondaryActionButton}" DockPanel.Dock="Right" Margin="0,0,8,0"/>
+                                <Button x:Name="btnStudentsRefresh" Content="Refresh" Width="80" Style="{StaticResource RefreshActionButton}" DockPanel.Dock="Right"/>
+                                <Button x:Name="btnStudentsNew" Content="New Student" Width="120" Style="{StaticResource NewActionButton}" DockPanel.Dock="Right" Margin="0,0,8,0"/>
                                 <controls:SectionHeader Title="Students"
                                                         Subtitle="Manage student identity records, linked accounts, and status"/>
                             </DockPanel>
@@ -829,7 +852,7 @@
                                                     <Button x:Name="btnStudentAccounts" Content="Accounts" Width="92" Style="{StaticResource SecondaryActionButton}" Margin="0,0,8,8"/>
                                                 </WrapPanel>
                                                 <WrapPanel>
-                                                    <Button x:Name="btnStudentArchiveRestore" Content="Archive/Restore" Width="128" Style="{StaticResource SecondaryActionButton}" Margin="0,0,8,8"/>
+                                                    <Button x:Name="btnStudentArchiveRestore" Content="Archive/Restore" Width="120" Style="{StaticResource ArchiveActionButton}" Margin="0,0,8,8"/>
                                                     <Button x:Name="btnStudentResetAccount" Content="Reset Account" Width="118" Style="{StaticResource SecondaryActionButton}" Margin="0,0,8,8"/>
                                                     <Button x:Name="btnStudentHistory" Content="History" Width="84" Style="{StaticResource SecondaryActionButton}" Margin="0,0,8,8"/>
                                                     <Button x:Name="btnStudentAccountHistory" Content="Account History" Width="118" Style="{StaticResource SecondaryActionButton}" Margin="0,0,8,8"/>
@@ -862,8 +885,8 @@
                             </Grid.RowDefinitions>
 
                             <DockPanel Grid.Row="0" Margin="0,0,0,10">
-                                <Button x:Name="btnTeachersRefresh" Content="Refresh" Width="100" Style="{StaticResource GhostButton}" DockPanel.Dock="Right"/>
-                                <Button x:Name="btnTeachersNew" Content="New Teacher" Width="120" Style="{StaticResource SecondaryActionButton}" DockPanel.Dock="Right" Margin="0,0,8,0"/>
+                                <Button x:Name="btnTeachersRefresh" Content="Refresh" Width="80" Style="{StaticResource RefreshActionButton}" DockPanel.Dock="Right"/>
+                                <Button x:Name="btnTeachersNew" Content="New Teacher" Width="120" Style="{StaticResource NewActionButton}" DockPanel.Dock="Right" Margin="0,0,8,0"/>
                                 <controls:SectionHeader Title="Teachers"
                                                         Subtitle="Manage teacher identity records and linked non-login accounts"/>
                             </DockPanel>
@@ -1040,7 +1063,7 @@
                                                     <Button x:Name="btnTeacherClear" Content="Clear" Width="84" Style="{StaticResource SecondaryActionButton}" Margin="0,0,8,8"/>
                                                 </WrapPanel>
                                                 <WrapPanel>
-                                                    <Button x:Name="btnTeacherArchiveRestore" Content="Archive/Restore" Width="128" Style="{StaticResource SecondaryActionButton}" Margin="0,0,8,8"/>
+                                                    <Button x:Name="btnTeacherArchiveRestore" Content="Archive/Restore" Width="120" Style="{StaticResource ArchiveActionButton}" Margin="0,0,8,8"/>
                                                     <Button x:Name="btnTeacherResetPassword" Content="Reset Password" Width="128" Style="{StaticResource SecondaryActionButton}" Margin="0,0,8,8"/>
                                                     <Button x:Name="btnTeacherHistory" Content="History" Width="84" Style="{StaticResource SecondaryActionButton}" Margin="0,0,8,8"/>
                                                 </WrapPanel>
@@ -1377,7 +1400,7 @@
                                             <TextBox x:Name="txtReportPresetName" Width="190" Margin="0,0,8,0" ToolTip="Preset name"/>
                                             <Button x:Name="btnReportPresetApply" Content="Apply" Width="78" Style="{StaticResource GhostButton}" Margin="0,0,8,0"/>
                                             <Button x:Name="btnReportPresetSave" Content="Save Preset" Width="108" Style="{StaticResource GhostButton}" Margin="0,0,8,0"/>
-                                            <Button x:Name="btnReportPresetDelete" Content="Delete Preset" Width="116" Style="{StaticResource DangerGhostButton}"/>
+                                            <Button x:Name="btnReportPresetDelete" Content="Delete Preset" Width="110" Style="{StaticResource DeleteActionButton}"/>
                                         </StackPanel>
                                     </DockPanel>
 
@@ -1776,8 +1799,8 @@
                             <!-- Header -->
                             <DockPanel Grid.Row="0" Margin="0,0,0,8">
                                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
-                                    <Button x:Name="btnStudentDetailEdit" Content="Edit" Width="90" Style="{StaticResource SecondaryActionButton}" Margin="0,0,8,0"/>
-                                    <Button x:Name="btnStudentDetailDelete" Content="Delete" Width="90" Style="{StaticResource DangerGhostButton}"/>
+                                    <Button x:Name="btnStudentDetailEdit" Content="Edit" Width="80" Style="{StaticResource EditActionButton}" Margin="0,0,8,0"/>
+                                    <Button x:Name="btnStudentDetailDelete" Content="Delete" Width="80" Style="{StaticResource DeleteActionButton}"/>
                                 </StackPanel>
                                 <controls:SectionHeader x:Name="sectionStudentDetailHeader"
                                                         Title="Student Details"
@@ -1793,7 +1816,7 @@
                                 <DockPanel>
                                     <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
                                         <Button x:Name="btnStudentDetailSave" Content="Save Changes" Width="120" Margin="0,0,8,0"/>
-                                        <Button x:Name="btnStudentDetailCancelEdit" Content="Cancel" Width="90" Style="{StaticResource GhostButton}"/>
+                                        <Button x:Name="btnStudentDetailCancelEdit" Content="Cancel" Width="80" Style="{StaticResource CancelActionButton}"/>
                                     </StackPanel>
                                     <TextBlock Text="You are in edit mode. Modify fields below and save when ready."
                                                VerticalAlignment="Center"
@@ -1904,8 +1927,8 @@
                                         <DockPanel Grid.Row="0" Margin="0,0,0,6">
                                             <Button x:Name="btnSDManageRequirements"
                                                     Content="Manage"
-                                                    Width="90"
-                                                    Style="{StaticResource GhostButton}"
+                                                    Width="80"
+                                                    Style="{StaticResource ManageActionButton}"
                                                     DockPanel.Dock="Right"/>
                                             <controls:SectionHeader Title="Requirements"
                                                                     Subtitle="Document submission checklist and verification status"
@@ -2013,7 +2036,7 @@
 
                             <DockPanel Grid.Row="0" Margin="0,0,0,8">
                                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" VerticalAlignment="Center">
-                                    <Button x:Name="btnSGRefresh" Content="Refresh" Width="90" Style="{StaticResource GhostButton}" Margin="0,0,8,0"/>
+                                    <Button x:Name="btnSGRefresh" Content="Refresh" Width="80" Style="{StaticResource RefreshActionButton}" Margin="0,0,8,0"/>
                                     <Button x:Name="btnSGSave" Content="Save Grades" Width="108"/>
                                 </StackPanel>
                                 <controls:SectionHeader Title="Student Grades"
@@ -2169,8 +2192,8 @@
 
                             <DockPanel Grid.Row="0" Margin="0,0,0,8">
                                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
-                                    <Button x:Name="btnTDEdit" Content="Edit" Width="90" Style="{StaticResource SecondaryActionButton}" Margin="0,0,8,0"/>
-                                    <Button x:Name="btnTDDelete" Content="Delete" Width="90" Style="{StaticResource DangerGhostButton}"/>
+                                    <Button x:Name="btnTDEdit" Content="Edit" Width="80" Style="{StaticResource EditActionButton}" Margin="0,0,8,0"/>
+                                    <Button x:Name="btnTDDelete" Content="Delete" Width="80" Style="{StaticResource DeleteActionButton}"/>
                                 </StackPanel>
                                 <controls:SectionHeader x:Name="sectionTDHeader"
                                                         Title="Teacher Details"
@@ -2186,7 +2209,7 @@
                                 <DockPanel>
                                     <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
                                         <Button x:Name="btnTDSave" Content="Save Changes" Width="120" Margin="0,0,8,0"/>
-                                        <Button x:Name="btnTDCancelEdit" Content="Cancel" Width="90" Style="{StaticResource GhostButton}"/>
+                                        <Button x:Name="btnTDCancelEdit" Content="Cancel" Width="80" Style="{StaticResource CancelActionButton}"/>
                                     </StackPanel>
                                     <TextBlock Text="You are in edit mode. Modify fields below and save when ready."
                                                VerticalAlignment="Center" Style="{StaticResource Text.Caption}"/>

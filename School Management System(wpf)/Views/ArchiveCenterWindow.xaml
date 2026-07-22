@@ -40,7 +40,7 @@
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
                     <Button x:Name="btnRestore" Content="Restore Selected" Width="132"/>
-                    <Button x:Name="btnRefresh" Content="Refresh" Width="92" Style="{StaticResource GhostButton}"/>
+                    <Button x:Name="btnRefresh" Content="Refresh" Width="80" Style="{StaticResource RefreshActionButton}"/>
                 </StackPanel>
             </DockPanel>
         </Border>

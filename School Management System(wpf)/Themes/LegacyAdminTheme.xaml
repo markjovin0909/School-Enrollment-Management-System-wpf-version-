@@ -109,27 +109,34 @@
         <Setter Property="BorderBrush" Value="Transparent"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Foreground" Value="{StaticResource Legacy.TextBrush}"/>
-        <Setter Property="Padding" Value="10,6"/>
+        <Setter Property="Padding" Value="10,5"/>
         <Setter Property="Margin" Value="0,0,6,0"/>
-        <Setter Property="MinHeight" Value="32"/>
+        <Setter Property="MinHeight" Value="30"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
-                    <Border Background="{TemplateBinding Background}"
+                    <Border x:Name="Root"
+                            Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="10">
-                        <ContentPresenter HorizontalAlignment="Center"
-                                          VerticalAlignment="Center"
-                                          Margin="{TemplateBinding Padding}"/>
+                            CornerRadius="8"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="#E8F0FF"/>
-                            <Setter Property="BorderBrush" Value="#CFE0FF"/>
+                            <Setter TargetName="Root" Property="Background" Value="#E8F0FF"/>
+                            <Setter TargetName="Root" Property="BorderBrush" Value="#CFE0FF"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter Property="Background" Value="#DCE8FF"/>
+                            <Setter TargetName="Root" Property="Background" Value="#DCE8FF"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Root" Property="Opacity" Value="0.5"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -138,40 +145,52 @@
     </Style>
 
     <Style x:Key="LegacyButton" TargetType="Button">
-        <Setter Property="Foreground" Value="{StaticResource Legacy.TextBrush}"/>
-        <Setter Property="Background" Value="{StaticResource Legacy.PanelAltBrush}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource Legacy.BorderBrush}"/>
+        <Setter Property="Foreground" Value="#334155"/>
+        <Setter Property="Background" Value="#FFFFFF"/>
+        <Setter Property="BorderBrush" Value="#CBD5E1"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="Padding" Value="12,7"/>
-        <Setter Property="Margin" Value="0,0,8,8"/>
-        <Setter Property="MinHeight" Value="34"/>
-        <Setter Property="MinWidth" Value="88"/>
+        <Setter Property="Padding" Value="12,5"/>
+        <Setter Property="Margin" Value="0,0,6,0"/>
+        <Setter Property="MinHeight" Value="30"/>
+        <Setter Property="MinWidth" Value="72"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
-                    <Border Background="{TemplateBinding Background}"
+                    <Border x:Name="Root"
+                            Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="10">
-                        <ContentPresenter HorizontalAlignment="Center"
+                            CornerRadius="8"
+                            Padding="{TemplateBinding Padding}"
+                            SnapsToDevicePixels="True">
+                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                           VerticalAlignment="Center"
-                                          Margin="{TemplateBinding Padding}"/>
+                                          RecognizesAccessKey="True"/>
                     </Border>
                     <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="#EDF4FF"/>
-                            <Setter Property="BorderBrush" Value="#CFE0FF"/>
-                        </Trigger>
-                        <Trigger Property="IsPressed" Value="True">
-                            <Setter Property="Background" Value="#E2ECFF"/>
-                        </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
-                            <Setter Property="Opacity" Value="0.62"/>
+                            <Setter TargetName="Root" Property="Opacity" Value="0.5"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#F8FAFC"/>
+                <Setter Property="BorderBrush" Value="#94A3B8"/>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="#F1F5F9"/>
+                <Setter Property="BorderBrush" Value="#64748B"/>
+            </Trigger>
+        </Style.Triggers>
     </Style>
 
     <Style x:Key="LegacyPrimaryButton" TargetType="Button" BasedOn="{StaticResource LegacyButton}">
@@ -182,33 +201,116 @@
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Background" Value="{StaticResource Legacy.AccentHoverBrush}"/>
                 <Setter Property="BorderBrush" Value="{StaticResource Legacy.AccentHoverBrush}"/>
+                <Setter Property="Foreground" Value="White"/>
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
                 <Setter Property="Background" Value="#1E40AF"/>
                 <Setter Property="BorderBrush" Value="#1E40AF"/>
+                <Setter Property="Foreground" Value="White"/>
             </Trigger>
         </Style.Triggers>
     </Style>
 
     <Style x:Key="LegacyDangerButton" TargetType="Button" BasedOn="{StaticResource LegacyButton}">
         <Setter Property="Background" Value="#FEF2F2"/>
-        <Setter Property="BorderBrush" Value="#FECACA"/>
+        <Setter Property="BorderBrush" Value="#FCA5A5"/>
         <Setter Property="Foreground" Value="#B91C1C"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#FEE2E2"/>
+                <Setter Property="BorderBrush" Value="#F87171"/>
+                <Setter Property="Foreground" Value="#991B1B"/>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="#DC2626"/>
+                <Setter Property="BorderBrush" Value="#DC2626"/>
+                <Setter Property="Foreground" Value="White"/>
+            </Trigger>
+        </Style.Triggers>
     </Style>
 
-    <Style TargetType="Button" BasedOn="{StaticResource LegacyButton}"/>
+    <Style TargetType="Button" BasedOn="{StaticResource LegacyPrimaryButton}"/>
     <Style x:Key="GhostButton" TargetType="Button" BasedOn="{StaticResource LegacyButton}"/>
     <Style x:Key="DangerGhostButton" TargetType="Button" BasedOn="{StaticResource LegacyDangerButton}"/>
-    <Style x:Key="SecondaryActionButton" TargetType="Button" BasedOn="{StaticResource LegacyButton}"/>
+    <Style x:Key="SecondaryActionButton" TargetType="Button" BasedOn="{StaticResource LegacyButton}">
+        <Setter Property="Background" Value="#EFF6FF"/>
+        <Setter Property="BorderBrush" Value="#93C5FD"/>
+        <Setter Property="Foreground" Value="#1D4ED8"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#DBEAFE"/>
+                <Setter Property="BorderBrush" Value="#60A5FA"/>
+                <Setter Property="Foreground" Value="#1E40AF"/>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="#2563EB"/>
+                <Setter Property="BorderBrush" Value="#2563EB"/>
+                <Setter Property="Foreground" Value="White"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
     <Style x:Key="PageActionButton" TargetType="Button" BasedOn="{StaticResource LegacyPrimaryButton}"/>
-    <Style x:Key="WorkbenchPrimaryActionButton" TargetType="Button" BasedOn="{StaticResource LegacyPrimaryButton}"/>
-    <Style x:Key="WorkbenchSecondaryActionButton" TargetType="Button" BasedOn="{StaticResource LegacyButton}"/>
-    <Style x:Key="WorkbenchDangerActionButton" TargetType="Button" BasedOn="{StaticResource LegacyDangerButton}"/>
+    <Style x:Key="EditActionButton" TargetType="Button" BasedOn="{StaticResource SecondaryActionButton}"/>
+    <Style x:Key="DeleteActionButton" TargetType="Button" BasedOn="{StaticResource DangerGhostButton}"/>
+    <Style x:Key="ManageActionButton" TargetType="Button" BasedOn="{StaticResource LegacyButton}">
+        <Setter Property="Background" Value="#ECFEFF"/>
+        <Setter Property="BorderBrush" Value="#67E8F9"/>
+        <Setter Property="Foreground" Value="#0E7490"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#CFFAFE"/>
+                <Setter Property="BorderBrush" Value="#22D3EE"/>
+                <Setter Property="Foreground" Value="#155E75"/>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="#0891B2"/>
+                <Setter Property="BorderBrush" Value="#0891B2"/>
+                <Setter Property="Foreground" Value="White"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    <Style x:Key="RefreshActionButton" TargetType="Button" BasedOn="{StaticResource GhostButton}"/>
+    <Style x:Key="CancelActionButton" TargetType="Button" BasedOn="{StaticResource GhostButton}"/>
+    <Style x:Key="SaveActionButton" TargetType="Button" BasedOn="{StaticResource LegacyPrimaryButton}"/>
+    <Style x:Key="NewActionButton" TargetType="Button" BasedOn="{StaticResource LegacyPrimaryButton}"/>
+    <Style x:Key="ArchiveActionButton" TargetType="Button" BasedOn="{StaticResource LegacyButton}">
+        <Setter Property="Background" Value="#FFFBEB"/>
+        <Setter Property="BorderBrush" Value="#FCD34D"/>
+        <Setter Property="Foreground" Value="#B45309"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#FEF3C7"/>
+                <Setter Property="BorderBrush" Value="#FBBF24"/>
+                <Setter Property="Foreground" Value="#92400E"/>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="#D97706"/>
+                <Setter Property="BorderBrush" Value="#D97706"/>
+                <Setter Property="Foreground" Value="White"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    <Style x:Key="WorkbenchPrimaryActionButton" TargetType="Button" BasedOn="{StaticResource LegacyPrimaryButton}">
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="Margin" Value="0,0,0,5"/>
+    </Style>
+    <Style x:Key="WorkbenchSecondaryActionButton" TargetType="Button" BasedOn="{StaticResource SecondaryActionButton}">
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="Margin" Value="0,0,0,5"/>
+    </Style>
+    <Style x:Key="WorkbenchDangerActionButton" TargetType="Button" BasedOn="{StaticResource DangerGhostButton}">
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="Margin" Value="0,0,0,5"/>
+    </Style>
 
-    <Style x:Key="OpsModuleButton" TargetType="Button" BasedOn="{StaticResource LegacyButton}">
+    <Style x:Key="OpsModuleButton" TargetType="Button" BasedOn="{StaticResource SecondaryActionButton}">
         <Setter Property="HorizontalContentAlignment" Value="Left"/>
-        <Setter Property="Padding" Value="14,10"/>
-        <Setter Property="Margin" Value="0,0,0,8"/>
+        <Setter Property="Padding" Value="12,8"/>
+        <Setter Property="Margin" Value="0,0,0,6"/>
+        <Setter Property="MinHeight" Value="34"/>
         <Setter Property="Background" Value="#F8FAFC"/>
     </Style>
 
@@ -364,44 +466,125 @@
     </Style>
 
     <Style x:Key="LegacyDataGridColumnHeader" TargetType="DataGridColumnHeader">
-        <Setter Property="Background" Value="#F8FAFC"/>
-        <Setter Property="Foreground" Value="{StaticResource Legacy.HeaderBrush}"/>
+        <Setter Property="Background" Value="#EEF4FB"/>
+        <Setter Property="Foreground" Value="#1E3A5F"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
-        <Setter Property="Padding" Value="12,10"/>
-        <Setter Property="BorderBrush" Value="{StaticResource Legacy.BorderBrush}"/>
-        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Padding" Value="14,0"/>
+        <Setter Property="Height" Value="42"/>
+        <Setter Property="BorderBrush" Value="#D8E3EF"/>
+        <Setter Property="BorderThickness" Value="0,0,1,0"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="DataGridColumnHeader">
+                    <Grid Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
+                        <Border x:Name="HeaderBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <Border Height="2"
+                                VerticalAlignment="Bottom"
+                                Background="#C5D8EE"
+                                Opacity="0.9"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="HeaderBorder" Property="Background" Value="#E2EDF8"/>
+                        </Trigger>
+                        <Trigger Property="SortDirection" Value="Ascending">
+                            <Setter TargetName="HeaderBorder" Property="Background" Value="#E2EDF8"/>
+                        </Trigger>
+                        <Trigger Property="SortDirection" Value="Descending">
+                            <Setter TargetName="HeaderBorder" Property="Background" Value="#E2EDF8"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
     <Style TargetType="DataGrid">
         <Setter Property="Background" Value="White"/>
-        <Setter Property="BorderBrush" Value="{StaticResource Legacy.BorderBrush}"/>
+        <Setter Property="BorderBrush" Value="#D0DBE8"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="GridLinesVisibility" Value="Horizontal"/>
-        <Setter Property="HorizontalGridLinesBrush" Value="#EDF2F7"/>
-        <Setter Property="VerticalGridLinesBrush" Value="#EDF2F7"/>
+        <Setter Property="HorizontalGridLinesBrush" Value="#E9EFF6"/>
+        <Setter Property="VerticalGridLinesBrush" Value="Transparent"/>
         <Setter Property="HeadersVisibility" Value="Column"/>
         <Setter Property="RowBackground" Value="White"/>
-        <Setter Property="AlternatingRowBackground" Value="#FAFCFF"/>
+        <Setter Property="AlternatingRowBackground" Value="#F7FBFE"/>
         <Setter Property="RowHeight" Value="38"/>
+        <Setter Property="ColumnHeaderHeight" Value="42"/>
+        <Setter Property="FontSize" Value="12.5"/>
         <Setter Property="AutoGenerateColumns" Value="True"/>
         <Setter Property="CanUserAddRows" Value="False"/>
         <Setter Property="CanUserDeleteRows" Value="False"/>
+        <Setter Property="CanUserResizeRows" Value="False"/>
+        <Setter Property="IsReadOnly" Value="True"/>
         <Setter Property="SelectionMode" Value="Single"/>
         <Setter Property="SelectionUnit" Value="FullRow"/>
+        <Setter Property="EnableRowVirtualization" Value="True"/>
+        <Setter Property="RowHeaderWidth" Value="0"/>
         <Setter Property="ColumnHeaderStyle" Value="{StaticResource LegacyDataGridColumnHeader}"/>
+        <Setter Property="CellStyle">
+            <Setter.Value>
+                <Style TargetType="DataGridCell">
+                    <Setter Property="Padding" Value="14,6"/>
+                    <Setter Property="BorderThickness" Value="0"/>
+                    <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="DataGridCell">
+                                <Border Background="{TemplateBinding Background}"
+                                        Padding="{TemplateBinding Padding}"
+                                        SnapsToDevicePixels="True">
+                                    <ContentPresenter VerticalAlignment="Center"/>
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                    <Style.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="Foreground" Value="{StaticResource Legacy.TextBrush}"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </Setter.Value>
+        </Setter>
         <Setter Property="RowStyle">
             <Setter.Value>
                 <Style TargetType="DataGridRow">
-                    <Setter Property="BorderThickness" Value="0"/>
+                    <Setter Property="BorderThickness" Value="3,0,0,0"/>
+                    <Setter Property="BorderBrush" Value="Transparent"/>
                     <Setter Property="SnapsToDevicePixels" Value="True"/>
+                    <Setter Property="MinHeight" Value="38"/>
                     <Style.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="#F4F8FF"/>
+                            <Setter Property="Background" Value="#F0F7FF"/>
+                            <Setter Property="BorderBrush" Value="#B7D0EC"/>
                         </Trigger>
                         <Trigger Property="IsSelected" Value="True">
-                            <Setter Property="Background" Value="#E8F0FF"/>
+                            <Setter Property="Background" Value="#E4F0FC"/>
+                            <Setter Property="BorderBrush" Value="{StaticResource Legacy.AccentBrush}"/>
                             <Setter Property="Foreground" Value="{StaticResource Legacy.TextBrush}"/>
                         </Trigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSelected" Value="True"/>
+                                <Condition Property="IsMouseOver" Value="True"/>
+                            </MultiTrigger.Conditions>
+                            <Setter Property="Background" Value="#D7EAFB"/>
+                        </MultiTrigger>
                     </Style.Triggers>
                 </Style>
             </Setter.Value>

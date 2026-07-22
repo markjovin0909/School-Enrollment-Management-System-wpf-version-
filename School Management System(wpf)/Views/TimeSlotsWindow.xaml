@@ -40,9 +40,9 @@
         <Border x:Name="searchPanel" Grid.Row="1" Grid.Column="0" Style="{StaticResource CardPanel}" Margin="0,0,8,8" Padding="10">
             <DockPanel>
                 <Button x:Name="btnNew" Content="New Time Slot" Width="116" DockPanel.Dock="Left" Margin="0,0,8,0"/>
-                <Button x:Name="btnListEdit" Content="Edit" Width="80" DockPanel.Dock="Left" Margin="0,0,8,0"/>
-                <Button x:Name="btnListDelete" Content="Delete" Width="80" DockPanel.Dock="Left" Margin="0,0,8,0" Style="{StaticResource GhostButton}"/>
-                <Button x:Name="btnRefresh" Content="Refresh" Width="90" DockPanel.Dock="Right" Style="{StaticResource GhostButton}"/>
+                <Button x:Name="btnListEdit" Content="Edit" Width="80" DockPanel.Dock="Left" Margin="0,0,8,0" Style="{StaticResource EditActionButton}"/>
+                <Button x:Name="btnListDelete" Content="Delete" Width="80" DockPanel.Dock="Left" Margin="0,0,8,0" Style="{StaticResource DeleteActionButton}"/>
+                <Button x:Name="btnRefresh" Content="Refresh" Width="80" DockPanel.Dock="Right" Style="{StaticResource RefreshActionButton}"/>
                 <DockPanel Margin="0,0,8,0">
                     <TextBlock Text="{StaticResource Icon.Search}" Style="{StaticResource GlyphIcon}" Margin="0,0,8,0"/>
                     <TextBox x:Name="txtSearch" Width="280"/>
@@ -105,8 +105,8 @@
                     <WrapPanel Margin="0,12,0,0">
                         <Button x:Name="btnAdd" Content="Create" Width="90"/>
                         <Button x:Name="btnSave" Content="Save" Width="90"/>
-                        <Button x:Name="btnDelete" Content="Delete" Width="90" Style="{StaticResource GhostButton}"/>
-                        <Button x:Name="btnClear" Content="Clear" Width="90" Style="{StaticResource GhostButton}"/>
+                        <Button x:Name="btnDelete" Content="Delete" Width="80" Style="{StaticResource DeleteActionButton}"/>
+                        <Button x:Name="btnClear" Content="Clear" Width="80" Style="{StaticResource CancelActionButton}"/>
                         <Button x:Name="btnExport" Content="Export" Width="90" Style="{StaticResource GhostButton}"/>
                     </WrapPanel>
                 </StackPanel>

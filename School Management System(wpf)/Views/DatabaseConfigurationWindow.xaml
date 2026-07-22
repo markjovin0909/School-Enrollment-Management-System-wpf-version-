@@ -51,7 +51,7 @@
         </GroupBox>
 
         <DockPanel Grid.Row="6" Style="{StaticResource DialogActionBar}" LastChildFill="False">
-            <Button x:Name="btnClose" Content="Close" Width="110" Style="{StaticResource SecondaryActionButton}" DockPanel.Dock="Right" Margin="8,0,0,0"/>
+            <Button x:Name="btnClose" Content="Close" Width="90" Style="{StaticResource CancelActionButton}" DockPanel.Dock="Right" Margin="8,0,0,0"/>
             <Button x:Name="btnSave" Content="Save Configuration" Width="152" DockPanel.Dock="Right"/>
         </DockPanel>
     </Grid>

@@ -36,8 +36,8 @@
                     <ComboBox x:Name="cboTeacherStatus" Width="130"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
-                    <Button x:Name="btnRefresh" Content="Refresh" Width="96" Style="{StaticResource GhostButton}"/>
-                    <Button x:Name="btnClose" Content="Close" Width="90" Style="{StaticResource GhostButton}"/>
+                    <Button x:Name="btnRefresh" Content="Refresh" Width="80" Style="{StaticResource RefreshActionButton}"/>
+                    <Button x:Name="btnClose" Content="Close" Width="80" Style="{StaticResource CancelActionButton}"/>
                 </StackPanel>
             </DockPanel>
         </Border>

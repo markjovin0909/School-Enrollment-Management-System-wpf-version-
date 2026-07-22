@@ -31,7 +31,7 @@
         </Grid.RowDefinitions>
 
         <DockPanel Grid.Row="0" Margin="0,0,0,12">
-            <Button x:Name="btnClose" Content="Close" Width="80" Style="{StaticResource GhostButton}" DockPanel.Dock="Right"/>
+            <Button x:Name="btnClose" Content="Close" Width="80" Style="{StaticResource CancelActionButton}" DockPanel.Dock="Right"/>
             <StackPanel>
                 <TextBlock x:Name="txtTitle" Text="Section Students" FontSize="18" FontWeight="SemiBold"/>
                 <TextBlock x:Name="txtSubtitle" Text="Students enrolled in this section" Opacity="0.7" Margin="0,4,0,0"/>

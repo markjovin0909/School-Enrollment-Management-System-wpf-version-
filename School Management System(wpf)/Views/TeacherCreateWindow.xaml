@@ -173,7 +173,7 @@
             </Border>
 
             <DockPanel Grid.Row="5" Style="{StaticResource DialogActionBar}" LastChildFill="False">
-                <Button x:Name="btnCancel" Content="Cancel" Width="110" Style="{StaticResource SecondaryActionButton}" DockPanel.Dock="Right" Margin="8,0,0,0"/>
+                <Button x:Name="btnCancel" Content="Cancel" Width="90" Style="{StaticResource CancelActionButton}" DockPanel.Dock="Right" Margin="8,0,0,0"/>
                 <Button x:Name="btnCreate" Content="Create Teacher" Width="132" DockPanel.Dock="Right" Margin="8,0,0,0"/>
                 <Button x:Name="btnClear" Content="Clear" Width="100" Style="{StaticResource GhostButton}" DockPanel.Dock="Right"/>
             </DockPanel>

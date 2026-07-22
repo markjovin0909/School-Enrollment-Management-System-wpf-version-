@@ -37,7 +37,7 @@
                     <TextBlock x:Name="lblViewing" VerticalAlignment="Center" Margin="0,0,12,0" FontWeight="SemiBold"/>
                     <TextBox x:Name="txtSearch" Width="320"/>
                 </StackPanel>
-                <Button x:Name="btnRefresh" Content="Refresh" Width="110" Style="{StaticResource GhostButton}" DockPanel.Dock="Right"/>
+                <Button x:Name="btnRefresh" Content="Refresh" Width="88" Style="{StaticResource RefreshActionButton}" DockPanel.Dock="Right"/>
             </DockPanel>
         </Border>
 

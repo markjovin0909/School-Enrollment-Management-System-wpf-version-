@@ -43,7 +43,7 @@
                 <ComboBox Grid.Column="1" x:Name="cboGradeLevel" Margin="0,0,8,0" DisplayMemberPath="Code" SelectedValuePath="Id"/>
                 <ComboBox Grid.Column="2" x:Name="cboSection" Margin="0,0,8,0" DisplayMemberPath="Name" SelectedValuePath="Id"/>
                 <TextBox Grid.Column="3" x:Name="txtSearch" Margin="0,0,8,0"/>
-                <Button Grid.Column="4" x:Name="btnRefresh" Content="Refresh" Width="90" Style="{StaticResource GhostButton}"/>
+                <Button Grid.Column="4" x:Name="btnRefresh" Content="Refresh" Width="80" Style="{StaticResource RefreshActionButton}"/>
             </Grid>
         </Border>
 
@@ -86,8 +86,8 @@
                         <Button x:Name="btnGenerate" Content="Generate" Width="96"/>
                         <Button x:Name="btnSave" Content="Edit Selected" Width="104"/>
                         <Button x:Name="btnFinalize" Content="Finalize" Width="90" Style="{StaticResource GhostButton}"/>
-                        <Button x:Name="btnDelete" Content="Delete" Width="90" Style="{StaticResource GhostButton}"/>
-                        <Button x:Name="btnClear" Content="Clear" Width="90" Style="{StaticResource GhostButton}"/>
+                        <Button x:Name="btnDelete" Content="Delete" Width="80" Style="{StaticResource DeleteActionButton}"/>
+                        <Button x:Name="btnClear" Content="Clear" Width="80" Style="{StaticResource CancelActionButton}"/>
                     </WrapPanel>
                 </StackPanel>
             </Border>
