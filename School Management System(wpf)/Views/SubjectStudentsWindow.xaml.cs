@@ -79,7 +79,11 @@ namespace School_Management_System.Views
             _gradeLevels = _gradeLevelService.GetAll().ToList();
 
             cboSchoolYear.ItemsSource = _schoolYears;
-            cboSchoolYear.SelectedIndex = _schoolYears.Count > 0 ? 0 : -1;
+            cboSchoolYear.SelectedValue = SchoolYearSelectionHelper.ResolveActiveId(_schoolYears, _schoolYearService);
+            if (cboSchoolYear.SelectedValue == null)
+            {
+                cboSchoolYear.SelectedIndex = _schoolYears.Count > 0 ? 0 : -1;
+            }
 
             cboGradeLevel.ItemsSource = _gradeLevels.OrderBy(x => x.Code).ToList();
             cboGradeLevel.SelectedIndex = _gradeLevels.Count > 0 ? 0 : -1;

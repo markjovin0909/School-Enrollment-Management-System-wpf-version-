@@ -104,7 +104,7 @@ namespace School_Management_System.Views
             cboSchoolYear.DisplayMemberPath = nameof(SchoolYearFilterItem.Name);
             cboSchoolYear.SelectedValuePath = nameof(SchoolYearFilterItem.Id);
             cboSchoolYear.ItemsSource = schoolYearFilters;
-            cboSchoolYear.SelectedIndex = 0;
+            cboSchoolYear.SelectedValue = SchoolYearSelectionHelper.ResolveActiveId(_schoolYears, _schoolYearService) ?? 0L;
 
             cboTeacherStatus.ItemsSource = new[]
             {

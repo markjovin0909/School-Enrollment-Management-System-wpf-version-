@@ -236,7 +236,11 @@ namespace School_Management_System.Views
             _suppressEvents = true;
 
             cboSchoolYear.ItemsSource = _schoolYears;
-            cboSchoolYear.SelectedIndex = _schoolYears.Count > 0 ? 0 : -1;
+            cboSchoolYear.SelectedValue = SchoolYearSelectionHelper.ResolveActiveId(_schoolYears, _schoolYearService);
+            if (cboSchoolYear.SelectedValue == null)
+            {
+                cboSchoolYear.SelectedIndex = _schoolYears.Count > 0 ? 0 : -1;
+            }
 
             cboGradeLevel.ItemsSource = _gradeLevels;
             cboGradeLevel.SelectedIndex = _gradeLevels.Count > 0 ? 0 : -1;
@@ -245,7 +249,7 @@ namespace School_Management_System.Views
             cboAdviser.SelectedValue = 0L;
 
             cboFilterSchoolYear.ItemsSource = _schoolYears;
-            cboFilterSchoolYear.SelectedIndex = -1;
+            cboFilterSchoolYear.SelectedValue = SchoolYearSelectionHelper.ResolveActiveId(_schoolYears, _schoolYearService);
 
             cboFilterGrade.ItemsSource = _gradeLevels;
             cboFilterGrade.SelectedIndex = -1;
@@ -579,7 +583,11 @@ namespace School_Management_System.Views
             _selectedId = null;
             txtName.Clear();
             txtCapacity.Clear();
-            cboSchoolYear.SelectedIndex = _schoolYears.Count > 0 ? 0 : -1;
+            cboSchoolYear.SelectedValue = SchoolYearSelectionHelper.ResolveActiveId(_schoolYears, _schoolYearService);
+            if (cboSchoolYear.SelectedValue == null)
+            {
+                cboSchoolYear.SelectedIndex = _schoolYears.Count > 0 ? 0 : -1;
+            }
             cboGradeLevel.SelectedIndex = _gradeLevels.Count > 0 ? 0 : -1;
             cboAdviser.SelectedValue = 0L;
             gridSections.SelectedItem = null;

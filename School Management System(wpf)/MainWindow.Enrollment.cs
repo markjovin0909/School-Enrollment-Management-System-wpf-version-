@@ -146,7 +146,7 @@ namespace School_Management_System
             cboEnrollSchoolYear.ItemsSource = _schoolYears;
             cboEnrollSchoolYear.DisplayMemberPath = "Name";
             var savedSchoolYear = ResolveById(_schoolYears, GetSessionStateLong("enrollment.schoolYearId"), x => x.Id);
-            cboEnrollSchoolYear.SelectedItem = savedSchoolYear ?? _schoolYears.FirstOrDefault(x => x.Status == SchoolYearStatus.ACTIVE) ?? _schoolYears.FirstOrDefault();
+            cboEnrollSchoolYear.SelectedItem = savedSchoolYear ?? SchoolYearSelectionHelper.ResolveActive(_schoolYears, _schoolYearService);
 
             cboEnrollCurriculum.ItemsSource = _curricula;
             cboEnrollCurriculum.DisplayMemberPath = "Name";

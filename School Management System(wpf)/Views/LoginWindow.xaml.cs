@@ -88,25 +88,12 @@ namespace School_Management_System.Views
             try
             {
                 PersistRememberedUsername(username);
-                SetStatus("Sign-in successful", "Opening notifications...", "SUCCESS");
+                SetStatus("Sign-in successful", "Opening dashboard...", "SUCCESS");
 
                 var app = Application.Current;
-                var previousShutdownMode = app.ShutdownMode;
-                app.ShutdownMode = ShutdownMode.OnExplicitShutdown;
-
-                var notifications = new NotificationsWindow(result.Data) { Owner = this };
-                if (notifications.ShowDialog() != true)
-                {
-                    app.ShutdownMode = previousShutdownMode;
-                    SetStatus("Sign-in paused", "Notifications were closed before entering the dashboard.", "WARNING");
-                    return;
-                }
-
                 var main = new MainWindow(result.Data);
                 app.MainWindow = main;
                 main.Show();
-
-                app.ShutdownMode = previousShutdownMode;
                 Close();
             }
             catch (Exception ex)

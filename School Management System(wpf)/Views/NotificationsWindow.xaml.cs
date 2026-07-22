@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using School_Management_System.Models;
@@ -11,7 +10,6 @@ namespace School_Management_System.Views
     {
         private readonly User _currentUser;
         private readonly NotificationCenterService _notificationCenterService = new();
-        private readonly AnnouncementService _announcementService = new();
 
         public NotificationsWindow(User currentUser)
         {
@@ -19,15 +17,8 @@ namespace School_Management_System.Views
 
             InitializeComponent();
 
-            txtSubtitle.Text = $"Review updates for {_currentUser.Username} before entering the dashboard.";
-
-            btnRefresh.Click += (_, _) => LoadNotifications();
+            btnDismiss.Click += (_, _) => Close();
             btnMarkAllRead.Click += (_, _) => MarkAllRead();
-            btnContinue.Click += (_, _) =>
-            {
-                DialogResult = true;
-                Close();
-            };
 
             LoadNotifications();
         }
@@ -37,7 +28,7 @@ namespace School_Management_System.Views
             try
             {
                 var notifications = _notificationCenterService
-                    .GetForUser(_currentUser, includeRead: true, take: 200)
+                    .GetForUser(_currentUser, includeRead: false, take: 50)
                     .Select(x => new NotificationRow
                     {
                         CreatedAtText = x.CreatedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm"),
@@ -47,40 +38,34 @@ namespace School_Management_System.Views
                     })
                     .ToList();
 
-                var announcements = _announcementService
-                    .GetAll()
-                    .OrderByDescending(x => x.PostedAt)
-                    .Take(100)
-                    .Select(x => new AnnouncementRow
-                    {
-                        PostedAtText = x.PostedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm"),
-                        Title = x.Title,
-                        Audience = x.AudienceType.ToString(),
-                        Body = x.Body
-                    })
-                    .ToList();
+                listNotifications.ItemsSource = notifications;
+                txtUnreadCount.Text = notifications.Count.ToString();
 
-                gridNotifications.ItemsSource = notifications;
-                gridAnnouncements.ItemsSource = announcements;
-
-                txtUnreadCount.Text = _notificationCenterService.GetUnreadCount(_currentUser).ToString();
-
-                if (notifications.Count == 0 && announcements.Count == 0)
+                if (notifications.Count == 0)
                 {
-                    ShowStatus("No pending updates", "There are no notifications or announcements to review right now.");
-                }
-                else if (notifications.Count == 0)
-                {
-                    ShowStatus("Announcements loaded", $"{announcements.Count} announcement(s) available. No direct notifications are pending.");
+                    txtSubtitle.Text = "You are all caught up.";
+                    txtEmptyState.Visibility = Visibility.Visible;
+                    listNotifications.Visibility = Visibility.Collapsed;
+                    btnMarkAllRead.IsEnabled = false;
                 }
                 else
                 {
-                    HideStatus();
+                    txtSubtitle.Text = notifications.Count == 1
+                        ? "You have 1 new notification."
+                        : $"You have {notifications.Count} new notifications.";
+                    txtEmptyState.Visibility = Visibility.Collapsed;
+                    listNotifications.Visibility = Visibility.Visible;
+                    btnMarkAllRead.IsEnabled = true;
                 }
             }
             catch (Exception ex)
             {
-                ShowStatus("Notification load failed", ex.Message);
+                txtSubtitle.Text = "Could not load notifications.";
+                txtEmptyState.Text = ex.Message;
+                txtEmptyState.Visibility = Visibility.Visible;
+                listNotifications.Visibility = Visibility.Collapsed;
+                txtUnreadCount.Text = "—";
+                btnMarkAllRead.IsEnabled = false;
             }
         }
 
@@ -90,26 +75,16 @@ namespace School_Management_System.Views
             {
                 _notificationCenterService.MarkAllAsRead(_currentUser);
                 LoadNotifications();
-                ShowStatus("Notifications updated", "All visible notifications have been marked as read.");
             }
             catch (Exception ex)
             {
-                ShowStatus("Mark all read failed", ex.Message);
+                MessageBox.Show(
+                    this,
+                    $"Unable to mark notifications as read.{Environment.NewLine}{ex.Message}",
+                    "Notifications",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
             }
-        }
-
-        private void ShowStatus(string title, string message)
-        {
-            txtStatusTitle.Text = title;
-            txtStatusMessage.Text = message;
-            statusBanner.Visibility = Visibility.Visible;
-        }
-
-        private void HideStatus()
-        {
-            statusBanner.Visibility = Visibility.Collapsed;
-            txtStatusTitle.Text = string.Empty;
-            txtStatusMessage.Text = string.Empty;
         }
 
         private sealed class NotificationRow
@@ -118,14 +93,6 @@ namespace School_Management_System.Views
             public string Category { get; set; } = string.Empty;
             public string Title { get; set; } = string.Empty;
             public string Message { get; set; } = string.Empty;
-        }
-
-        private sealed class AnnouncementRow
-        {
-            public string PostedAtText { get; set; } = string.Empty;
-            public string Title { get; set; } = string.Empty;
-            public string Audience { get; set; } = string.Empty;
-            public string Body { get; set; } = string.Empty;
         }
     }
 }

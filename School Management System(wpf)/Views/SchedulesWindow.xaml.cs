@@ -258,7 +258,7 @@ namespace School_Management_System.Views
             cboFilterSchoolYear.ItemsSource = BuildSchoolYearFilter();
             cboFilterSchoolYear.DisplayMemberPath = "Name";
             cboFilterSchoolYear.SelectedValuePath = "Id";
-            cboFilterSchoolYear.SelectedValue = 0L;
+            cboFilterSchoolYear.SelectedValue = SchoolYearSelectionHelper.ResolveActiveId(_schoolYears, _schoolYearService) ?? 0L;
 
             cboFilterTeacher.ItemsSource = BuildTeacherFilter();
             cboFilterTeacher.DisplayMemberPath = "Name";

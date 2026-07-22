@@ -133,6 +133,26 @@ namespace School_Management_System
             InitializeEnrollmentDetailsTab();
 
             LoadDashboard();
+
+            // After the dashboard is on screen, surface unread notifications as a simple popup.
+            ContentRendered += OnMainWindowContentRenderedShowNotifications;
+        }
+
+        private void OnMainWindowContentRenderedShowNotifications(object? sender, EventArgs e)
+        {
+            ContentRendered -= OnMainWindowContentRenderedShowNotifications;
+
+            try
+            {
+                // Always surface the simple post-login popup on the dashboard.
+                // Empty state is handled inside the window when there are no unread items.
+                var notifications = new NotificationsWindow(_currentUser) { Owner = this };
+                notifications.ShowDialog();
+            }
+            catch
+            {
+                // Notification popup must never block access to the dashboard.
+            }
         }
 
         private void ApplyBranding()

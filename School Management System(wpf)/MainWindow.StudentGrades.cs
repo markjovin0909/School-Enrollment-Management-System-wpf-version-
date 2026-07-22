@@ -191,7 +191,7 @@ namespace School_Management_System
                 _sgStudentGrades = _sgGradeService.GetAll().ToList();
                 _sgGradeComponents = _sgGradeComponentService.GetAll().Where(x => x.IsActive).ToList();
 
-                var preferredSchoolYearId = _sgSchoolYears.FirstOrDefault(x => x.Status == SchoolYearStatus.ACTIVE)?.Id ?? _sgSchoolYears.FirstOrDefault()?.Id ?? 0L;
+                var preferredSchoolYearId = SchoolYearSelectionHelper.ResolveActiveId(_sgSchoolYears, _schoolYearService) ?? 0L;
 
                 _sgSuppressEvents = true;
 

@@ -57,7 +57,7 @@ namespace School_Management_System.Views
             cboSourceYear.ItemsSource = years.ToList();
             cboTargetYear.ItemsSource = years.ToList();
 
-            var active = years.FirstOrDefault(y => y.Status == SchoolYearStatus.ACTIVE);
+            var active = SchoolYearSelectionHelper.ResolveActive(years, _schoolYearService);
             if (active != null)
             {
                 cboSourceYear.SelectedValue = active.Id;

@@ -109,7 +109,17 @@ namespace School_Management_System.Views
             cboSchoolYear.DisplayMemberPath = nameof(LookupItem.Label);
             cboSchoolYear.SelectedValuePath = nameof(LookupItem.Id);
             cboSchoolYear.ItemsSource = schoolYears;
-            cboSchoolYear.SelectedIndex = schoolYears.Count > 0 ? 0 : -1;
+            var activeSchoolYearId = SchoolYearSelectionHelper.ResolveActiveId(
+                _schoolYearService.GetAll().Where(sy => !sy.IsArchived),
+                _schoolYearService);
+            if (activeSchoolYearId.HasValue && schoolYears.Any(x => x.Id == activeSchoolYearId.Value))
+            {
+                cboSchoolYear.SelectedValue = activeSchoolYearId.Value;
+            }
+            else
+            {
+                cboSchoolYear.SelectedIndex = schoolYears.Count > 0 ? 0 : -1;
+            }
 
             var curricula = _curriculumService.GetAll()
                 .Where(c => c.IsActive)

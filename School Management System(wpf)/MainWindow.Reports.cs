@@ -131,7 +131,11 @@ namespace School_Management_System
             cboReportSchoolYear.DisplayMemberPath = "Name";
             var schoolYearOptions = cboReportSchoolYear.ItemsSource.Cast<SchoolYear>().ToList();
             var selectedSchoolYear = ResolveById(schoolYearOptions, GetSessionStateLong("reports.schoolYearId"), x => x.Id);
-            cboReportSchoolYear.SelectedItem = selectedSchoolYear ?? schoolYearOptions.FirstOrDefault();
+            var defaultSchoolYear = SchoolYearSelectionHelper.ResolveActive(_schoolYears, _schoolYearService);
+            var defaultSchoolYearOption = defaultSchoolYear == null
+                ? null
+                : schoolYearOptions.FirstOrDefault(x => x.Id == defaultSchoolYear.Id);
+            cboReportSchoolYear.SelectedItem = selectedSchoolYear ?? defaultSchoolYearOption ?? schoolYearOptions.FirstOrDefault();
 
             cboReportGrade.ItemsSource = _gradeLevels.Prepend(new GradeLevel { Id = 0, Code = "All", Name = "All" });
             cboReportGrade.DisplayMemberPath = "Code";
@@ -213,7 +217,11 @@ namespace School_Management_System
                 ?? ReportEnrollmentSummary;
 
             var schoolYearOptions = cboReportSchoolYear.ItemsSource?.Cast<SchoolYear>().ToList() ?? new List<SchoolYear>();
-            cboReportSchoolYear.SelectedItem = ResolveById(schoolYearOptions, preset.SchoolYearId, x => x.Id) ?? schoolYearOptions.FirstOrDefault();
+            var presetSchoolYear = ResolveById(schoolYearOptions, preset.SchoolYearId, x => x.Id);
+            var activeSchoolYearOption = SchoolYearSelectionHelper.ResolveActive(_schoolYears, _schoolYearService) is SchoolYear activeYear
+                ? schoolYearOptions.FirstOrDefault(x => x.Id == activeYear.Id)
+                : null;
+            cboReportSchoolYear.SelectedItem = presetSchoolYear ?? activeSchoolYearOption ?? schoolYearOptions.FirstOrDefault();
 
             var gradeOptions = cboReportGrade.ItemsSource?.Cast<GradeLevel>().ToList() ?? new List<GradeLevel>();
             cboReportGrade.SelectedItem = ResolveById(gradeOptions, preset.GradeId, x => x.Id) ?? gradeOptions.FirstOrDefault();
